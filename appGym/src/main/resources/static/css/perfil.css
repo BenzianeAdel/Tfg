@@ -1,0 +1,82 @@
+.container {
+    max-width: 800px;
+    background: #ceaf34;
+    color: white;
+    margin: 0 auto;
+    padding: 20px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+span{
+    color:black;
+}
+
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.info {
+    flex: 1;
+}
+
+.info h2 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.form-group span {
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+    background-color: #f7f7f7;
+    border: none;
+    border-radius: 5px;
+}
+.actions {
+    margin-top: 30px;
+    color:white;
+}
+
+.btn {
+    padding: 10px 20px;
+    background-color: #ff9900;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+a{
+    color:white;
+}
+.edit-icon {
+    display: inline-block;
+    margin-right: 5px;
+}
+.delete-icon {
+    display: inline-block;
+    margin-right: 5px;
+}
+.edit-icon i {
+    color: blue;
+}
+.delete-icon i {
+    color: red;
+}

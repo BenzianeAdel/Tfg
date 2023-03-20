@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+  <link rel="stylesheet" th:href="@{/css/login.css}" />
+</head>
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/users}">Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" th:href="@{/login}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/registro}">Registro</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container">
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <h1 class="text-center">Iniciar Sesión</h1>
+      <form th:action="@{/login}" method="post" class="login-form">
+        <div class="form-group">
+          <label for="eMail">Usuario</label>
+          <input type="text" class="form-control" id="eMail" name="eMail" placeholder="Ingresa tu usuario">
+        </div>
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+      </form>
+    </div>
+  </div>
+</div>
+<footer style="position: absolute;bottom: 0;width: 100%;height: 60px;background-color: #333;color: black;" class="footer mt-4 py-3 bg-light text-white">
+  <div class="container-fluid text-center">
+    <span style="color:black;">Gimnasio Fit &copy; 2023</span>
+  </div>
+</footer>
+</body>
+</html>

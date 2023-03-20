@@ -1,0 +1,40 @@
+/* Estilos personalizados para la plantilla Thymeleaf de gimnasio */
+
+/* Estilos de la barra de navegación */
+.navbar {
+    background-color: #262626;
+    color: #f2f2f2;
+}
+
+/* Estilos del título de la página */
+.page-title {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: bold;
+    font-size: 3rem;
+    color: #262626;
+}
+
+/* Estilos de las imágenes de clases de gimnasia */
+.gym-class-img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 2rem;
+}
+
+/* Estilos del formulario de contacto */
+.contact-form {
+    margin-top: 2rem;
+    padding: 2rem;
+    background-color: #f2f2f2;
+    border-radius: 0.5rem;
+}
+
+.contact-form label {
+    font-weight: bold;
+}
+
+.contact-form button {
+    margin-top: 1rem;
+}

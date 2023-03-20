@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contáctanos</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{css/contact.css}">
+</head>
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gimnasio Fit</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/users}">Usuarios</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/registro}">Registro</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h1 class="text-center">Contáctanos</h1>
+    <hr>
+    <form action="#" method="post" >
+        <div class="form-group">
+            <label for="name">Nombre:</label>
+            <input type="text" class="form-control" id="name" >
+        </div>
+        <div class="form-group">
+            <label for="email">Correo electrónico:</label>
+            <input type="email" class="form-control" id="email">
+        </div>
+        <div class="form-group">
+            <label for="subject">Asunto:</label>
+            <input type="text" class="form-control" id="subject">
+        </div>
+        <div class="form-group">
+            <label for="message">Mensaje:</label>
+            <textarea class="form-control" id="message" rows="5"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>
+<footer style="position: relative;bottom: 0;width: 100%;height: 60px;background-color: #333;color: black;" class="footer mt-4 py-3 bg-light text-white">
+    <div class="container-fluid text-center">
+        <span style="color:black;">Gimnasio Fit &copy; 2023</span>
+    </div>
+</footer>
+</body>
+</html>

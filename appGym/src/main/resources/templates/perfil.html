@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi perfil</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <link rel="stylesheet" th:href="@{/css/perfil.css}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" />
+
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+  <!-- DateTimePicker CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" />
+
+
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Moment.js JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+  <!-- DateTimePicker JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js"></script>
+
+</head>
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/users}">Usuarios</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/login}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/registro}">Registro</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+&nbsp;
+<div class="container">
+  <div class="header">
+    <h1>Mi perfil</h1>
+  </div>
+  <div class="content">
+    <div class="info">
+      <h2>Datos personales</h2>
+      <div class="form-group">
+        <label>Nombre completo:</label>
+        <span th:text="${usuario.nombre}"></span>
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico:</label>
+        <span th:text="${usuario.email}"></span>
+      </div>
+      <div class="form-group">
+        <label>Apellidos:</label>
+        <span th:text="${usuario.apellidos}"></span>
+      </div>
+      <div class="form-group">
+        <label>Fecha de nacimiento:</label>
+        <span th:text="${usuario.fechaNacimiento}"></span>
+      </div>
+      <div class="form-group">
+        <label>Password:</label>
+        <span th:text="${usuario.password}"></span>
+      </div>
+    </div>
+    <div class="actions">
+      <a href="#" th:title="Editar" class="edit-icon" data-toggle="modal" data-target="#editarUsuarioModal" th:data-id="${usuario.id}">
+        <i class="fas fa-edit"></i>
+      </a>
+      <a href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarAdminModal" th:data-id="${usuario.id}">
+        <i class="fas fa-trash"></i>
+      </a>
+    </div>
+  </div>
+</div>
+<!-- Eliminar usuario Modal -->
+<div class="modal fade" id="eliminarAdminModal" tabindex="-1" role="dialog" aria-labelledby="eliminarAdminModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eliminarAdminModalLabel">¿Estás seguro de que deseas eliminar este usuario?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="eliminarAdminForm" method="POST" th:object="${usuarioData}" action="/perfil/eliminar">
+        <div class="modal-body">
+          <input type="hidden" th:field="*{id}" name="usuarioIdEliminar" id="usuarioIdEliminar"/>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<!-- Editar usuario Modal -->
+<div class="modal fade" id="editarUsuarioModal" tabindex="-1" role="dialog" aria-labelledby="editarUsuarioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editarUsuarioModalLabel">Editar Usuario</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" th:action="@{/perfil/editar}" th:object="${usuarioData}">
+          <input type="hidden" th:field="*{id}" name="usuarioId" id="usuarioId"/>
+          <div class="form-group">
+            <label for="nombreEditar" class="col-form-label">Nombre:</label>
+            <input type="text" th:field="*{nombre}" class="form-control" id="nombreEditar">
+          </div>
+          <div class="form-group">
+            <label for="apellidosEditar" class="col-form-label">Apellidos:</label>
+            <input type="text" th:field="*{apellidos}" class="form-control" id="apellidosEditar">
+          </div>
+          <div class="form-group">
+            <label for="emailEditar" class="col-form-label">Email:</label>
+            <input type="email" th:field="*{eMail}" class="form-control" id="emailEditar">
+          </div>
+          <div class="form-group">
+            <label for="passwordEditar">Contraseña:</label>
+            <input type="text" th:field="*{password}" class="form-control" id="passwordEditar" name="passwordEditar" required/>
+          </div>
+          <div class="form-group">
+            <label for="birthdate">Fecha de Nacimiento:</label>
+            <div class="input-group date" id="birthdatePicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" id="editarFechaNacimiento" name="birthdate" data-target="#birthdatePicker" th:field="*{fechaNacimiento}" required />
+              <div class="input-group-append" data-target="#birthdatePicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#birthdatePicker').datetimepicker({
+      format: 'L',
+      defaultDate: moment().subtract(18, 'years'),
+      maxDate: moment().subtract(18, 'years')
+    });
+
+    $('#birthdatePicker').on('change.datetimepicker', function(e) {
+      $('#birthdate').val(e.date.format('L'));
+    });
+  });
+  $('#editarUsuarioModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var userId = button.data('id');
+    $.ajax({
+      url: '/usuarios/' + userId,
+      type: 'GET',
+      dataType: 'json',
+      success: function(usuario) {
+        $('#usuarioId').val(usuario.id);
+        $('#nombreEditar').val(usuario.nombre);
+        $('#apellidosEditar').val(usuario.apellidos);
+        $('#emailEditar').val(usuario.email);
+        $('#passwordEditar').val(usuario.password);
+        var fechaNacimiento = moment(usuario.fechaNacimiento).format('MM/DD/YYYY');
+        $('#editarFechaNacimiento').val(fechaNacimiento);
+      },
+      error: function() {
+        alert('Error al obtener los detalles del usuario.');
+      }
+    });
+  });
+  $('#eliminarAdminModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget); // Botón que abrió el modal
+    var usuarioId = button.data('id'); // Extraer información de atributos de datos
+    var modal = $(this);
+    modal.find('.modal-body #usuarioIdEliminar').val(usuarioId); // Establecer el valor del campo oculto
+  });
+</script>
+</body>
+</html>

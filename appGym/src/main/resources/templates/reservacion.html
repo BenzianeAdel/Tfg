@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Calendario de reservas</title>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/es.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<div class='container'>
+    <br/>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reservaModal">
+        Reservar
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" id="reservaModal" tabindex="-1" role="dialog" aria-labelledby="reservaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reservaModalLabel">Reservar fecha y hora</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="/reservar">
+                        <div class="form-group">
+                            <label for="monitor-select">Selecciona un monitor:</label>
+                            <select class="form-control" id="monitor-select">
+                                <option>Monitor 1</option>
+                                <option>Monitor 2</option>
+                                <option>Monitor 3</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaHora">Fecha y Hora</label>
+                            <div id="calendar" style="border: none;font-size: 8px;"></div>
+                            <input type="text" class="form-control" id="fechaHora" name="fechaHora" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Reservar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var eventos = {
+        'Monitor 1': [
+            {
+                title: 'Reserva 1',
+                start: '2023-03-14T10:00:00',
+                end: '2023-03-14T11:00:00'
+            },
+            {
+                title: 'Reserva 2',
+                start: '2023-03-15T14:00:00',
+                end: '2023-03-15T15:00:00'
+            }
+        ],
+        'Monitor 2': [
+            {
+                title: 'Reserva 1',
+                start: '2023-03-14T14:00:00',
+                end: '2023-03-14T15:00:00'
+            },
+            {
+                title: 'Reserva 2',
+                start: '2023-03-16T12:00:00',
+                end: '2023-03-16T13:00:00'
+            }
+        ],
+        'Monitor 3': [
+            {
+                title: 'Reserva 1',
+                start: '2023-03-15T10:00:00',
+                end: '2023-03-15T11:00:00'
+            },
+            {
+                title: 'Reserva 2',
+                start: '2023-03-16T10:00:00',
+                end: '2023-03-16T11:00:00'
+            }
+        ]
+    };
+    $(document).ready(function() {
+        var calendar = $('#calendar').fullCalendar({
+            locale: 'es',
+            editable:true,
+            header:{
+                left:'prev,next today',
+                center:'title',
+                right:'month,agendaWeek,agendaDay'
+            },
+            selectable:true,
+            selectHelper:true,
+            selectConstraint: 'businessHours',
+            eventConstraint: 'businessHours',
+            businessHours:{
+                dow:[1,2,3,4,5],
+                start:'08:00',
+                end:'18:00'
+            },
+            events: [],
+            select: function(start, end, jsEvent, view) {
+                // Comprobar si la fecha seleccionada es posterior a la fecha actual
+                if (moment(start).isAfter(moment())) {
+                    var fechaHora = moment(start).format('YYYY-MM-DD HH:mm');
+                    $('#fechaHora').val(fechaHora);
+                    $('#reservaModal').modal('show');
+                    calendar.find('.fc-selected').removeClass('fc-selected');
+                    $(this).addClass('fc-selected');
+                } else {
+                    // La fecha seleccionada es anterior o igual a la fecha actual
+                    alert('No puedes seleccionar una fecha anterior o igual a hoy.');
+                    $('#calendar').fullCalendar('unselect');
+                }
+            }
+        });
+
+        $('#monitor-select').change(function() {
+            var monitor = $(this).val();
+            calendar.fullCalendar('removeEvents');
+            calendar.fullCalendar('addEventSource', eventos[monitor]);
+        });
+    });
+</script>
+
+</body>
+</html>

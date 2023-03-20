@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ranking de usuarios</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+  <style>
+    /* Estilos generales */
+    body {
+      background-color: #f2f2f2;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 50px;
+      color: #666;
+    }
+
+    /* Estilos para la tabla */
+    table {
+      border-collapse: collapse;
+      width: 80%;
+      margin: 0 auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 20px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #008080;
+      color: #fff;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    /* Estilos para los botones */
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #008080;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 30px;
+      margin-bottom: 50px;
+    }
+
+    .btn:hover {
+      background-color: #005353;
+    }
+  </style>
+</head>
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/users}">Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/login}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/registro}">Registro</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<h1>Ranking de usuarios</h1>
+<table>
+  <thead>
+  <tr>
+    <th>Posición</th>
+    <th>Nombre de usuario</th>
+    <th>Apellidos</th>
+    <th>Email</th>
+    <th>Puntuación</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="user, iterStat : ${users}">
+    <td th:text="${iterStat.count}"></td>
+    <td th:text="${user.nombre}"></td>
+    <td th:text="${user.apellidos}"></td>
+    <td th:text="${user.email}"></td>
+    <td th:text="${user.puntos}"></td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

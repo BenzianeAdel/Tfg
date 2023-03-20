@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Registro</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" />
+
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
+  <!-- DateTimePicker CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" />
+
+  <!-- jQuery JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Moment.js JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+
+  <!-- DateTimePicker JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js"></script>
+</head>
+
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/users}">Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/login}">Login</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" th:href="@{/registro}">Registro</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div class="container-fluid">
+
+  <div class="row justify-content-center mb-3">
+    <div class="col-auto">
+      <h2>Registro nuevo cliente</h2>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-6">
+      <form method="post" th:action="@{/registro}" th:object="${usuarioData}">
+        <div class="row justify-content-center">
+          <div class="col-6">
+            <div class="form-group">
+              <label for="eMail">Correo electrónico</label>
+              <input id="eMail" class="form-control" name="eMail" placeholder="Correo electrónico"
+                     type="text" th:field="*{eMail}" required/>
+            </div>
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input id="nombre" class="form-control" name="nombre" placeholder="Nombre" type="text"
+                     th:field="*{nombre}"/>
+            </div>
+            <div class="form-group">
+              <label for="nombre">Apellidos</label>
+              <input id="apellidos" class="form-control" name="apellidos" placeholder="Apellidos" type="text"
+                     th:field="*{apellidos}"/>
+            </div>
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <input id="password" class="form-control" name="password" placeholder="Contraseña"
+                     type="password" th:field="*{password}" required/>
+            </div>
+            <div class="form-group">
+              <label for="birthdate">Fecha de Nacimiento:</label>
+              <div class="input-group date" id="birthdatePicker" data-target-input="nearest">
+                <input type="text"  class="form-control datetimepicker-input" id="birthdate" name="birthdate" data-target="#birthdatePicker" th:field="*{fechaNacimiento}" required />
+                <div class="input-group-append" data-target="#birthdatePicker" data-toggle="datetimepicker">
+                  <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Registro</button>
+            <a class="btn btn-link" href="/login">Ir a login</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row mt-3 justify-content-center">
+    <div class="col-9">
+      <div th:object="${usuarioData}">
+        <ul th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+          <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+        </ul>
+      </div>
+      <ul th:if="${error != null}" class="alert alert-danger">
+        <li th:text="${error}"></li>
+      </ul>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#birthdatePicker').datetimepicker({
+      format: 'L',
+      defaultDate: moment().subtract(18, 'years'),
+      maxDate: moment().subtract(18, 'years')
+    });
+
+    $('#birthdatePicker').on('change.datetimepicker', function(e) {
+      $('#birthdate').val(e.date.format('L'));
+    });
+  });
+</script>
+<footer style="position: absolute;bottom: 0;width: 100%;height: 60px;background-color: #333;color: black;" class="footer mt-4 py-3 bg-light text-white">
+  <div class="container-fluid text-center">
+    <span style="color:black;">Gimnasio Fit &copy; 2023</span>
+  </div>
+</footer>
+</body>
+</html>

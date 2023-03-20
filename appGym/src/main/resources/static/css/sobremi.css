@@ -1,0 +1,88 @@
+/* Estilos para la imagen de perfil */
+.img-responsive {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+
+/* Estilos para la lista de redes sociales */
+ul.list-inline {
+    margin: 0;
+    padding: 0;
+}
+
+ul.list-inline li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+ul.list-inline li:last-child {
+    margin-right: 0;
+}
+
+ul.list-inline li a {
+    color: #fff;
+    font-size: 1.5em;
+    display: block;
+    height: 40px;
+    width: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+}
+
+ul.list-inline li a i {
+    margin-top: 8px;
+}
+
+/* Estilos para los títulos */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+}
+
+h1 {
+    font-size: 48px;
+    margin-top: 50px;
+}
+
+h2 {
+    font-size: 36px;
+    margin-top: 30px;
+}
+
+h3 {
+    font-size: 24px;
+    margin-top: 20px;
+}
+
+h4 {
+    font-size: 18px;
+    margin-top: 15px;
+}
+
+h5 {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+h6 {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Estilos generales */
+.container {
+    max-width: 960px;
+    margin: auto;
+}
+
+.text-center {
+    text-align: center;
+}
+
+hr {
+    border: none;
+    border-top: 2px solid #eee;
+    margin: 40px 0;
+}

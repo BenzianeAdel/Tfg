@@ -1,0 +1,40 @@
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 40px;
+}
+
+h1 {
+    font-size: 48px;
+    margin-top: 50px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input, textarea {
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    border-bottom: 2px solid #ccc;
+}
+
+textarea {
+    resize: none;
+    height: 200px;
+}
+
+.btn {
+    background-color: #1abc9c;
+    border-color: #1abc9c;
+}
+
+.btn:hover {
+    background-color: #16a085;
+    border-color: #16a085;
+}

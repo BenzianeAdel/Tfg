@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Buscar y Ver Amigos</title>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+  <style>
+    /* Estilos para la página */
+    .tab {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+    .tab button {
+      background-color: inherit;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+    }
+    .tab button.active {
+      background-color: #e3bb34;
+      color: white;
+    }
+    .tabcontent {
+      display: none;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-top: none;
+    }
+    h1 {
+      color: #333;
+      font-size: 28px;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      width: 70%;
+      margin-right: 10px;
+    }
+    button[type="submit"] {
+      padding: 10px 20px;
+      background-color: #e1be31;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      display: flex;
+      align-items: center;
+    }
+    .nombre {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .seguir {
+      margin-left: auto;
+    }
+    .seguir button {
+      padding: 10px 20px;
+      background-color: #4caf9d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .dejar {
+      margin-left: auto;
+    }
+    .dejar button {
+      padding: 10px 20px;
+      background-color: #de1616;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .puntos {
+      margin-left: auto;
+    }
+    .puntos button {
+      padding: 10px 20px;
+      background-color: #b9ff79;
+      color: #000000;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">Inicio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/users}">Usuarios</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/login}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/registro}">Registro</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div style="max-width: 800px; margin: 0 auto;">
+  <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'Buscar')">Buscar Amigos</button>
+    <button class="tablinks" onclick="openTab(event, 'MisAmigos')">Mis Amigos</button>
+    <button class="tablinks" onclick="openTab(event, 'ranking')">Ver Ranking Amigos</button>
+  </div>
+
+  <div id="Buscar" class="tabcontent">
+    <h1>Buscar Amigos</h1>
+    <form method="GET" action="/amigos">
+      <input type="text" name="busca" id="busca" placeholder="Nombre del amigo">
+      <button type="submit">Buscar</button>
+      <button type="submit" class="btn btn-secondary mb-2" onclick="limpiarDatos()">Limpiar</button>
+    </form>
+    <ul>
+      <li th:each="usuario : ${usuarios}">
+        <div>
+          <span class="nombre" th:text="${usuario.nombre}"></span>
+          <br>
+          <span th:text="${usuario.apellidos}"></span>
+        </div>
+        <div class="seguir">
+          <button type="button" th:onclick="'seguirUsuario(\'/amigos/seguir/'+${usuario.id}+'\')'">Seguir</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div id="MisAmigos" class="tabcontent">
+    <h1>Mis Amigos</h1>
+    <ul>
+      <li th:each="usuario : ${amigos}">
+        <div>
+          <span class="nombre" th:text="${usuario.nombre}"></span>
+          <br>
+          <span th:text="${usuario.apellidos}"></span>
+        </div>
+        <div class="dejar">
+          <button type="button" th:onclick="'dejarUsuario(\'/amigos/dejar/'+${usuario.id}+'\')'">Dejar</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div id="ranking" class="tabcontent">
+    <h1>Mis Amigos</h1>
+    <ul>
+      <li th:each="usuario ,iterStat: ${friends}">
+        <div>
+          <span class="nombre" th:text="${iterStat.count}+'º'+${usuario.nombre}"></span>
+          <br>
+          <span th:text="${usuario.apellidos}"></span>
+        </div>
+        <div class="puntos">
+          <button type="button">[[${usuario.puntos}]] puntos</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  /* Funciones para activar las pestañas */
+  function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+      tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+  }
+
+  /* Activar la primera pestaña al cargar la página */
+  document.getElementsByClassName("tablinks")[0].click();
+  function limpiarDatos(){
+    window.location='/amigos';
+  }
+  function seguirUsuario(url) {
+    fetch(url, {
+      method: 'POST'
+    }).then((res) => location.reload());
+  }
+  function dejarUsuario(url) {
+    fetch(url, {
+      method: 'DELETE'
+    }).then((res) => location.reload());
+  }
+</script>
+</body>
+</html>
