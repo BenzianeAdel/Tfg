@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Lista de Actividades</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
     <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.print.min.css' rel='stylesheet' media='print' />
     <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js'></script>
@@ -10,6 +11,7 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/es.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/actividad.css}" />
 </head>
@@ -25,7 +27,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Inicio</a>
+                    <a class="nav-link" th:href="@{/home}">Home</a>
                 </li>
                 <li class="nav-item active">
                     <a class="nav-link" th:href="@{/actividades}">Actividades</a>
@@ -33,32 +35,28 @@
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
                 </li>
-                <li class="nav-item">
+                <li th:if="${usuario.getTipoUser()== esAdmin}" class="nav-item">
                     <a class="nav-link" th:href="@{/users}">Usuarios</a>
                 </li>
-                <li class="nav-item">
+                <li th:if="${usuario.getTipoUser()== esCliente}" class="nav-item">
                     <a class="nav-link" th:href="@{/amigos}">Amigos</a>
                 </li>
-                <li class="nav-item">
+                <li th:if="${usuario.getTipoUser()!= esCliente}" class="nav-item">
                     <a class="nav-link" th:href="@{/ranking}">Ranking</a>
                 </li>
-                <li class="nav-item">
+                <li th:if="${usuario.getTipoUser()!= esAdmin}" class="nav-item">
                     <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/login}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/registro}">Registro</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/acerca}">Acerda de</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/sobremi}">Sobre Mi</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/contacto}">Contacto</a>
+                <li class="nav-item dropleft">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        [[${usuario.nombre}]]
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/perfil">Cuenta</a>
+                        <a class="dropdown-item" href="/logout">
+                            Cerrar sesión [[${usuario.email}]]
+                        </a>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -70,18 +68,25 @@
             <a class="nav-link" href="#actividades" data-toggle="tab">Actividades</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#destacadas" data-toggle="tab">Destacadas</a>
+            <a class="nav-link" href="#rutinas" data-toggle="tab">Rutinas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#destacadas" data-toggle="tab">Rutinas Destacadas</a>
         </li>
         <li th:if="${tipo == true}" class="nav-item">
-            <a class="nav-link" href="#misactividades" data-toggle="tab">Mis Actividades</a>
+            <a class="nav-link" href="#misactividades" data-toggle="tab">Mis Reservas</a>
         </li>
-        <li th:if="${tipo == false}" class="nav-item">
-            <a class="nav-link" href="#misactividadesmonitor" data-toggle="tab">Actividades Clientes</a>
+        <li th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" class="nav-item">
+            <a class="nav-link" href="#misactividadesmonitor" data-toggle="tab">Reservas con Cliente</a>
+        </li>
+        <li th:if="${usuario.getTipoUser() == esAdmin}" class="nav-item">
+            <a class="nav-link" href="#reservasVerAdmin" data-toggle="tab">Reservas del sistema</a>
         </li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="actividades">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaActividadModal">Nueva Actividad</button>
+            <button th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaActividadModal">Nueva Actividad</button>
+            <button th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" type="button" class="btn btn-info" data-toggle="modal" data-target="#nuevaRutinaModal">Nueva Rutina</button>
             <div class="row">
                 <div class="col-md-6" th:each="actividad : ${actividades}">
                     <div class="card">
@@ -94,36 +99,169 @@
                             <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
                                 [[${actividad.maquina.nombre}]]
                             </button>
-                                &nbsp;
-                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${actividad.id}">
-                                    Reservar
-                                </button>
+                                <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarActividadModal" th:data-id="${actividad.id}">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="tab-pane" id="destacadas">
-            <div class="row">
-                <div class="col-md-6" th:each="actividad : ${mejores}">
-                    <div class="card">
-                        <img class="card-img-top" th:src="@{/img/__${actividad.imagen}__}">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${actividad.nombre}"></h5>
-                            <p class="card-text">Series [[${actividad.series}]]</p>
-                            <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
-                            <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                            <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
-                                [[${actividad.maquina.nombre}]]
-                            </button>
-                                &nbsp;
-                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${actividad.id}">
-                                Reservar
-                            </button></p>
+        <div class="modal fade" id="eliminarActividadModal" tabindex="-1" role="dialog" aria-labelledby="eliminarActividadModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="eliminarActividadModalLabel">¿Estás seguro de que deseas eliminar esta actividad?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="eliminarActividadForm" method="POST" th:object="${actividadDataEliminar}" action="/actividades/eliminar">
+                        <div class="modal-body">
+                            <input type="hidden" th:field="*{id}" name="actividadIdEliminar" id="actividadIdEliminar"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="eliminarRutinaModal" tabindex="-1" role="dialog" aria-labelledby="eliminarRutinaModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="eliminarRutinaModalLabel">¿Estás seguro de que deseas eliminar esta rutina?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="eliminarRutinaForm" method="POST" th:object="${rutinaData}" action="/rutinas/eliminar">
+                        <div class="modal-body">
+                            <input type="hidden" th:field="*{id}" name="rutinaIdEliminar" id="rutinaIdEliminar"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="rutinas">
+            <ul class="list-group">
+                <!-- Iteramos sobre la lista de rutinas -->
+                <li th:each="rutina : ${rutinas}" class="list-group-item d-flex justify-content-between align-items-center">
+                    <!-- Mostramos el nombre de la rutina -->
+                    <span th:text="${rutina.nombre}"></span>
+                    <span class="badge badge-pill badge-secondary ml-2">
+                        <i class="fas fa-list-ul mr-1"></i>
+                        <span th:text="${rutina.getActividades().size()}"></span>
+                    </span>
+                    <span class="badge badge-pill badge-warning ml-2">
+                        <i class="fas fa-star mr-1"></i>
+                        <span th:text="${rutina.puntos}"></span>
+                    </span>
+                    <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
+                        Reservar
+                    </button>
+                    <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                    <!-- Agregamos un evento 'click' al elemento de la rutina -->
+                    <span th:attr="onclick='mostrarActividades(\'' + ${rutina.id} + '\')'" class="badge badge-primary badge-pill"><i class="fas fa-plus"></i></span>
+
+                </li>
+                <li style="background-color: #f8f9fa;border: 1px solid #dee2e6;box-shadow: 2px 2px 4px rgba(0,0,0,0.2);" class="list-group-item" th:if="${rutinas.isEmpty()}">
+                    <span>No se encontraron rutinas</span>
+                </li>
+            </ul>
+            <!-- Creamos un contenedor para las actividades de la rutina seleccionada -->
+            <div th:each="rutina : ${rutinas}" th:id="'actividades-' + ${rutina.id}" class="card mt-3" style="display: none;">
+                <div class="card-header">
+                    <h4 th:text="${rutina.nombre}"></h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <!-- Iteramos sobre la lista de actividades de esta rutina -->
+                    <div class="row">
+                        <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
+                            <div class="card">
+                                <img class="card-img-top" th:src="@{/img/__${actividad.imagen}__}">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${actividad.nombre}"></h5>
+                                    <p class="card-text">Series [[${actividad.series}]]</p>
+                                    <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
+                                    <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
+                                    <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                                        [[${actividad.maquina.nombre}]]
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    <li class="list-group-item" th:if="${rutina.actividades.isEmpty()}">
+                        <span>No se encontraron actividades</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-pane" id="destacadas">
+            <ul class="list-group">
+                <!-- Iteramos sobre la lista de rutinas -->
+                <li th:each="rutina : ${mejores}" class="list-group-item d-flex justify-content-between align-items-center">
+                    <!-- Mostramos el nombre de la rutina -->
+                    <span th:text="${rutina.nombre}"></span>
+                    <span class="badge badge-pill badge-secondary ml-2">
+                        <i class="fas fa-list-ul mr-1"></i>
+                        <span th:text="${rutina.getActividades().size()}"></span>
+                    </span>
+                    <span class="badge badge-pill badge-warning ml-2">
+                        <i class="fas fa-star mr-1"></i>
+                        <span th:text="${rutina.puntos}"></span>
+                    </span>
+                    <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
+                        Reservar
+                    </button>
+                    <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                    <!-- Agregamos un evento 'click' al elemento de la rutina -->
+                    <span th:attr="onclick='mostrarActividadesDestacadas(\'' + ${rutina.id} + '\')'" class="badge badge-primary badge-pill"><i class="fas fa-plus"></i></span>
+
+                </li>
+                <li style="background-color: #f8f9fa;border: 1px solid #dee2e6;box-shadow: 2px 2px 4px rgba(0,0,0,0.2);" class="list-group-item" th:if="${mejores.isEmpty()}">
+                    <span>No se encontraron rutinas</span>
+                </li>
+            </ul>
+            <!-- Creamos un contenedor para las actividades de la rutina seleccionada -->
+            <div th:each="rutina : ${mejores}" th:id="'actividadesDes-' + ${rutina.id}" class="card mt-3" style="display: none;">
+                <div class="card-header">
+                    <h4 th:text="${rutina.nombre}"></h4>
                 </div>
+                <ul class="list-group list-group-flush">
+                    <!-- Iteramos sobre la lista de actividades de esta rutina -->
+                    <div class="row">
+                        <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
+                            <div class="card">
+                                <img class="card-img-top" th:src="@{/img/__${actividad.imagen}__}">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${actividad.nombre}"></h5>
+                                    <p class="card-text">Series [[${actividad.series}]]</p>
+                                    <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
+                                    <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
+                                    <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                                        [[${actividad.maquina.nombre}]]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <li class="list-group-item" th:if="${rutina.actividades.isEmpty()}">
+                        <span>No se encontraron actividades</span>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="tab-pane" id="misactividades">
@@ -132,13 +270,13 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${reserva.title}"></h5>
-                            <p class="card-text">Nombre Actividad: [[${reserva.actividad.nombre}]]</p>
+                            <p class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
                             <p class="card-text">Nombre Monitor: [[${reserva.monitor.nombre}]]</p>
                             <p class="card-text">Correo Monitor: [[${reserva.monitor.email}]]</p>
                             <p class="card-text">Fecha: [[${#dates.format(reserva.start, 'dd/MM/yyyy HH:mm')}]]</p>
                             <p class="card-text">Estado: [[${reserva.estado}]]</p>
                             <p>
-                            <form th:if="${reserva.estado == estado && reserva.valorada== false}" th:action="@{/valorar/{idR}/{idA}(idA=${reserva.actividad.id},idR=${reserva.id})}" method="post" th:object="${valorarData}">
+                            <form th:if="${reserva.estado == estado && reserva.valorada== false}" th:action="@{/valorar/{idR}/{idA}(idA=${reserva.rutina.id},idR=${reserva.id})}" method="post" th:object="${valorarData}">
                                 <select class="form-control" th:field="*{puntos}" name="valoracion">
                                     <option value="1">1 puntos</option>
                                     <option value="2">2 puntos</option>
@@ -160,7 +298,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${reserva.title}"></h5>
-                            <p class="card-text">Nombre Actividad: [[${reserva.actividad.nombre}]]</p>
+                            <p class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
                             <p class="card-text">Nombre Cliente: [[${reserva.cliente.nombre}]]</p>
                             <p class="card-text">Correo Cliente: [[${reserva.cliente.email}]]</p>
                             <p class="card-text">Fecha: [[${#dates.format(reserva.start, 'dd/MM/yyyy HH:mm')}]]</p>
@@ -168,6 +306,24 @@
                             <p>
                                 <button th:if="${reserva.estado != estado}" class="btn btn-info" type="button" th:onclick="'finalizarla(\'/reservar/finalizar/'+${reserva.id}+'\')'">Finalizar</button>
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="reservasVerAdmin">
+            <div class="row">
+                <div class="col-md-4" th:each="reserva : ${adminR}">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${reserva.title}"></h5>
+                            <p class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p class="card-text">Nombre Cliente: [[${reserva.cliente.nombre}]]</p>
+                            <p class="card-text">Correo Cliente: [[${reserva.cliente.email}]]</p>
+                            <p class="card-text">Nombre Monitor: [[${reserva.monitor.nombre}]]</p>
+                            <p class="card-text">Correo Monitor: [[${reserva.monitor.email}]]</p>
+                            <p class="card-text">Fecha: [[${#dates.format(reserva.start, 'dd/MM/yyyy HH:mm')}]]</p>
+                            <p class="card-text">Estado: [[${reserva.estado}]]</p>
                         </div>
                     </div>
                 </div>
@@ -191,7 +347,7 @@
                                 <option th:each="monitor : ${monitores}"  th:value="${monitor.id}" th:text="${monitor.nombre}"></option>
                             </select>
                         </div>
-                        <input type="hidden" th:field="*{idActividad}" name="actividadId" id="actividadId"/>
+                        <input type="hidden" th:field="*{idRutina}" name="rutinaId" id="rutinaId"/>
                         <div class="form-group">
                             <label for="title">Titulo</label>
                             <input type="text" th:field="*{title}" class="form-control" id="title" name="title" required/>
@@ -276,6 +432,33 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="nuevaRutinaModal" tabindex="-1" role="dialog" aria-labelledby="nuevaRutinaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nuevaRutinaModalLabel">Nueva Rutina</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/rutinas}" method="post" th:object="${rutinaData}">
+                        <div class="form-group">
+                            <label for="nombre">Nombre</label>
+                            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" name="nombre" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="ejerciciosrutina">Ejercicios</label>
+                            <select th:field="*{actividades}" id ="ejerciciosrutina" multiple="multiple">
+                                <option th:each="option : ${ejercicios}" th:value="${option.id}" th:text="${option.nombre}"></option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Crear</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row mt-3 justify-content-center">
         <div class="col-9">
             <div th:object="${actividadData}">
@@ -288,8 +471,62 @@
             </ul>
         </div>
     </div>
+    <div class="row mt-2">
+        <div class="col">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${!#strings.isEmpty(errorActividad)}">
+                <span th:text="${errorActividad}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
+    $('#eliminarRutinaModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Botón que abrió el modal
+        var rutinaId = button.data('id'); // Extraer información de atributos de datos
+        var modal = $(this);
+        modal.find('.modal-body #rutinaIdEliminar').val(rutinaId); // Establecer el valor del campo oculto
+    });
+    $('#eliminarActividadModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Botón que abrió el modal
+        var actividadId = button.data('id'); // Extraer información de atributos de datos
+        var modal = $(this);
+        modal.find('.modal-body #actividadIdEliminar').val(actividadId); // Establecer el valor del campo oculto
+    });
+    function mostrarActividades(rutinaID) {
+        // Obtenemos el contenedor de subcategorías para esta categoría
+        var actividades = document.getElementById("actividades-" + rutinaID);
+        // Si el contenedor está visible, lo ocultamos. Si está oculto, lo mostramos.
+        if (actividades.style.display === "none") {
+            actividades.style.display = "block";
+        } else {
+            actividades.style.display = "none";
+        }
+    }
+    function mostrarActividadesDestacadas(rutinaID) {
+        // Obtenemos el contenedor de subcategorías para esta categoría
+        var actividadesDes = document.getElementById("actividadesDes-" + rutinaID);
+        // Si el contenedor está visible, lo ocultamos. Si está oculto, lo mostramos.
+        if (actividadesDes.style.display === "none") {
+            actividadesDes.style.display = "block";
+        } else {
+            actividadesDes.style.display = "none";
+        }
+    }
+    $(document).ready(function() {
+        // Ocultar todas las listas de actividades al cargar la página
+        $('.actividades').hide();
+
+        // Mostrar la lista de actividades correspondiente al botón presionado
+        $('.mostrar-actividades').click(function() {
+            console.log('Hola');
+            var id = $(this).data('id');
+            console.log(id);
+            $('#actividades-' + id).slideToggle();
+        });
+    });
     $('#myMaquina').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget) // Botón que activó el modal
         var maquina = button.data('maquina') // Extrae el valor del atributo data-maquina
@@ -377,8 +614,8 @@
     });
     $('#reservaModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
-        var actividadId = button.data('id');
-        $('#actividadId').val(actividadId);
+        var rutinaId = button.data('id');
+        $('#rutinaId').val(rutinaId);
     });
     function finalizarla(url) {
         fetch(url, {

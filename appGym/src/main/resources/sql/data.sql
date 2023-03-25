@@ -1,9 +1,11 @@
 delete from enfermedades;
+delete from usuario_seguir_usuario;
 delete from usuarios;
+delete from rutina_actividad;
 delete from actividades;
 delete from maquinas;
-delete from usuario_seguir_usuario;
 delete from reservas;
+delete from rutinas;
 insert into usuarios(id,acceso,apellidos,email,enabled,fecha_nacimiento,nombre,password,puntos,tipo_user) values(1,true,'Benziane','adelbenziane@gmail.com',true,'1999-05-02','Adel','adelfr',0,0);
 insert into usuarios(id,acceso,apellidos,email,enabled,fecha_nacimiento,nombre,password,puntos,tipo_user) values(2,true,'admin','admin@gmail.com',true,'1998-12-13','admin','admin',0,0);
 insert into usuarios(id,acceso,apellidos,email,enabled,fecha_nacimiento,nombre,password,puntos,tipo_user) values(3,true,'gomez','juangomez@gmail.com',true,'2000-12-12','juan','juan2000',0,2);
@@ -28,4 +30,4 @@ insert into maquinas(id,fuera_servicio,imagen,nombre,fecha_proxima_inspeccion,fe
 insert into maquinas(id,fuera_servicio,imagen,nombre,fecha_proxima_inspeccion,fecha_registro,fecha_ultima_inspeccion) values(10,false,'ejercicio_biceps.jpg','Ejercicio biceps barra','2023-06-06','2023-02-02','2023-02-28');
 insert into maquinas(id,fuera_servicio,imagen,nombre,fecha_proxima_inspeccion,fecha_registro,fecha_ultima_inspeccion) values(11,false,'ejercicio_biceps1.jpg','Ejercicio biceps mancuernas','2023-06-06','2023-02-02','2023-02-28');
 insert into maquinas(id,fuera_servicio,imagen,nombre,fecha_proxima_inspeccion,fecha_registro,fecha_ultima_inspeccion) values(12,false,'ejercicio_gemelos.jpg','Ejercicio para gemelos','2023-06-06','2023-02-02','2023-02-28');
-insert into actividades(id,nombre,repeticiones,series,zona_cuerpo,maquina_id) values(1,'ejercicio del pecho superior',10,4,0,1);
+insert into actividades(id,nombre,repeticiones,series,zona_cuerpo,maquina_id,puntos) values(1,'ejercicio del pecho superior',10,4,0,1,2);

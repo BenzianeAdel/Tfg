@@ -7,6 +7,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface ActividadRepository extends CrudRepository<Actividad, Long> {
     @Modifying
-    @Query("DELETE FROM Reservation er WHERE er.actividad = :actividad")
-    void eliminarEntidadRelacionadaReservaPorActividad(@Param("actividad") Actividad actividad);
+    @Query("DELETE FROM Reservation er WHERE er.rutina = :rutina")
+    void eliminarEntidadRelacionadaReservaPorActividad(@Param("rutina") Rutina rutina);
 }

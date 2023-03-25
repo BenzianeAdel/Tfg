@@ -4,6 +4,8 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -26,4 +28,7 @@ public class Actividad {
     @OneToOne
     @JoinColumn(name = "maquina_id")
     private Maquina maquina;
+
+    @ManyToMany(mappedBy = "actividades",fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    Set<Rutina> rutinas = new HashSet<>();
 }

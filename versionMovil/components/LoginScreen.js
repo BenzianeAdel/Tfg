@@ -18,13 +18,6 @@ const LoginScreen = ({ navigation }) => {
     // Agrega el código para manejar el evento de "Registrarse"
     console.log('Registrarse');
   };
-  const removeUserInfo = async () => {
-    try {
-      await AsyncStorage.removeItem('userData');
-    } catch (error) {
-      console.log('Error al eliminar la información del usuario de AsyncStorage: ', error);
-    }
-  };
   const handleLogin = async () => {
     if (!username || !password) {
       setErrorMessage('Por favor ingrese un nombre de usuario y una contraseña.');
@@ -36,7 +29,7 @@ const LoginScreen = ({ navigation }) => {
         password: password
       };
 
-      const response = await fetch('http://192.168.1.234:8080/login', {
+      const response = await fetch('http://192.168.43.18:8080/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

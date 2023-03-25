@@ -18,7 +18,7 @@ const Maquinas = () => {
   useEffect(() => {
     async function fetchMaquinas() {
       try {
-        const response = await fetch('http://192.168.1.234:8080/maquinasSala');
+        const response = await fetch('http://192.168.43.18:8080/maquinasSala');
         const data = await response.json();
         setMaquinas(data);
         setLoading(false);
@@ -45,7 +45,7 @@ const Maquinas = () => {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                  <Image style={styles.maquinaImagen} source={{ uri: `http://192.168.1.234:8080/img/${item.imagen}` }} />
+                  <Image style={styles.maquinaImagen} source={{ uri: `http://192.168.43.18:8080/img/${item.imagen}` }} />
                   <Text style={styles.maquinaNombre}>{item.nombre}</Text>
                 </View>
               </Card>
@@ -57,7 +57,7 @@ const Maquinas = () => {
       <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>{selectedMaquina?.nombre}</Text>
-          <Image style={styles.maquinaImagenModal} source={{ uri: `http://192.168.1.234:8080/img/${selectedMaquina?.imagen}` }} />
+          <Image style={styles.maquinaImagenModal} source={{ uri: `http://192.168.43.18:8080/img/${selectedMaquina?.imagen}` }} />
         </View>
       </Modal>
     </View>

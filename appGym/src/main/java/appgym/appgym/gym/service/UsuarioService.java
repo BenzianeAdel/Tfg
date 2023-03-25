@@ -22,6 +22,10 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private UsuarioSeguirRepository seguirRepository;
+
+    @Autowired
+    private MensajesRepository mensajesRepository;
+
     //@Autowired
     //private JavaMailSender correo;
 
@@ -91,6 +95,37 @@ public class UsuarioService {
                     users.add(usuarios.get(i));
                 }
             }
+        }
+        return users;
+    }
+    @Transactional(readOnly = true)
+    public List<Mensajes> findAllMensajes() {
+        return (List<Mensajes>) mensajesRepository.findAll();
+    }
+    @Transactional(readOnly = true)
+    public List<Usuario> findContactos(Long idY,String busca) {
+        List<Usuario> usuarios = findAll();
+        List<Mensajes> mensajes = findAllMensajes();
+        List<Usuario> users = new ArrayList<>();
+        if(busca == null){
+            for (int i = 0; i < usuarios.size(); i++) {
+                if(idY == null){
+                    if (usuarios.get(i).getTipoUser() != User.admin) {
+                        users.add(usuarios.get(i));
+                    }
+                }else{
+                    if (usuarios.get(i).getTipoUser() != User.admin) {
+                        for(int j=0;j<mensajes.size();j++){
+                            if((mensajes.get(j).getReceptor().getId()==usuarios.get(i).getId() && mensajes.get(j).getEmisor().getId()==idY) || (mensajes.get(j).getEmisor().getId()==usuarios.get(i).getId() && mensajes.get(j).getReceptor().getId()==idY)){
+                                users.add(usuarios.get(i));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            users = usuarioRepository.busquedaContacto(busca);
         }
         return users;
     }

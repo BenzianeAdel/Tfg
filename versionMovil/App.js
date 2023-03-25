@@ -12,13 +12,33 @@ import Ranking from './components/Ranking';
 import Ejercicios from './components/Ejercicios';
 import Reserva from './components/Reserva';
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AsyncStorage } from 'react-native';
 
 const Stack = createStackNavigator();
+const removeUserInfo = async () => {
+  try {
+    await AsyncStorage.removeItem('userData');
+    await fetch('http://192.168.1.234:8080/logoutMovil');
+  } catch (error) {
+    console.log('Error al eliminar la información del usuario de AsyncStorage: ', error);
+  }
+};
+async function handleLogout (navigation) {
+  removeUserInfo();
+  navigation.navigate('Inicio Sesion');
+};
 export default function App() {
   return (
     <NavigationContainer>
     <Stack.Navigator initialRouteName="Inicio Sesion">
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} options={({ navigation }) => ({headerRight: () => (
+      <TouchableOpacity style={{ marginRight: 10 }} onPress={()=>handleLogout(navigation)}>
+        <Ionicons name="exit-outline" size={24} color="black" />
+      </TouchableOpacity>
+    ),
+  })}/>
       <Stack.Screen name="Registro" component={RegistroScreen} />
       <Stack.Screen name="Inicio Sesion" component={LoginScreen} />
       <Stack.Screen name="MiPerfil" component={MiPerfil} />

@@ -15,4 +15,12 @@
     font-size: 14px;
     color: #777;
 }
+.delete-icon {
+    display: inline-block;
+    margin-right: 5px;
+}
+.delete-icon i {
+    color: red;
+}
+
 

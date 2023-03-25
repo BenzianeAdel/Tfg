@@ -32,7 +32,7 @@ function Destacados({ navigation }) {
     }
   
     useEffect(() => {
-      fetch('http://192.168.1.234:8080/actividades/destacadas')
+      fetch('http://192.168.43.18:8080/actividades/destacadas')
         .then((response) => response.json())
         .then((json) => {
           setData(json);
@@ -44,7 +44,7 @@ function Destacados({ navigation }) {
         <TouchableOpacity onPress={() => {setSelectedActividad(item);
             toggleModal();}}>
             <View style={styles.card}>
-              <Image source={{ uri: `http://192.168.1.234:8080/img/${item.imagen}` }} style={styles.cardImage} />
+              <Image source={{ uri: `http://192.168.43.18:8080/img/${item.imagen}` }} style={styles.cardImage} />
               <View style={styles.cardDetails}>
                 <Text style={styles.cardTitle}>{item.nombre}</Text>
                 <View style={styles.cardFooter}>
@@ -74,7 +74,7 @@ function Destacados({ navigation }) {
                 <Text style={styles.modalTitle}>{selectedActividad?.nombre}</Text>
                 <Text style={styles.modalText}>Series: {selectedActividad?.series}</Text>
                 <Text style={styles.modalText}>Repeticiones: {selectedActividad?.repeticiones}</Text>
-                <Image style={styles.actividadImagenModal} source={{ uri: `http://192.168.1.234:8080/img/${selectedActividad?.imagen}` }} />
+                <Image style={styles.actividadImagenModal} source={{ uri: `http://192.168.43.18:8080/img/${selectedActividad?.imagen}` }} />
                 <TouchableOpacity style={styles.reservarButton} onPress={() => handleReserva(selectedActividad?.id)}>
                     <FontAwesome name="calendar-plus-o" size={20} color="#FFFFFF" />
                     <Text style={styles.buttonText}>Reservar</Text>

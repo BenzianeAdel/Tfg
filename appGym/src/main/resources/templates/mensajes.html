@@ -1,103 +1,153 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat entre dos usuarios</title>
-  <style>
-    body {
-      background-color: #F8F8F8;
-      font-family: Arial, sans-serif;
-    }
-    .container {
-      width: 80%;
-      margin: 0 auto;
-    }
-
-    .messages {
-      border: 1px solid #DDD;
-      border-radius: 5px;
-      background-color: #FFF;
-      height: 500px;
-      overflow-y: scroll;
-      padding: 10px;
-    }
-
-    .message {
-      margin-bottom: 10px;
-    }
-
-    .sent .message {
-      text-align: right;
-    }
-
-    .timestamp {
-      font-size: 12px;
-      color: #999;
-      margin-right: 5px;
-    }
-
-    .sender {
-      font-size: 14px;
-      color: #333;
-      margin-right: 5px;
-      font-weight: bold;
-    }
-
-    .text {
-      font-size: 14px;
-      color: #555;
-    }
-
-    form {
-      margin-top: 20px;
-    }
-
-    input[type="text"] {
-      border: none;
-      border-radius: 5px;
-      background-color: #FFF;
-      padding: 10px;
-      width: 70%;
-      font-size: 14px;
-      color: #555;
-      margin-right: 10px;
-    }
-
-    button[type="submit"] {
-      border: none;
-      border-radius: 5px;
-      background-color: #4285F4;
-      color: #FFF;
-      padding: 10px 20px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    button[type="submit"]:hover {
-      background-color: #3367D6;
-    }
-  </style>
+  <title>Chat</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link rel="stylesheet" th:href="@{/css/mensajes.css}" />
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
 </head>
-<body>
-<div class="container">
-  <!-- Área de mensajes -->
-  <div class="messages">
-    <ul>
-      <li th:each="message : ${messages}" th:classappend="${message.emisor.id} == ${currentUser} ? 'sent' : 'received'">
-        <div class="message">
-          <span class="timestamp" th:text="${#temporals.format(message.fecha, 'dd/MM/yyyy HH:mm:ss')}"></span>
-          <span class="sender" th:text="${message.emisor.nombre}"></span>
-          <span class="text" th:text="${message.texto}"></span>
-        </div>
-      </li>
-    </ul>
+<body style="background-color: #FFFFE7;">
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/home}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/actividades}">Actividades</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/maquinas}">Maquinas</a>
+        </li>
+        <li th:if="${usuario.getTipoUser()== esAdmin}" class="nav-item">
+          <a class="nav-link" th:href="@{/users}">Usuarios</a>
+        </li>
+        <li th:if="${usuario.getTipoUser()== esCliente}" class="nav-item">
+          <a class="nav-link" th:href="@{/amigos}">Amigos</a>
+        </li>
+        <li th:if="${usuario.getTipoUser()!= esCliente}" class="nav-item">
+          <a class="nav-link" th:href="@{/ranking}">Ranking</a>
+        </li>
+        <li th:if="${usuario.getTipoUser()!= esAdmin}" class="nav-item active">
+          <a class="nav-link" th:href="@{/mensajes}">Mensajes</a>
+        </li>
+        <li class="nav-item dropleft">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            [[${usuario.nombre}]]
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/perfil">Cuenta</a>
+            <a class="dropdown-item" href="/logout">
+              Cerrar sesión [[${usuario.email}]]
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
-
-  <!-- Formulario para enviar un nuevo mensaje -->
-  <form th:action="@{/mensajes/2}" method="post" th:object="${mensajeData}">
-    <input type="text" th:field="*{texto}" name="message" placeholder="Escribe un mensaje">
-    <button type="submit">Enviar</button>
-  </form>
+</nav>
+&nbsp;
+<div class="container-fluid h-100">
+  <div class="row justify-content-center h-100">
+    <div class="col-md-4 col-xl-3 chat">
+      <div class="card mb-sm-3 mb-md-0 contacts_card">
+        <div class="card-header">
+          <div class="input-group">
+            <form method="GET" action="/mensajes">
+              <input type="text" name="busca" id="buscaContacto" class="form-control" placeholder="Buscar Usuario...">
+              <div class="input-group-append">
+                <button class="btn btn-success" type="submit"><i class="fas fa-search"></i></button>
+                <button class="btn btn-secondary" type="button" onclick="limpiarDatos()"><i class="fas fa-eraser"></i></button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card-body contacts_body">
+          <ul class="contacts">
+            <li th:each="user : ${usuarios}">
+              <div class="user_card">
+                <a th:href="@{/chat/{userId}(userId=${user.id})}" class="d-flex bd-highlight">
+                  <div class="avatar">
+                      <span class="initials">
+                        <span th:text="${user.nombre.charAt(0)}"></span>
+                        <span th:text="${user.apellidos.charAt(0)}"></span>
+                      </span>
+                  </div>
+                  <div class="user_info">
+                    <span th:text="${user.email}" class="user_name"></span>
+                    <span th:if="${user.getTipoUser()==esCliente && user.id == usuario.id}"> (Tú)</span>
+                    <span th:if="${user.getTipoUser()==esCliente && user.id != usuario.id}"> (cliente)</span>
+                    <span th:if="${user.getTipoUser()!=esCliente && user.id != usuario.id}"> (monitor)</span>
+                  </div>
+                </a>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer"></div>
+      </div>
+    </div>
+    <div class="col-md-8 col-xl-6 chat">
+      <div class="card">
+        <div class="card-header msg_head">
+          <div class="d-flex bd-highlight">
+            <div class="avatar">
+              <span class="initials">
+                <span th:text="${user.nombre.charAt(0)}"></span>
+                <span th:text="${user.apellidos.charAt(0)}"></span>
+              </span>
+            </div>
+            &nbsp;
+            <div class="user_info">
+              <span th:text="${user.email}" class="chat_with"></span>
+              <span th:if="${user.id == usuario.id}" class="chat_with"> (Tú agenda)</span>
+            </div>
+          </div>
+        </div>
+        &nbsp;
+        <div class="card-body msg_card_body" id="message-container">
+          <ul class="messages">
+            <li th:each="message : ${messages}">
+              <div th:classappend="${message.emisor.id == currentUser} ? 'message sent' : 'message received'">
+                <span th:text="${message.texto}"></span>
+                <span class="time_date" th:text="${#temporals.format(message.fecha, 'dd/MM/yyyy HH:mm:ss')}"></span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer">
+          <form method="POST" th:action="@{/chat/{userId}(userId=${user.id})}" th:object="${mensajeData}">
+            <div class="input-group">
+              <input type="text" th:field="*{texto}" name="message" class="form-control type_msg" placeholder="Escribe tu mensaje" />
+              <div class="input-group-append">
+                <button type="submit" class="input-group-text send_btn"><i class="fas fa-location-arrow"></i></button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+<script th:inline="javascript">
+  var messageContainer = document.getElementById("message-container");
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+  function limpiarDatos(){
+    window.location='/mensajes';
+  }
+</script>
 </body>
 </html>
+

@@ -7,12 +7,20 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.mail.Multipart;
 
 public class ActividadData {
+    private Long id;
     private String nombre;
     private ZonaCuerpo zonaCuerpo;
     private int series;
     private int repeticiones;
     private Maquina maquina;
     private MultipartFile imagen;
+
+    public Long getId(){
+        return id;
+    }
+    public void setId(Long i){
+        this.id=i;
+    }
 
     public void setNombre(String n){
         this.nombre= n;

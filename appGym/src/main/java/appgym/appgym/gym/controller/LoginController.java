@@ -5,6 +5,7 @@ import appgym.appgym.gym.model.Usuario;
 import appgym.appgym.gym.service.UsuarioService;
 import appgym.appgym.gym.service.LoginStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,8 +28,18 @@ public class LoginController {
     UsuarioService usuarioService;
     @Autowired
     ManagerUserSession managerUserSession;
+
+    private boolean comprobarLogueado(){
+        if(managerUserSession.usuarioLogeado() == null){
+            return false;
+        }
+        return true;
+    }
     @GetMapping("/login")
     public String loginForm(Model model) {
+        if(comprobarLogueado()){
+            return "redirect:/home";
+        }
         model.addAttribute("loginData", new LoginData());
         return "formLogin";
     }
@@ -88,6 +99,9 @@ public class LoginController {
 
     @GetMapping("/registro")
     public String registroForm(Model model) {
+        if(comprobarLogueado()){
+            return "redirect:/home";
+        }
         model.addAttribute("usuarioData", new UsuarioData());
         model.addAttribute("birthdate", LocalDate.now().minusYears(18));
         return "formRegistro";
@@ -192,5 +206,10 @@ public class LoginController {
     public String logout(HttpSession session) {
         managerUserSession.logout();
         return "redirect:/login";
+    }
+    @GetMapping("/logoutMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logoutMovil(HttpSession session) {
+        managerUserSession.logout();
     }
 }

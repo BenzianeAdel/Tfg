@@ -6,11 +6,13 @@ import appgym.appgym.gym.service.ActividadService;
 import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
@@ -34,8 +36,19 @@ public class ActividadController {
     UsuarioService usuarioService;
     @Autowired
     MaquinaService maquinaService;
+
+
+    private boolean comprobarLogueado(){
+        if(managerUserSession.usuarioLogeado() == null){
+            return false;
+        }
+        return true;
+    }
     @GetMapping("/actividades")
     public String actividades(Model model){
+        if(!comprobarLogueado()){
+            return "redirect:/login";
+        }
         boolean tipoC = false;
         Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
         if(u.getTipoUser()==User.cliente){
@@ -44,19 +57,29 @@ public class ActividadController {
         List<Actividad> actividades = actividadService.findAll();
         List<Maquina> maquinas = maquinaService.findAll();
         List<Usuario> monitores = usuarioService.findAllTip(User.monitor,null);
+        List<Rutina> rutinas = actividadService.findAllRutinas();
         List<Reservation>reservas = actividadService.findActividades(u);
+        List<Reservation>reservasPA= actividadService.findAllReservas();
         model.addAttribute("reservas",reservas);
+        model.addAttribute("adminR",reservasPA);
         model.addAttribute("tipo",tipoC);
+        model.addAttribute("esAdmin",User.admin);
+        model.addAttribute("esCliente",User.cliente);
+        model.addAttribute("usuario",u);
         model.addAttribute("actividades",actividades);
+        model.addAttribute("rutinas",rutinas);
         model.addAttribute("actividadData",new ActividadData());
+        model.addAttribute("actividadDataEliminar",new ActividadData());
+        model.addAttribute("rutinaData",new RutinaData());
+        model.addAttribute("ejercicios",actividades);
         model.addAttribute("maquinas",maquinas);
         model.addAttribute("monitores",monitores);
         model.addAttribute("opciones",ZonaCuerpo.values());
         model.addAttribute("estado",Estado.Finalizada);
         model.addAttribute("reservaData",new ReservaData());
         model.addAttribute("valorarData",new ValorarData());
-        Collections.sort(actividades, Comparator.comparing(Actividad::getPuntos).reversed());
-        model.addAttribute("mejores",actividades.stream().limit(5).collect(Collectors.toList()));
+        Collections.sort(rutinas, Comparator.comparing(Rutina::getPuntos).reversed());
+        model.addAttribute("mejores",rutinas.stream().limit(5).collect(Collectors.toList()));
         return "actividad";
     }
     @GetMapping("/misactividades")
@@ -110,6 +133,17 @@ public class ActividadController {
         actividadService.registrar(a);
         return "redirect:/actividades";
     }
+    @PostMapping("/rutinas")
+    public String nuevaRutina(RutinaData rutinaData, BindingResult result){
+        if (result.hasErrors()) {
+            return "actividad";
+        }
+        Rutina r = new Rutina();
+        r.setNombre(rutinaData.getNombre());
+        r.setActividades(rutinaData.getActividades());
+        actividadService.registrar(r);
+        return "redirect:/actividades";
+    }
     @PostMapping("/reservar")
     public String reservar(@Valid ReservaData reservaData){
         Long id = managerUserSession.usuarioLogeado();
@@ -119,11 +153,30 @@ public class ActividadController {
         r.setCliente(u);
         r.setStart(reservaData.getFecha());
         r.setMonitor(reservaData.getIdMonitor());
-        r.setActividad(reservaData.getIdActividad());
+        r.setRutina(reservaData.getIdRutina());
         r.setEstado(Estado.Pendiente);
         r.setValorada(false);
         actividadService.registrar(r);
         return "redirect:/actividades";
+    }
+    @PostMapping("/reservarMovil")
+    @ResponseBody
+    public ResponseEntity<Object> reservarMovil(@Valid@RequestBody ReservaBody reservaBody){
+        Long id = managerUserSession.usuarioLogeado();
+        Usuario u = usuarioService.findById(id);
+        Usuario m = usuarioService.findById(reservaBody.getIdMonitor());
+        Rutina a = actividadService.findRutinaById(reservaBody.getIdRutina());
+        Reservation r = new Reservation();
+        r.setTitle(reservaBody.getTitle());
+        r.setCliente(u);
+        r.setStart(reservaBody.getFecha());
+        r.setMonitor(m);
+        r.setRutina(a);
+        r.setEstado(Estado.Pendiente);
+        r.setValorada(false);
+        actividadService.registrar(r);
+        ApiResponse response = new ApiResponse("Reserva realizada corrrectamente");
+        return ResponseEntity.badRequest().body(response);
     }
     @PostMapping("/reservar/finalizar/{id}")
     public String finalizar(@PathVariable(value="id") Long idReserva){
@@ -132,8 +185,34 @@ public class ActividadController {
         return "redirect:/actividades";
     }
     @PostMapping("/valorar/{idR}/{idA}")
-    public String valorar(@Valid ValorarData valorarData,@PathVariable(value="idR") Long idReserva,@PathVariable(value="idA") Long idActividad){
-        actividadService.valorar(idActividad,valorarData.getPuntos(),idReserva);
+    public String valorar(@Valid ValorarData valorarData,@PathVariable(value="idR") Long idReserva,@PathVariable(value="idA") Long idRutina){
+        actividadService.valorar(idRutina,valorarData.getPuntos(),idReserva);
+        return "redirect:/actividades";
+    }
+    @GetMapping("/reservas")
+    @ResponseBody
+    public List<Reservation>reservas(){
+        List<Reservation>reservas = actividadService.findAllReservas();
+        return reservas;
+    }
+    @PostMapping("/actividades/eliminar")
+    public String EliminarActividad(ActividadData actividadData, RedirectAttributes flash){
+        Actividad a = actividadService.findById(actividadData.getId());
+        try{
+            actividadService.eliminarActividad(a);
+        } catch(Exception e){
+            flash.addFlashAttribute("errorActividad","No se ha podido borrar porque hay una reserva Asociada");
+        }
+        return "redirect:/actividades";
+    }
+    @PostMapping("/rutinas/eliminar")
+    public String EliminarRutina(RutinaData rutinaData, RedirectAttributes flash){
+        Rutina r = actividadService.findRutinaById(rutinaData.getId());
+        try{
+            actividadService.eliminarRutina(r);
+        } catch(Exception e){
+            flash.addFlashAttribute("errorActividad","No se ha podido borrar porque hay una reserva Asociada");
+        }
         return "redirect:/actividades";
     }
 }

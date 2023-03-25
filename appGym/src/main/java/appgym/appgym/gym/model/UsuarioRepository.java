@@ -14,6 +14,11 @@ public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
             " CONCAT(e.id,e.nombre,e.apellidos,e.email) "
             + "like %?1%" + "and e.tipoUser=1" + "and e.id != ?2")
     public List<Usuario> busqueda(String busca,Long idY);
+
+    @Query("select e from Usuario e where" +
+            " CONCAT(e.id,e.nombre,e.apellidos,e.email) "
+            + "like %?1%" + "and e.tipoUser!=0")
+    public List<Usuario> busquedaContacto(String busca);
     @Modifying
     @Query("DELETE FROM Reservation er WHERE er.monitor = :usuario")
     void eliminarEntidadRelacionadaReservaPorMonitor(@Param("usuario") Usuario usuario);

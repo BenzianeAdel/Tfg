@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,9 @@ public class ActividadService {
     @Autowired
     private ReservationRepository reservationRepository;
 
+    @Autowired
+    private RutinaRepository rutinaRepository;
+
     @Transactional(readOnly = true)
     public Actividad findById(Long actividadId) {
         return actividadRepository.findById(actividadId).orElse(null);
@@ -22,6 +26,10 @@ public class ActividadService {
     @Transactional(readOnly = true)
     public Reservation findReservaById(Long reservaID) {
         return reservationRepository.findById(reservaID).orElse(null);
+    }
+    @Transactional(readOnly = true)
+    public Rutina findRutinaById(Long rutinaId) {
+        return rutinaRepository.findById(rutinaId).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -34,11 +42,19 @@ public class ActividadService {
         return (List<Reservation>) reservationRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Rutina> findAllRutinas() {
+        return (List<Rutina>) rutinaRepository.findAll();
+    }
+
     public Actividad registrar(Actividad a){
         return actividadRepository.save(a);
     }
     public Reservation registrar(Reservation r){
         return reservationRepository.save(r);
+    }
+    public Rutina registrar(Rutina r){
+        return rutinaRepository.save(r);
     }
     @Transactional(readOnly = true)
     public List<Reservation> findActividades(Usuario u) {
@@ -68,11 +84,19 @@ public class ActividadService {
     }
     @Transactional(readOnly = false)
     public void valorar(Long ida,int p,Long idR){
-        Actividad a = findById(ida);
+        Rutina a = findRutinaById(ida);
         Reservation r = findReservaById(idR);
         r.setValorada(true);
         reservationRepository.save(r);
         a.setPuntos(a.getPuntos()+p);
-        actividadRepository.save(a);
+        rutinaRepository.save(a);
+    }
+    @Transactional(readOnly = false)
+    public void eliminarActividad(Actividad a){
+        actividadRepository.delete(a);
+    }
+    @Transactional(readOnly = false)
+    public void eliminarRutina(Rutina r){
+        rutinaRepository.delete(r);
     }
 }

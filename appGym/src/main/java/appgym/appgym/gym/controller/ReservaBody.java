@@ -1,18 +1,15 @@
 package appgym.appgym.gym.controller;
 
 import appgym.appgym.gym.model.Actividad;
-import appgym.appgym.gym.model.Rutina;
 import appgym.appgym.gym.model.Usuario;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
 
-public class ReservaData {
+public class ReservaBody {
     private String title;
-    private Usuario idMonitor;
-    private Rutina idRutina;
+    private Long idMonitor;
+    private Long idRutina;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private Calendar fecha;
@@ -20,22 +17,22 @@ public class ReservaData {
     public String getTitle(){
         return title;
     }
-    public Usuario getIdMonitor(){
+    public Long getIdMonitor(){
         return idMonitor;
     }
     public Calendar getFecha(){
         return fecha;
     }
-    public Rutina getIdRutina(){
+    public Long getIdRutina(){
         return idRutina;
     }
     public void setTitle(String t){
         this.title = t;
     }
-    public void setIdMonitor(Usuario m){
+    public void setIdMonitor(Long m){
         this.idMonitor = m;
     }
-    public void setIdRutina(Rutina a){
+    public void setIdRutina(Long a){
         this.idRutina = a;
     }
     public void setFecha(Calendar f){

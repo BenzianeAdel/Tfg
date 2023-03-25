@@ -28,7 +28,7 @@ public class Reservation {
     private Usuario cliente;
 
     @ManyToOne
-    private Actividad actividad;
+    private Rutina rutina;
 
     private Calendar start;
 
