@@ -73,9 +73,9 @@ const HomeScreen = ({ navigation }) => {
             }}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigation.navigate('Maquinas')}>
-              <Ionicons name="barbell-outline" size={24} color="white" />
-              <Text style={styles.buttonText}>Ver Máquinas</Text>
+              onPress={() => navigation.navigate('Servicios')}>
+              <Ionicons name="ios-cog-outline" size={24} color="white" />
+              <Text style={styles.buttonText}>Ver Servicios</Text>
             </TouchableOpacity>
           </Animated.View>
           <Animated.View
@@ -87,7 +87,7 @@ const HomeScreen = ({ navigation }) => {
               style={styles.button}
               onPress={() => navigation.navigate('Friends')}>
               <Ionicons name="chatbubbles" size={24} color="white" />
-              <Text style={styles.buttonText}>Ver Amigos</Text>
+              <Text style={styles.buttonText}>Enviar Mensaje</Text>
             </TouchableOpacity>
           </Animated.View>
           <Animated.View
@@ -97,7 +97,7 @@ const HomeScreen = ({ navigation }) => {
             }}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => navigation.navigate('Ranking')}>
+              onPress={() => navigation.navigate('Amigos')}>
               <Ionicons name="trophy-outline" size={24} color="white" />
               <Text style={styles.buttonText}>Ver Ranking</Text>
             </TouchableOpacity>

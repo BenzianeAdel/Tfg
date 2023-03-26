@@ -95,6 +95,20 @@ public class ActividadController {
         List<Actividad> actividades = actividadService.findAll();
         return actividades;
     }
+    @GetMapping("/rutinasMovil")
+    @ResponseBody
+    public List<Rutina> rutinasMovil(Model model){
+        List<Rutina> rutinas = actividadService.findAllRutinas();
+        return rutinas;
+    }
+    @GetMapping("/rutinasDestacadasMovil")
+    @ResponseBody
+    public List<Rutina> rutinasDestacadasMovil(Model model){
+        List<Rutina> rutinas = actividadService.findAllRutinas();
+        Collections.sort(rutinas, Comparator.comparing(Rutina::getPuntos).reversed());
+        model.addAttribute("mejores",rutinas.stream().limit(5).collect(Collectors.toList()));
+        return rutinas;
+    }
     @GetMapping("/actividades/destacadas")
     @ResponseBody
     public List<Actividad> actividadesDestacadasMovil(){

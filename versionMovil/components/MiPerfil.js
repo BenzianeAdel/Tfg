@@ -42,7 +42,7 @@ const MiPerfil = () => {
         apellidos: apellidos
       };
       console.log(newUserData)
-      const response = await fetch('http://192.168.1.234:8080/perfil/editar', {
+      const response = await fetch('http://192.168.1.129:8080/perfil/editar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

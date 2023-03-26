@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, Button,FlatList, Image, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
+import { StyleSheet, View, FlatList, Image, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Icon } from 'react-native-elements';
@@ -8,179 +8,193 @@ import { Avatar } from 'react-native-elements';
 import { random } from 'lodash';
 import * as Animatable from 'react-native-animatable';
 import { FontAwesome } from '@expo/vector-icons';
+import { Card } from 'react-native-elements';
 import Modal from 'react-native-modal';
 const Tab = createBottomTabNavigator();
 
-function MisActividadesScreen(){
+function MisReservasScreen(){
 
 }
-function ActividadesScreen(){
+function RutinasScreen({navigation}){
+  const [rutinas, setRutinas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-}
-function Destacados({ navigation }) {
-    const [data, setData] = useState([]);
-    const [selectedActividad, setSelectedActividad] = useState(null);
-    const [isModalVisible, setModalVisible] = useState(false);
-
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
-
-    const handleReserva = (item) => {
-        toggleModal();
-        navigation.navigate('Reserva', { item: item });
+  useEffect(() => {
+    async function fetchRutinas() {
+      try {
+        const response = await fetch('http://192.168.1.129:8080/rutinasMovil');
+        const data = await response.json();
+        setRutinas(data);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
     }
-  
-    useEffect(() => {
-      fetch('http://192.168.43.18:8080/actividades/destacadas')
-        .then((response) => response.json())
-        .then((json) => {
-          setData(json);
-        })
-        .catch((error) => console.error(error));
-    }, []);
-  
-    const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => {setSelectedActividad(item);
-            toggleModal();}}>
-            <View style={styles.card}>
-              <Image source={{ uri: `http://192.168.43.18:8080/img/${item.imagen}` }} style={styles.cardImage} />
-              <View style={styles.cardDetails}>
-                <Text style={styles.cardTitle}>{item.nombre}</Text>
-                <View style={styles.cardFooter}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <FontAwesome name="circle" size={18} color="#FAB81E" style={{ marginRight: 5 }} />
-                    <Text style={styles.cardLikes}>Puntos: {item.puntos}</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-        </TouchableOpacity>
-    );
-  
+    fetchRutinas();
+  }, []);
+
+  const handleDetallePress = (actividad) => {
+    navigation.navigate('Lista Actividades', { activities: actividad });
+  };
+
+  const handleReservarPress = (id) => {
+    // Lógica para reservar la rutina con el id correspondiente
+  };
+
+  const renderRutina = ({ item }) => {
     return (
-      <View style={styles.container}>
-        <View style={styles.backgroundImage}>
-          <View style={styles.content}>
-            <FlatList
-              data={data}
-              renderItem={renderItem}
-              keyExtractor={(item) => item.id.toString()}
-              numColumns={1}
-              contentContainerStyle={{ paddingBottom: 100 }}
-            />
-            <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-                <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>{selectedActividad?.nombre}</Text>
-                <Text style={styles.modalText}>Series: {selectedActividad?.series}</Text>
-                <Text style={styles.modalText}>Repeticiones: {selectedActividad?.repeticiones}</Text>
-                <Image style={styles.actividadImagenModal} source={{ uri: `http://192.168.43.18:8080/img/${selectedActividad?.imagen}` }} />
-                <TouchableOpacity style={styles.reservarButton} onPress={() => handleReserva(selectedActividad?.id)}>
-                    <FontAwesome name="calendar-plus-o" size={20} color="#FFFFFF" />
-                    <Text style={styles.buttonText}>Reservar</Text>
-                </TouchableOpacity>
-                </View>
-                
-            </Modal>
+      <Card containerStyle={styles.rutinaContainer}>
+        <View style={styles.rutinaCard}>
+          <Text style={styles.rutinaNombre}>{item.nombre}</Text>
+          <View style={styles.rutinaInfo}>
+            <Text style={styles.rutinaPuntos}>Puntos: {item.puntos}</Text>
+            <Text style={styles.rutinaActividades}>Actividades: {item.actividades.length}</Text>
+          </View>
+          <View style={styles.rutinaBotones}>
+            <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
+              <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rutinaBotonReservar} onPress={() => handleReservarPress(item.id)}>
+              <Text style={styles.rutinaBotonTexto}><FontAwesome name="calendar-plus-o" size={20} color="#FFFFFF" /> Reservar</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </Card>
     );
-  }
+ };
+
+  return (
+    <View style={styles.container}>
+      {loading ? (
+        <Text style={styles.loadingText}>Cargando...</Text>
+      ) : (
+        <FlatList
+          data={rutinas}
+          renderItem={renderRutina}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
+    </View>
+  );
+};
+
+function Destacadas({ navigation }) {
+  const [rutinas, setRutinas] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchRutinas() {
+      try {
+        const response = await fetch('http://192.168.1.129:8080/rutinasDestacadasMovil');
+        const data = await response.json();
+        setRutinas(data);
+        setLoading(false);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchRutinas();
+  }, []);
+
+  const handleDetallePress = (actividad) => {
+    navigation.navigate('Lista Actividades', { activities: actividad });
+  };
+
+  const handleReservarPress = (id) => {
+    // Lógica para reservar la rutina con el id correspondiente
+  };
+
+  const renderRutina = ({ item }) => {
+    return (
+      <Card containerStyle={styles.rutinaContainer}>
+        <View style={styles.rutinaCard}>
+          <Text style={styles.rutinaNombre}>{item.nombre}</Text>
+          <View style={styles.rutinaInfo}>
+            <Text style={styles.rutinaPuntos}>Puntos: {item.puntos}</Text>
+            <Text style={styles.rutinaActividades}>Actividades: {item.actividades.length}</Text>
+          </View>
+          <View style={styles.rutinaBotones}>
+            <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
+              <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.rutinaBotonReservar} onPress={() => handleReservarPress(item.id)}>
+              <Text style={styles.rutinaBotonTexto}><FontAwesome name="calendar-plus-o" size={20} color="#FFFFFF" /> Reservar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Card>
+    );
+ };
+
+  return (
+    <View style={styles.container}>
+      {loading ? (
+        <Text style={styles.loadingText}>Cargando...</Text>
+      ) : (
+        <FlatList
+          data={rutinas}
+          renderItem={renderRutina}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
+    </View>
+  );
+};
   
-  const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#F3E218',
     },
-    reservarButton: {
-      backgroundColor: '#FAB81E',
-      paddingVertical: 10,
-      paddingHorizontal: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    buttonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: 'bold',
-    },       
-    actividadImagenModal: {
-      width: 300,
-      height: 300,
-    },
-    backgroundImage: {
-      backgroundColor: '#f2c94c',
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: 22,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderRadius: 4,
-      borderColor: 'rgba(0, 0, 0, 0.1)',
-    },
-    modalTitle: {
+    loadingText: {
       fontSize: 20,
-      fontWeight: 'bold',
+      textAlign: 'center',
+      marginTop: 50,
     },
-    modalText: {
-        fontSize: 18,
-    },
-    content: {
-      paddingVertical: 30,
-      paddingHorizontal: 20,
-    },
-    title: {
-      fontSize: 30,
-      fontWeight: 'bold',
-      color: '#fff',
-      marginBottom: 20,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 10,
-      paddingHorizontal: 10,
-    },
-    card: {
-      backgroundColor: '#fff',
+    rutinaContainer: {
       borderRadius: 10,
-      overflow: 'hidden',
-      marginBottom: 20,
-      elevation: 2,
-      width: '100%',
-      height: 250,
+      marginHorizontal: 20,
+      marginVertical: 10,
     },
-    cardImage: {
-      width: '100%',
-      height: '75%',
-    },
-    cardDetails: {
+    rutinaCard: {
       padding: 10,
-      height: '25%',
-      justifyContent: 'center',
-      alignItems: 'center',
     },
-    cardTitle: {
+    rutinaNombre: {
       fontSize: 18,
       fontWeight: 'bold',
       marginBottom: 10,
-      textAlign: 'center',
-      color: '#444',
     },
-    cardFooter: {
+    rutinaInfo: {
       flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: 10,
+      justifyContent: 'space-between',
+      marginBottom: 10,
     },
-    cardPointsIcon: {
-      marginRight: 5,
-    },
-    cardPointsText: {
+    rutinaPuntos: {
       fontSize: 16,
+    },
+    rutinaActividades: {
+      fontSize: 16,
+    },
+    rutinaBotones: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    rutinaBotonDetalle: {
+      backgroundColor: '#3498db',
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderRadius: 5,
+    },
+    rutinaBotonReservar: {
+      backgroundColor: '#2ecc71',
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderRadius: 5,
+    },
+    rutinaBotonTexto: {
+      color: '#fff',
       fontWeight: 'bold',
-      color: '#666',
+      fontSize: 16,
     },
 });
 
@@ -191,9 +205,9 @@ function MyTabs() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Actividades') {
+          if (route.name === 'Rutinas') {
             iconName = focused ? 'weight-lifter' : 'weight-lifter';
-          } else if (route.name === 'Mis Actividades') {
+          } else if (route.name === 'Mis Reservas') {
             iconName = focused ? 'clipboard-check' : 'clipboard-check-outline';
           } else if (route.name === 'Destacadas') {
             iconName = focused ? 'star' : 'star-outline';
@@ -209,9 +223,9 @@ function MyTabs() {
         labelStyle: { fontSize: 12 },
       }}
     >
-      <Tab.Screen name="Actividades" component={ActividadesScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Mis Actividades" component={MisActividadesScreen} options={{ headerShown: false }}/>
-      <Tab.Screen name="Destacadas" component={Destacados} options={{ headerShown: false }}/>
+      <Tab.Screen name="Rutinas" component={RutinasScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Mis Reservas" component={MisReservasScreen} options={{ headerShown: false }}/>
+      <Tab.Screen name="Destacadas" component={Destacadas} options={{ headerShown: false }}/>
     </Tab.Navigator>
   );
 }

@@ -29,7 +29,7 @@ const LoginScreen = ({ navigation }) => {
         password: password
       };
 
-      const response = await fetch('http://192.168.43.18:8080/login', {
+      const response = await fetch('http://192.168.1.129:8080/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

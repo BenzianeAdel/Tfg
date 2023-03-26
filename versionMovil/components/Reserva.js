@@ -28,7 +28,7 @@ export default function Reserva({ route }) {
     
 
   useEffect(() => {
-    fetch('http://192.168.43.18:8080/monitores')
+    fetch('http://192.168.1.129:8080/monitores')
       .then(response => response.json())
       .then(data => setMonitores(data))
       .catch(error => console.error(error));
@@ -36,7 +36,7 @@ export default function Reserva({ route }) {
 
   useEffect(() => {
     if (selectedMonitor) {
-        fetch(`http://192.168.43.18:8080/monitores/${selectedMonitor}/reservas`)
+        fetch(`http://192.168.1.129:8080/monitores/${selectedMonitor}/reservas`)
             .then(response => response.json())
             .then(data => setReservas(data))
             .catch(error => console.error(error));
@@ -60,7 +60,7 @@ export default function Reserva({ route }) {
         fecha: dateTime
       };
       console.log(requestData);
-      const respuesta = await fetch('http://192.168.43.18:8080/reservarMovil', {
+      const respuesta = await fetch('http://192.168.1.129:8080/reservarMovil', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData)

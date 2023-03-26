@@ -6,8 +6,9 @@ import LoginScreen from './components/LoginScreen';
 import RegistroScreen from './components/RegistroScreen';
 import HomeScreen from './components/HomeScreen';
 import MiPerfil from './components/MiPerfil';
-import Maquinas from './components/Maquinas';
+import Servicios from './components/Servicios';
 import Friends from './components/Friends';
+import ActivitiesScreen from './components/ActivitiesScreen';
 import Ranking from './components/Ranking';
 import Ejercicios from './components/Ejercicios';
 import Reserva from './components/Reserva';
@@ -42,11 +43,12 @@ export default function App() {
       <Stack.Screen name="Registro" component={RegistroScreen} />
       <Stack.Screen name="Inicio Sesion" component={LoginScreen} />
       <Stack.Screen name="MiPerfil" component={MiPerfil} />
-      <Stack.Screen name="Maquinas" component={Maquinas} />
+      <Stack.Screen name="Servicios" component={Servicios} />
       <Stack.Screen name="Friends" component={Friends} />
-      <Stack.Screen name="Ranking" component={Ranking} />
+      <Stack.Screen name="Amigos" component={Ranking} />
       <Stack.Screen name="Ejercicios" component={Ejercicios} />
       <Stack.Screen name="Reserva" component={Reserva} />
+      <Stack.Screen name="Lista Actividades" component={ActivitiesScreen} />
     </Stack.Navigator>
    </NavigationContainer>
   );

@@ -29,6 +29,4 @@ public class Actividad {
     @JoinColumn(name = "maquina_id")
     private Maquina maquina;
 
-    @ManyToMany(mappedBy = "actividades")
-    Set<Rutina> rutinas = new HashSet<>();
 }

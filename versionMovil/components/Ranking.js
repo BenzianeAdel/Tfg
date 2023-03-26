@@ -17,7 +17,7 @@ function BuscarAmigosScreen() {
   useEffect(() => {
     async function obtenerUsuarios() {
       try {
-        const respuesta = await fetch('http://192.168.43.18:8080/usuarios');
+        const respuesta = await fetch('http://192.168.1.129:8080/usuarios');
         const datos = await respuesta.json();
         setUsuarios(datos);
       } catch (error) {
@@ -34,7 +34,7 @@ function BuscarAmigosScreen() {
 
   async function seguirUsuario(usuarioId) {
     try {
-      const respuesta = await fetch(`http://192.168.43.18:8080/amigosMovil/seguir/${usuarioId}`, {
+      const respuesta = await fetch(`http://192.168.1.129:8080/amigosMovil/seguir/${usuarioId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // Puedes agregar aquí el token de autenticación si es necesario
@@ -230,7 +230,7 @@ function MisAmigosScreen() {
   useEffect(() => {
     async function obtenerAmigos() {
       try {
-        const respuesta = await fetch('http://192.168.43.18:8080/misamigos');
+        const respuesta = await fetch('http://192.168.1.129:8080/misamigos');
         const datos = await respuesta.json();
         setUsuarios(datos);
       } catch (error) {
@@ -247,7 +247,7 @@ function MisAmigosScreen() {
 
   async function dejarSeguir(usuarioId) {
     try {
-      const respuesta = await fetch(`http://192.168.43.18:8080/amigosMovil/dejar/${usuarioId}`, {
+      const respuesta = await fetch(`http://192.168.1.129:8080/amigosMovil/dejar/${usuarioId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         // Puedes agregar aquí el token de autenticación si es necesario
@@ -305,7 +305,7 @@ function RankingScreen() {
   useEffect(() => {
     async function obtenerUsuarios() {
       try {
-        const respuesta = await fetch('http://192.168.43.18:8080/rankingAmigos');
+        const respuesta = await fetch('http://192.168.1.129:8080/rankingAmigos');
         const datos = await respuesta.json();
         setUsuarios(datos);
       } catch (error) {
