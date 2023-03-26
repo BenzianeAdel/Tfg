@@ -51,20 +51,20 @@ public class LoginController {
         // Llamada al servicio para comprobar si el login es correcto
         LoginStatus loginStatus = usuarioService.login(loginData.geteMail(), loginData.getPassword());
         if(loginStatus == LoginStatus.USER_NOT_FOUND){
-            model.addAttribute("error", "No existe usuario");
+            model.addAttribute("errorLogin", "No existe usuario");
             return "formLogin";
         } else if (loginStatus == LoginStatus.LOGIN_OK) {
             Usuario usuario = usuarioService.findByEmail(loginData.geteMail());
             managerUserSession.logearUsuario(usuario.getId());
             return "redirect:/home";
         } else if (loginStatus == LoginStatus.ERROR_PASSWORD) {
-            model.addAttribute("error", "Contraseña incorrecta");
+            model.addAttribute("errorLogin", "Contraseña incorrecta");
             return "formLogin";
         } else if (loginStatus == LoginStatus.ERROR_BLOQUEADO){
-            model.addAttribute("error","El usuario esta bloqueado");
+            model.addAttribute("errorLogin","El usuario esta bloqueado contacte con el administrador");
             return "formLogin";
         } else if (loginStatus == LoginStatus.CUENTA_DESACTIVADA){
-            model.addAttribute("error","Activala verificando el email");
+            model.addAttribute("errorLogin","Activala verificando el email");
             return "formLogin";
         }
         return "formLogin";

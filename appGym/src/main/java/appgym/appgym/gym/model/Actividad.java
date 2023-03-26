@@ -29,6 +29,6 @@ public class Actividad {
     @JoinColumn(name = "maquina_id")
     private Maquina maquina;
 
-    @ManyToMany(mappedBy = "actividades",fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ManyToMany(mappedBy = "actividades")
     Set<Rutina> rutinas = new HashSet<>();
 }

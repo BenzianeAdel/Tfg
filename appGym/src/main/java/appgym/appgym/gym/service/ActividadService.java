@@ -34,17 +34,17 @@ public class ActividadService {
 
     @Transactional(readOnly = true)
     public List<Actividad> findAll() {
-        return (List<Actividad>) actividadRepository.findAll();
+        return (List<Actividad>) actividadRepository.findAllByOrderByIdDesc();
     }
 
     @Transactional(readOnly = true)
     public List<Reservation> findAllReservas() {
-        return (List<Reservation>) reservationRepository.findAll();
+        return (List<Reservation>) reservationRepository.findAllByOrderByIdDesc();
     }
 
     @Transactional(readOnly = true)
     public List<Rutina> findAllRutinas() {
-        return (List<Rutina>) rutinaRepository.findAll();
+        return (List<Rutina>) rutinaRepository.findAllByOrderByIdDesc();
     }
 
     public Actividad registrar(Actividad a){

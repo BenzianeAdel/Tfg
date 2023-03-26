@@ -193,10 +193,12 @@ public class UsuarioService {
     public void eliminarRelacionesCliente(Usuario u){
         usuarioRepository.eliminarEntidadRelacionadaReservaPorCliente(u);
         usuarioRepository.eliminarEntidadRelacionadaSeguirPorCliente(u);
+        usuarioRepository.eliminarEntidadRelacionadaMensajes(u);
     }
     @Transactional(readOnly = false)
     public void eliminarRelacionesMonitor(Usuario u){
         usuarioRepository.eliminarEntidadRelacionadaReservaPorMonitor(u);
+        usuarioRepository.eliminarEntidadRelacionadaMensajes(u);
     }
     /*
     @Transactional(readOnly = true)

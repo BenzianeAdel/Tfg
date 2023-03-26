@@ -5,6 +5,7 @@ import appgym.appgym.gym.model.ZonaCuerpo;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.Multipart;
+import javax.validation.constraints.Null;
 
 public class ActividadData {
     private Long id;
@@ -12,6 +13,7 @@ public class ActividadData {
     private ZonaCuerpo zonaCuerpo;
     private int series;
     private int repeticiones;
+    @Null
     private Maquina maquina;
     private MultipartFile imagen;
 

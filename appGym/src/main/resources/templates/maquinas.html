@@ -57,18 +57,90 @@
     </div>
   </div>
 </nav>
+<div class="modal fade" id="eliminarMaquinaModal" tabindex="-1" role="dialog" aria-labelledby="eliminarMaquinaModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eliminarMaquinaModalLabel">¿Estás seguro de que deseas eliminar esta maquina?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="eliminarMaquinaForm" method="POST" th:object="${maquinaData}" action="/maquinas/eliminar">
+        <div class="modal-body">
+          <input type="hidden" th:field="*{id}" name="maquinaIdEliminar" id="maquinaIdEliminar"/>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Eliminar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <div class="container">
+  <div class="row mt-2">
+    <div class="col">
+      <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${!#strings.isEmpty(correcto)}">
+        <span th:text="${correcto}"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <button th:if="${usuario.getTipoUser() == esAdmin}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaMaquinaModal">Nueva Maquina</button>
   <div class="row">
     <div class="col-md-6" th:each="maquina : ${maquinas}">
       <div class="card">
-        <img class="card-img-top" th:src="@{/img/__${maquina.imagen}__}">
+        <img class="card-img-top" style="height: 500px;width: 500px" th:src="@{/img/__${maquina.imagen}__}">
         <div class="card-body">
           <h5 class="card-title" th:text="${maquina.nombre}"></h5>
           <p class="card-text" th:text="${maquina.registro}"></p>
+          <a th:if="${usuario.getTipoUser()==esAdmin}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarMaquinaModal" th:data-id="${maquina.id}">
+            <i class="fas fa-trash"></i>
+          </a>
         </div>
       </div>
     </div>
   </div>
 </div>
+<div class="modal fade" id="nuevaMaquinaModal" tabindex="-1" role="dialog" aria-labelledby="nuevaMaquinaModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="nuevaActividadModalLabel">Nueva Maquina</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/maquinas}" method="post" th:object="${maquinaData}" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="imagen">Imagen</label>
+            <input type="file" name="imagen" class="form-control-file" id="imagen">
+          </div>
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" name="nombre" required/>
+          </div>
+          <div class="form-group">
+            <label for="registro">Fecha Registro</label>
+            <input type="date" th:field="*{registro}" class="form-control" id="registro" name="registro" required/>
+          </div>
+          <button type="submit" class="btn btn-primary">Crear</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $('#eliminarMaquinaModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget); // Botón que abrió el modal
+    var maquinaId = button.data('id'); // Extraer información de atributos de datos
+    var modal = $(this);
+    modal.find('.modal-body #maquinaIdEliminar').val(maquinaId); // Establecer el valor del campo oculto
+  });
+</script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 package appgym.appgym.gym.service;
 
+import appgym.appgym.gym.model.Actividad;
+import appgym.appgym.gym.model.ActividadRepository;
 import appgym.appgym.gym.model.Maquina;
 import appgym.appgym.gym.model.MaquinaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import java.util.List;
 public class MaquinaService {
     @Autowired
     private MaquinaRepository maquinaRepository;
+    @Autowired
+    private ActividadRepository actividadRepository;
     @Transactional(readOnly = true)
     public Maquina findById(Long maquinaId) {
         return maquinaRepository.findById(maquinaId).orElse(null);
@@ -19,7 +23,28 @@ public class MaquinaService {
 
     @Transactional(readOnly = true)
     public List<Maquina> findAll() {
-        return (List<Maquina>) maquinaRepository.findAll();
+        return (List<Maquina>) maquinaRepository.findAllByOrderByIdDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Actividad> findAllActividades() {
+        return (List<Actividad>) actividadRepository.findAllByOrderByIdDesc();
+    }
+
+    public Maquina registrar(Maquina a){
+        return maquinaRepository.save(a);
+    }
+
+    @Transactional(readOnly = false)
+    public void eliminarMaquina(Maquina a){
+        List<Actividad> actividades = findAllActividades();
+        for(int i=0;i<actividades.size();i++){
+            if(actividades.get(i).getMaquina()==a){
+                actividades.get(i).setMaquina(null);
+                actividadRepository.save(actividades.get(i));
+            }
+        }
+        maquinaRepository.delete(a);
     }
 
 }

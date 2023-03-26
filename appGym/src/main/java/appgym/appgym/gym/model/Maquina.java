@@ -23,15 +23,7 @@ public class Maquina implements Serializable {
     private String nombre;
     private String imagen;
 
-    private boolean fueraServicio=false;
-
     @Column(name = "fecha_registro")
     @Temporal(TemporalType.DATE)
     private Date registro;
-    @Column(name = "fecha_ultima_inspeccion")
-    @Temporal(TemporalType.DATE)
-    private Date ultimaInspeccion;
-    @Column(name = "fecha_proxima_inspeccion")
-    @Temporal(TemporalType.DATE)
-    private Date proximaInspeccion;
 }

@@ -105,7 +105,6 @@ public class UsuarioController {
         usuarioService.editarUsuario(u);
         return u;
     }
-    @ResponseBody
     @PostMapping("/eliminar")
     public String EliminarUsuario(UsuarioData usuarioData){
         Usuario u = usuarioService.findById(usuarioData.getId());

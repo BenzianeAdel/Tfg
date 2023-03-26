@@ -1,6 +1,7 @@
 package appgym.appgym.gym.controller;
 
 import appgym.appgym.gym.authentication.ManagerUserSession;
+import appgym.appgym.gym.model.Actividad;
 import appgym.appgym.gym.model.Maquina;
 import appgym.appgym.gym.model.User;
 import appgym.appgym.gym.model.Usuario;
@@ -9,9 +10,18 @@ import appgym.appgym.gym.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Controller
@@ -38,6 +48,7 @@ public class MaquinasController {
         model.addAttribute("maquinas",maquinas);
         Long idu = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(idu);
+        model.addAttribute("maquinaData",new MaquinaData());
         model.addAttribute("esAdmin",User.admin);
         model.addAttribute("esCliente", User.cliente);
         model.addAttribute("usuario",u);
@@ -48,5 +59,34 @@ public class MaquinasController {
     public List<Maquina> maquinasMovil(){
         List<Maquina> maquinas = maquinaService.findAll();
         return maquinas;
+    }
+    @PostMapping("/maquinas")
+    public String nuevaMaquinas(MaquinaData maquinaData, @RequestParam("imagen") MultipartFile imagen, BindingResult result){
+        if (result.hasErrors()) {
+            return "maquinas";
+        }
+        if (!imagen.isEmpty()) {
+            try {
+                byte[] bytesImagen = imagen.getBytes();
+                Path rutaImagen = Paths.get("src/main/resources/static/img/" + imagen.getOriginalFilename());
+                Files.write(rutaImagen, bytesImagen);
+                maquinaData.setImagen(imagen);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        Maquina m = new Maquina();
+        m.setImagen(imagen.getOriginalFilename());
+        m.setNombre(maquinaData.getNombre());
+        m.setRegistro(maquinaData.getRegistro());
+        maquinaService.registrar(m);
+        return "redirect:/maquinas";
+    }
+    @PostMapping("/maquinas/eliminar")
+    public String EliminarMaquina(MaquinaData maquinaData, RedirectAttributes flash){
+        Maquina a = maquinaService.findById(maquinaData.getId());
+        maquinaService.eliminarMaquina(a);
+        flash.addFlashAttribute("correcto","Se ha eliminado correctamente la Maquina");
+        return "redirect:/maquinas";
     }
 }

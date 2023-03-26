@@ -128,7 +128,11 @@ public class ActividadController {
         a.setNombre(actividadData.getNombre());
         a.setSeries(actividadData.getSeries());
         a.setRepeticiones(actividadData.getRepeticiones());
-        a.setMaquina(actividadData.getMaquina());
+        if(actividadData.getMaquina()==null){
+            a.setMaquina(null);
+        }else{
+            a.setMaquina(actividadData.getMaquina());
+        }
         a.setZonaCuerpo(actividadData.getZonaCuerpo());
         actividadService.registrar(a);
         return "redirect:/actividades";
@@ -201,7 +205,7 @@ public class ActividadController {
         try{
             actividadService.eliminarActividad(a);
         } catch(Exception e){
-            flash.addFlashAttribute("errorActividad","No se ha podido borrar porque hay una reserva Asociada");
+            flash.addFlashAttribute("errorActividad","No se ha podido borrar porque esta asociada a una rutina");
         }
         return "redirect:/actividades";
     }

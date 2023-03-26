@@ -28,4 +28,7 @@ public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
     @Modifying
     @Query("DELETE FROM Seguir er WHERE er.seguido = :usuario or er.seguidor = :usuario")
     void eliminarEntidadRelacionadaSeguirPorCliente(@Param("usuario") Usuario usuario);
+    @Modifying
+    @Query("DELETE FROM Mensajes er WHERE er.emisor = :usuario or er.receptor = :usuario")
+    void eliminarEntidadRelacionadaMensajes(@Param("usuario") Usuario usuario);
 }

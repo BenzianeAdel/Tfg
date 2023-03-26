@@ -83,6 +83,16 @@
             <a class="nav-link" href="#reservasVerAdmin" data-toggle="tab">Reservas del sistema</a>
         </li>
     </ul>
+    <div class="row mt-2">
+        <div class="col">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${!#strings.isEmpty(errorActividad)}">
+                <span th:text="${errorActividad}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="tab-content">
         <div class="tab-pane active" id="actividades">
             <button th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaActividadModal">Nueva Actividad</button>
@@ -90,13 +100,13 @@
             <div class="row">
                 <div class="col-md-6" th:each="actividad : ${actividades}">
                     <div class="card">
-                        <img class="card-img-top" th:src="@{/img/__${actividad.imagen}__}">
+                        <img class="card-img-top" style="height: 500px;width: 500px" th:src="@{/img/__${actividad.imagen}__}">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${actividad.nombre}"></h5>
                             <p class="card-text">Series [[${actividad.series}]]</p>
                             <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
                             <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                            <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                            <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
                                 [[${actividad.maquina.nombre}]]
                             </button>
                                 <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarActividadModal" th:data-id="${actividad.id}">
@@ -188,13 +198,13 @@
                     <div class="row">
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
-                                <img class="card-img-top" th:src="@{/img/__${actividad.imagen}__}">
+                                <img class="card-img-top" style="height: 300px;width: 300px" th:src="@{/img/__${actividad.imagen}__}">
                                 <div class="card-body">
                                     <h5 class="card-title" th:text="${actividad.nombre}"></h5>
                                     <p class="card-text">Series [[${actividad.series}]]</p>
                                     <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
                                     <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                                    <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                                    <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
                                         [[${actividad.maquina.nombre}]]
                                     </button>
                                 </div>
@@ -245,13 +255,13 @@
                     <div class="row">
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
-                                <img class="card-img-top" th:src="@{/img/__${actividad.imagen}__}">
+                                <img class="card-img-top" style="height: 300px;width: 300px" th:src="@{/img/__${actividad.imagen}__}">
                                 <div class="card-body">
                                     <h5 class="card-title" th:text="${actividad.nombre}"></h5>
                                     <p class="card-text">Series [[${actividad.series}]]</p>
                                     <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
                                     <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                                    <p><button type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                                    <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
                                         [[${actividad.maquina.nombre}]]
                                     </button>
                                 </div>
@@ -343,7 +353,8 @@
                     <form method="post" action="/reservar" th:object="${reservaData}">
                         <div class="form-group">
                             <label for="monitor-select">Selecciona un monitor:</label>
-                            <select th:field="*{idMonitor}" class="form-control" id="monitor-select">
+                            <select th:field="*{idMonitor}" class="form-control" id="monitor-select" required>
+                                <option value="">-- Seleccionar --</option>
                                 <option th:each="monitor : ${monitores}"  th:value="${monitor.id}" th:text="${monitor.nombre}"></option>
                             </select>
                         </div>
@@ -374,7 +385,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="card">
-                        <img id="modal-image" src="" />
+                        <img id="modal-image" style="height: 400px;width: 400px" src="" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -400,19 +411,20 @@
                         </div>
                         <div class="form-group">
                             <label for="nombre">Nombre</label>
-                            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" name="nombre" required/>
+                            <input type="text" th:field="*{nombre}" class="form-control" id="nombre" name="nombre" minlength="3" maxlength="50" required/>
                         </div>
                         <div class="form-group">
                             <label for="series">Series</label>
-                            <input type="number" th:field="*{series}" class="form-control" id="series" name="series" required/>
+                            <input type="number" th:field="*{series}" class="form-control" id="series" name="series" min="1" max="100" required/>
                         </div>
                         <div class="form-group">
                             <label for="repeticiones">Repeticiones</label>
-                            <input type="number" th:field="*{repeticiones}" class="form-control" id="repeticiones" name="repeticiones" required/>
+                            <input type="number" th:field="*{repeticiones}" class="form-control" id="repeticiones" name="repeticiones" min="1" max="50" required/>
                         </div>
                         <div class="form-group">
                             <label for="maquina">Maquina</label>
-                            <select name="maquina" th:field="*{maquina}" class="form-control" id="maquina" required>
+                            <select name="maquina" th:field="*{maquina}" class="form-control" id="maquina">
+                                <option value="-1">-- Seleccionar --</option>
                                 <option th:each="maq : ${maquinas}"
                                         th:value="${maq.id}"
                                         th:text="${maq.nombre}"
@@ -423,6 +435,7 @@
                         <div class="form-group">
                             <label for="zona">Zona Cuerpo</label>
                             <select name="zona" th:field="*{zonaCuerpo}" class="form-control" id="zona" required>
+                                <option value="">-- Seleccionar --</option>
                                 <option th:each="opcion : ${opciones}" th:value="${opcion}" th:text="${opcion}"></option>
                             </select>
                         </div>
@@ -449,7 +462,7 @@
                         </div>
                         <div class="form-group">
                             <label for="ejerciciosrutina">Ejercicios</label>
-                            <select th:field="*{actividades}" id ="ejerciciosrutina" multiple="multiple">
+                            <select th:field="*{actividades}" id ="ejerciciosrutina" multiple="multiple" required>
                                 <option th:each="option : ${ejercicios}" th:value="${option.id}" th:text="${option.nombre}"></option>
                             </select>
                         </div>
@@ -469,16 +482,6 @@
             <ul th:if="${error != null}" class="alert alert-danger">
                 <li th:text="${error}"></li>
             </ul>
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col">
-            <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${!#strings.isEmpty(errorActividad)}">
-                <span th:text="${errorActividad}"></span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
         </div>
     </div>
 </div>
