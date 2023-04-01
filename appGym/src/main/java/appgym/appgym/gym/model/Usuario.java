@@ -35,6 +35,10 @@ public class Usuario implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date fechaNacimiento;
 
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
+
     @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     Set<Enfermedades> enfermedades = new HashSet<>();
 

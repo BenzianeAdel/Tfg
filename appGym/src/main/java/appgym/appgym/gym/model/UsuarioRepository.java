@@ -31,4 +31,7 @@ public interface UsuarioRepository extends CrudRepository<Usuario, Long> {
     @Modifying
     @Query("DELETE FROM Mensajes er WHERE er.emisor = :usuario or er.receptor = :usuario")
     void eliminarEntidadRelacionadaMensajes(@Param("usuario") Usuario usuario);
+
+    @Query("SELECT u FROM Usuario u WHERE u.verificationCode = ?1")
+    public Usuario findByVerificationCode(String code);
 }

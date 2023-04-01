@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { AsyncStorage } from 'react-native';
+import IP from '../config';
 
 const MiPerfil = () => {
   const [userData, setUserData] = useState(null);
@@ -42,7 +43,7 @@ const MiPerfil = () => {
         apellidos: apellidos
       };
       console.log(newUserData)
-      const response = await fetch('http://192.168.1.129:8080/perfil/editar', {
+      const response = await fetch(`http://${IP}/perfil/editar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,6 +140,7 @@ const MiPerfil = () => {
 const styles = StyleSheet.create({
     container: {
       flexGrow: 1,
+      backgroundColor:'#6B3654',
     },
     background: {
       flex: 1,
@@ -163,6 +165,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#5cb85c',
       padding: 10,
       borderRadius: 5,
+      marginBottom: 10,
     },
     content: {
       backgroundColor: '#fff',
@@ -171,6 +174,8 @@ const styles = StyleSheet.create({
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
       marginTop: -20,
+      marginLeft: 20,
+      marginRight: 20,
     },
     field: {
       marginBottom: 20,

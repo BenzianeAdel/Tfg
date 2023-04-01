@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, Modal } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
+import { Card, Button, Icon } from 'react-native-elements';
+import IP from '../config';
 
 const ActivitiesScreen = ({ route }) => {
   const { activities } = route.params;
@@ -28,11 +30,12 @@ const ActivitiesScreen = ({ route }) => {
 
   const renderActivity = ({ item }) => {
     return (
+      <Card>
       <TouchableOpacity
         style={styles.activityContainer}
         onPress={() => handleActivityPress(item)}
       >
-        <Image source={{ uri: `http://192.168.1.129:8080/img/${item.imagen}` }} style={styles.activityImage}  />
+        <Image source={{ uri: `http://${IP}/img/${item.imagen}` }} style={styles.activityImage}  />
         <View style={styles.activityInfo}>
           <Text style={styles.activityText}>Series: {item.series}</Text>
           <Text style={styles.activityText}>Repeticiones: {item.repeticiones}</Text>
@@ -40,12 +43,14 @@ const ActivitiesScreen = ({ route }) => {
             <TouchableOpacity
               style={styles.activityButton}
               onPress={() => handleMachinePress(item.maquina)}
-            >
-              <FontAwesome name="cog" style={styles.activityButtonIcon} />
-            </TouchableOpacity>
+            ><Text style={styles.maquinaDetalles}>
+              <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
+              </Text>            
+              </TouchableOpacity>
           )}
         </View>
       </TouchableOpacity>
+      </Card>
     );
   };
 
@@ -55,7 +60,7 @@ const ActivitiesScreen = ({ route }) => {
       {selectedMaquina && (
         <Modal visible={true} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://192.168.1.129:8080/img/${selectedMaquina.imagen}` }} style={styles.imagenModal} />
+            <Image source={{ uri: `http://${IP}/img/${selectedMaquina.imagen}` }} style={styles.imagenModal} />
             <Text style={styles.modalTitle}>{selectedMaquina.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedMaquina.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={handleModalMaquinaClose}>
@@ -68,7 +73,7 @@ const ActivitiesScreen = ({ route }) => {
         {selectedActivity && (
         <Modal visible={true} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://192.168.1.129:8080/img/${selectedActivity.imagen}` }} style={styles.imagenModal} />
+            <Image source={{ uri: `http://${IP}/img/${selectedActivity.imagen}` }} style={styles.imagenModal} />
             <Text style={styles.modalTitle}>{selectedActivity.nombre}</Text>
             <Text style={styles.modalSubtitle}>Numero de Series: {selectedActivity.series}</Text>
             <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedActivity.series}</Text>
@@ -86,7 +91,7 @@ const ActivitiesScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#6B3654',
     paddingTop: 20,
   },
   activityContainer: {
@@ -94,12 +99,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#d9d9d9',
+    borderBottomColor: '#FFCC99',
   },
   activityImage: {
     width: 80,
     height: 80,
     marginRight: 10,
+    borderRadius: 10,
   },
   imagenModal: {
     width: 300,
@@ -145,6 +151,11 @@ const styles = StyleSheet.create({
   modalCloseIcon: {
     fontSize: 30,
     color: '#333',
+  },
+  maquinaDetalles:{
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
   },
 });
 

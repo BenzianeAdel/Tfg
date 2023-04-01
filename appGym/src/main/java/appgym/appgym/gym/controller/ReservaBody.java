@@ -11,8 +11,7 @@ public class ReservaBody {
     private Long idMonitor;
     private Long idRutina;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private Calendar fecha;
+    private String fecha;
 
     public String getTitle(){
         return title;
@@ -20,7 +19,7 @@ public class ReservaBody {
     public Long getIdMonitor(){
         return idMonitor;
     }
-    public Calendar getFecha(){
+    public String getFecha(){
         return fecha;
     }
     public Long getIdRutina(){
@@ -35,7 +34,7 @@ public class ReservaBody {
     public void setIdRutina(Long a){
         this.idRutina = a;
     }
-    public void setFecha(Calendar f){
+    public void setFecha(String f){
         this.fecha = f;
     }
 }

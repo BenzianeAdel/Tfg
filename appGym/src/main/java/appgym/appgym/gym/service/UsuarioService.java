@@ -6,9 +6,15 @@ import appgym.appgym.gym.service.exception.UsuarioServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Service
@@ -26,8 +32,8 @@ public class UsuarioService {
     @Autowired
     private MensajesRepository mensajesRepository;
 
-    //@Autowired
-    //private JavaMailSender correo;
+    @Autowired
+    private JavaMailSender correo;
 
     @Transactional(readOnly = true)
     public LoginStatus login(String eMail, String password) {
@@ -104,29 +110,42 @@ public class UsuarioService {
     }
     @Transactional(readOnly = true)
     public List<Usuario> findContactos(Long idY,String busca) {
-        List<Usuario> usuarios = findAll();
+        //List<Usuario> usuarios = findAll();
         List<Mensajes> mensajes = findAllMensajes();
         List<Usuario> users = new ArrayList<>();
+        List<Usuario> usuarios = null;
         if(busca == null){
+            for(int k=mensajes.size()-1;k>=0;k--){
+                if(mensajes.get(k).getReceptor().getId()==idY && !users.contains(mensajes.get(k).getEmisor())){
+                    users.add(mensajes.get(k).getEmisor());
+                } else{
+                    if(mensajes.get(k).getEmisor().getId()==idY && !users.contains(mensajes.get(k).getReceptor())){
+                        users.add(mensajes.get(k).getReceptor());
+                    }
+                }
+            }
+            usuarios = new ArrayList<Usuario>(users);
+        }
+        else{
+            usuarios = usuarioRepository.busquedaContacto(busca);
+        }
+        return usuarios;
+    }
+    @Transactional(readOnly = true)
+    public List<Usuario> usersMessages(Long idY) {
+        List<Usuario> usuarios = findAll();
+        List<Usuario> users = new ArrayList<>();
             for (int i = 0; i < usuarios.size(); i++) {
                 if(idY == null){
                     if (usuarios.get(i).getTipoUser() != User.admin) {
                         users.add(usuarios.get(i));
                     }
                 }else{
-                    if (usuarios.get(i).getTipoUser() != User.admin) {
-                        for(int j=0;j<mensajes.size();j++){
-                            if((mensajes.get(j).getReceptor().getId()==usuarios.get(i).getId() && mensajes.get(j).getEmisor().getId()==idY) || (mensajes.get(j).getEmisor().getId()==usuarios.get(i).getId() && mensajes.get(j).getReceptor().getId()==idY)){
-                                users.add(usuarios.get(i));
-                            }
-                        }
+                    if (usuarios.get(i).getTipoUser() != User.admin && usuarios.get(i).getId() != idY) {
+                        users.add(usuarios.get(i));
                     }
                 }
             }
-        }
-        else{
-            users = usuarioRepository.busquedaContacto(busca);
-        }
         return users;
     }
     @Transactional(readOnly = true)
@@ -200,71 +219,17 @@ public class UsuarioService {
         usuarioRepository.eliminarEntidadRelacionadaReservaPorMonitor(u);
         usuarioRepository.eliminarEntidadRelacionadaMensajes(u);
     }
-    /*
-    @Transactional(readOnly = true)
-    public List<Usuario> findAllMenosLogueado() {
-        List<Usuario> usuarios = findAll();
-        List<Usuario> users = new ArrayList<>();
-        for (int i = 0; i < usuarios.size(); i++) {
-            if (usuarios.get(i).getAdministrador() == false) {
-                users.add(usuarios.get(i));
-            }
-        }
-        return users;
-    }
-
-    @Transactional(readOnly = true)
-    public boolean hayAdministrador() {
-        List<Usuario> users = findAll();
-        boolean hayadmin = false;
-        for (int i = 0; i < users.size() && hayadmin == false; i++) {
-            if (users.get(i).getAdministrador() == true) {
-                hayadmin = true;
-            }
-        }
-        return hayadmin;
-    }
-
-    @Transactional(readOnly = true)
-    public Long devolverIDAdministrador() {
-        Long id = -1L;
-        List<Usuario> users = findAll();
-        for (int i = 0; i < users.size() && id == -1L; i++) {
-            if (users.get(i).getAdministrador() == true) {
-                id = users.get(i).getId();
-            }
-        }
-        return id;
-    }
-
-    @Transactional(readOnly = true)
-    public boolean soyAdministrador(Long id) {
-        Usuario user = findById(id);
-        return user.getAdministrador();
-    }
-
-    @Transactional(readOnly = false)
-    public void bloquearUsuario(Long id) {
-        Usuario us = findById(id);
-        us.setAcceso(false);
-    }
-
-    @Transactional(readOnly = false)
-    public void habiliarUsuario(Long id) {
-        Usuario us = findById(id);
-        us.setAcceso(true);
-    }
 
     public void sendVerificationEmail(Usuario user, String siteURL) throws MessagingException, UnsupportedEncodingException {
         String toAddress = user.getEmail();
         String fromAddress = "adelbenziane17@gmail.com";
-        String senderName = "Equipo5 TODOLIST";
+        String senderName = "ADUAFitness";
         String subject = "Verificacion de la cuenta";
         String content = "Estimado [[name]],<br>"
                 + "Porfavor dale al enlace inferior para verificar su registro:<br>"
                 + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFICAR</a></h3>"
                 + "Muchas gracias,<br>"
-                + "TODOLIST Equipo5.";
+                + "ADUAFitness.";
 
         MimeMessage message = correo.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -284,13 +249,17 @@ public class UsuarioService {
 
     public String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();
-        return siteURL.replace(request.getServletPath(), "");
+        String servletPath = request.getServletPath();
+        String contextPath = request.getContextPath();
+        String serverName = request.getLocalAddr();
+        int serverPort = request.getServerPort();
+        String url = siteURL.replace(servletPath, "").replace(contextPath, "");
+        return url.startsWith("http") ? url : String.format("%s://%s:%d%s", request.getScheme(), serverName, serverPort, url);
     }
-
     public boolean verify(String verificationCode) {
         Usuario user = usuarioRepository.findByVerificationCode(verificationCode);
 
-        if (user == null || user.getEnabled()) {
+        if (user == null || user.isEnabled()) {
             return false;
         } else {
             user.setVerificationCode(null);
@@ -299,34 +268,17 @@ public class UsuarioService {
             return true;
         }
     }
-
-    @Transactional(readOnly = false)
-    public void modificarUsuario(Long idUsuario, Usuario modificar) {
-        Usuario usuario = usuarioRepository.findById(idUsuario).orElse(null);
-
-        if (usuario != null) {
-            usuario.setEmail(modificar.getEmail());
-            usuario.setPassword(modificar.getPassword());
-            usuario.setNombre(modificar.getNombre());
-            usuario.setFechaNacimiento(modificar.getFechaNacimiento());
-            usuarioRepository.save(usuario);
-        } else {
-            throw new UsuarioServiceException("Usuario erroneo, no se puede modificar...");
-        }
-
-    }
-
     @Transactional(readOnly = true)
     public void sendRessetEmail(Usuario user, String siteURL) throws MessagingException, UnsupportedEncodingException {
         String toAddress = user.getEmail();
         String fromAddress = "adelbenziane17@gmail.com";
-        String senderName = "Equipo5 TODOLIST";
+        String senderName = "ADUAFitness";
         String subject = "Restablecer la contraseña";
         String content = "Estimado [[name]],<br>"
                 + "Porfavor dale al enlace inferior para cambiar la contraseña:<br>"
                 + "<h3><a href=\"[[URL]]\" target=\"_self\">RESTABLECER</a></h3>"
                 + "Muchas gracias,<br>"
-                + "TODOLIST Equipo5.";
+                + "ADUAFitness.";
 
         MimeMessage message = correo.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -343,16 +295,6 @@ public class UsuarioService {
         helper.setText(content, true);
         correo.send(message);
     }
-
-    @Transactional(readOnly = false)
-    public void borrarUsuario(Long idUsuarioRegistrado, Long idUsuarioBorrar) {
-        if (idUsuarioBorrar != idUsuarioRegistrado) {
-            throw new UsuarioServiceException("No se puede borrar un usuario que no sea propio...");
-        }
-        datosEquipoUsuarioRepository.eliminarRelacionadoUsuario(idUsuarioRegistrado);
-        usuarioRepository.deleteById(idUsuarioRegistrado);
-    }
-
     @Transactional(readOnly = false)
     public void resetPassword(Long iduser, String pass) {
         Usuario usuario = usuarioRepository.findById(iduser).orElse(null);
@@ -364,12 +306,4 @@ public class UsuarioService {
             throw new UsuarioServiceException("Usuario erroneo, no se puede modificar...");
         }
     }
-
-    @Transactional(readOnly = true)
-    public List<Usuario> busquedaUser(String busca) {
-        if (busca != null) {
-            return usuarioRepository.busqueda(busca);
-        }
-        return findAll();
-    }*/
 }

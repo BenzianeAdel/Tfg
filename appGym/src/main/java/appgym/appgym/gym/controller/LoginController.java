@@ -4,7 +4,9 @@ import appgym.appgym.gym.model.User;
 import appgym.appgym.gym.model.Usuario;
 import appgym.appgym.gym.service.UsuarioService;
 import appgym.appgym.gym.service.LoginStatus;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -90,7 +93,7 @@ public class LoginController {
             ApiResponse response = new ApiResponse("Usuario Bloqueado, contacta con administrador");
             return ResponseEntity.badRequest().body(response);
         } else if (loginStatus == LoginStatus.CUENTA_DESACTIVADA){
-            ApiResponse response = new ApiResponse("Cuenta desactivada");
+            ApiResponse response = new ApiResponse("Cuenta desactivada, Activala verificando el email");
             return ResponseEntity.badRequest().body(response);
         }
         ApiResponse response = new ApiResponse("Error del servidor");
@@ -126,10 +129,39 @@ public class LoginController {
         usuario.setEmail(usuarioData.geteMail());
         usuario.setApellidos(usuarioData.getApellidos());
         usuario.setAcceso(true);
-        usuario.setEnabled(true);
+        String randomCode = RandomString.make(64);
+        usuario.setVerificationCode(randomCode);
+        String url = usuarioService.getSiteURL(req);
+        usuarioService.sendVerificationEmail(usuario,url);
         usuario.setTipoUser(User.cliente);
         usuarioService.registrar(usuario);
-        return "redirect:/login";
+        return "registro_check";
+    }
+    @PostMapping("/registroMovil")
+    @ResponseBody
+    public ResponseEntity<Object> registroMovilSubmit(@RequestBody UsuarioData usuarioData,HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
+
+        if (usuarioService.findByEmail(usuarioData.geteMail()) != null) {
+            ApiResponse response = new ApiResponse("El usuario " + usuarioData.geteMail() + " ya existe");
+            return ResponseEntity.badRequest().body(response);
+        }
+        else {
+            Usuario usuario = new Usuario();
+            usuario.setPassword(usuarioData.getPassword());
+            usuario.setFechaNacimiento(usuarioData.getFechaNacimiento());
+            usuario.setNombre(usuarioData.getNombre());
+            usuario.setEmail(usuarioData.geteMail());
+            usuario.setApellidos(usuarioData.getApellidos());
+            usuario.setAcceso(true);
+            String randomCode = RandomString.make(64);
+            usuario.setVerificationCode(randomCode);
+            String url = usuarioService.getSiteURL(req);
+            usuarioService.sendVerificationEmail(usuario, url);
+            usuario.setTipoUser(User.cliente);
+            usuarioService.registrar(usuario);
+            ApiResponse response = new ApiResponse("Por favor verifique su correo para completar el registro");
+            return ResponseEntity.ok().body(response);
+        }
     }
     @PostMapping("/newUser")
     public String registroNewSubmit(@Valid UsuarioData usuarioData, BindingResult result, Model model, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
@@ -156,52 +188,68 @@ public class LoginController {
         return "redirect:/users";
     }
 
-    /*@GetMapping("/olvidar")
-        public String olvidarForm(Model model) {
-            model.addAttribute("resetData", new RessetData());
-            return "formOlvidar";
-        }
-        @PostMapping("/olvidar")
-        public String enviarCorreo(@ModelAttribute RessetData resetData, RedirectAttributes flash, Model model, HttpSession session, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
-            Usuario user = usuarioService.findByEmail(resetData.getEmail());
+    @GetMapping("/olvidar")
+    public String olvidarForm(Model model) {
+        model.addAttribute("resetData", new UsuarioData());
+        return "formOlvidar";
+    }
+    @PostMapping("/olvidar")
+    public String enviarCorreo(@ModelAttribute UsuarioData resetData, RedirectAttributes flash, Model model, HttpSession session, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
+        Usuario user = usuarioService.findByEmail(resetData.geteMail());
 
-            if(user == null){
-                flash.addFlashAttribute("error", "No existe el correo en el sistema");
-                return "redirect:/olvidar";
-            }
-            else{
-                String url = usuarioService.getSiteURL(req);
-                usuarioService.sendRessetEmail(user,url);
-                flash.addFlashAttribute("mensaje", "Correo enviado correctamente");
-                return "redirect:/olvidar";
-            }
+        if(user == null){
+            flash.addFlashAttribute("error", "No existe el correo en el sistema");
+            return "redirect:/olvidar";
         }
-        @GetMapping("/verify")
-        public String verifyUser(@Param("code") String code) {
-            if (usuarioService.verify(code)) {
-                return "verify_success";
-            } else {
-                return "verify_fail";
-            }
+        else{
+            String url = usuarioService.getSiteURL(req);
+            usuarioService.sendRessetEmail(user,url);
+            flash.addFlashAttribute("mensaje", "Correo enviado correctamente");
+            return "redirect:/olvidar";
         }
-        @GetMapping("/ressetPassword/{idUser}")
-        public String resetPassword(@PathVariable("idUser") Long uid,Model model) {
-            model.addAttribute("newPasswordData", new NewPasswordData());
-            model.addAttribute("userId",uid);
-            return "formNewPassword";
+    }
+    @PostMapping("/olvidarMovil")
+    @ResponseBody
+    public ResponseEntity<Object> enviarCorreoMovil(@RequestBody UsuarioData resetData, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
+        Usuario user = usuarioService.findByEmail(resetData.geteMail());
+
+        if(user == null){
+            ApiResponse response = new ApiResponse("No existe el correo en el sistema");
+            return ResponseEntity.badRequest().body(response);
         }
-        @PostMapping("/ressetPassword/{idUser}")
-        public String resetPassword(@PathVariable("idUser") Long uid, RedirectAttributes flash, @ModelAttribute NewPasswordData newPasswordData, Model model, HttpSession session) {
-            Usuario user = usuarioService.findById(uid);
-            if(user == null){
-                flash.addFlashAttribute("error","No se ha podido realizar el cambio de contraseña");
-                return "redirect:/olvidar";
-            }else{
-                usuarioService.resetPassword(user.getId(),newPasswordData.getPassword());
-                flash.addFlashAttribute("mensaje","Contraseña restablecida correctamente");
-                return "redirect:/login";
-            }
-        }*/
+        else{
+            String url = usuarioService.getSiteURL(req);
+            usuarioService.sendRessetEmail(user,url);
+            ApiResponse response = new ApiResponse("Correo enviado, ya puede restablecer");
+            return ResponseEntity.ok().body(response);
+        }
+    }
+    @GetMapping("/verify")
+    public String verifyUser(@Param("code") String code) {
+        if (usuarioService.verify(code)) {
+            return "verify_success";
+        } else {
+            return "verify_fail";
+        }
+    }
+    @GetMapping("/ressetPassword/{idUser}")
+    public String resetPassword(@PathVariable("idUser") Long uid,Model model) {
+        model.addAttribute("newPasswordData", new UsuarioData());
+        model.addAttribute("userId",uid);
+        return "formNewPassword";
+    }
+    @PostMapping("/ressetPassword/{idUser}")
+    public String resetPassword(@PathVariable("idUser") Long uid, RedirectAttributes flash, @ModelAttribute UsuarioData newPasswordData, Model model, HttpSession session) {
+        Usuario user = usuarioService.findById(uid);
+        if(user == null){
+            flash.addFlashAttribute("error","No se ha podido realizar el cambio de contraseña");
+            return "redirect:/olvidar";
+        }else{
+            usuarioService.resetPassword(user.getId(),newPasswordData.getPassword());
+            flash.addFlashAttribute("mensaje","Contraseña restablecida correctamente");
+            return "redirect:/login";
+        }
+    }
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         managerUserSession.logout();

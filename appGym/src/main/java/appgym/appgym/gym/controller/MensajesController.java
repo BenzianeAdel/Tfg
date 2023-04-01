@@ -8,11 +8,11 @@ import appgym.appgym.gym.service.UsuarioService;
 import appgym.appgym.gym.service.MensajesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -53,6 +53,27 @@ public class MensajesController {
         model.addAttribute("currentUser",managerUserSession.usuarioLogeado());
         model.addAttribute("mensajeData",new MensajeData());
         return "mensajes";
+    }
+    @GetMapping("/mensajesMovil")
+    @ResponseBody
+    public List<Usuario> mensajesMovil(){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        List<Usuario> usuarios = usuarioService.usersMessages(managerUserSession.usuarioLogeado());
+        return usuarios;
+    }
+    @GetMapping("/mensajesRecientesMovil")
+    @ResponseBody
+    public List<Usuario> mensajesRecientesMovil(){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        List<Usuario> usuarios = usuarioService.findContactos(managerUserSession.usuarioLogeado(),null);
+        return usuarios;
+    }
+    @GetMapping("/mensajesMovilRecuperar/{idDestino}")
+    @ResponseBody
+    public List<Mensajes> recuperaMensajes(@PathVariable(value="idDestino") Long idUser){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        List<Mensajes> mensajes = mensajesService.getMensajesPorUsuario(idUser,managerUserSession.usuarioLogeado());
+        return mensajes;
     }
     @PostMapping("/chat/{userId}")
     public String enviarMensaje(@PathVariable Long userId, MensajeData mensajeData) {
@@ -103,5 +124,19 @@ public class MensajesController {
         m.setFecha(now);
         mensajesService.registrar(m);
         return "redirect:/mensajes";
+    }
+    @PostMapping("/newmensaje/{destino}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void envioMensajeMovil(@PathVariable(value="destino") Long idUsuario,@RequestBody MensajeData mensajeData){
+        Long id = managerUserSession.usuarioLogeado();
+        Usuario emisor = usuarioService.findById(id);
+        Usuario dest = usuarioService.findById(idUsuario);
+        Mensajes m = new Mensajes();
+        m.setEmisor(emisor);
+        m.setTexto(mensajeData.getTexto());
+        m.setReceptor(dest);
+        LocalDateTime now = LocalDateTime.now();
+        m.setFecha(now);
+        mensajesService.registrar(m);
     }
 }

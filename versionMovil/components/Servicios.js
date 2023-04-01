@@ -4,7 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card, Button, Icon } from 'react-native-elements';
+import { FontAwesome } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
+import IP from '../config';
 const Tab = createBottomTabNavigator();
 
 function VerMaquinasScreen() {
@@ -20,7 +22,7 @@ function VerMaquinasScreen() {
   useEffect(() => {
     async function fetchMaquinas() {
       try {
-        const response = await fetch('http://192.168.1.129:8080/maquinasSala');
+        const response = await fetch(`http://${IP}/maquinasSala`);
         const data = await response.json();
         setMaquinas(data);
         setLoading(false);
@@ -47,7 +49,7 @@ function VerMaquinasScreen() {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                  <Image style={styles.maquinaImagen} source={{ uri: `http://192.168.1.129:8080/img/${item.imagen}` }} />
+                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/${item.imagen}` }} />
                   <Text style={styles.maquinaNombre}>{item.nombre}</Text>
                 </View>
               </Card>
@@ -56,12 +58,17 @@ function VerMaquinasScreen() {
           keyExtractor={(item) => item.id.toString()}
         />
       )}
-      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>{selectedMaquina?.nombre}</Text>
-          <Image style={styles.maquinaImagenModal} source={{ uri: `http://192.168.1.129:8080/img/${selectedMaquina?.imagen}` }} />
-        </View>
-      </Modal>
+      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
+            <View style={styles.modalContainer}>
+            <Image source={{ uri: `http://${IP}/img/${selectedMaquina?.imagen}` }} style={styles.imagenModal} />
+            <Text style={styles.modalTitle}>{selectedMaquina?.nombre}</Text>
+            <Text style={styles.modalSubtitle}>Fecha de registro: {selectedMaquina?.registro}</Text>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
+                <FontAwesome name="close" style={styles.modalCloseIcon} />
+            </TouchableOpacity>
+            {/* contenido adicional de la modal */}
+            </View>
+        </Modal>
     </View>
   );
 }
@@ -70,15 +77,19 @@ function VerEjerciciosScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedEjercicio, setSelectedEjercicio] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisibleMaquina, setModalVisibleMaquina] = useState(false);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+  };
+  const toggleModalMaquina = () => {
+    setModalVisibleMaquina(!isModalVisibleMaquina);
   };
 
   useEffect(() => {
     async function fetchEjercicios() {
       try {
-        const response = await fetch('http://192.168.1.129:8080/actividadesMovil');
+        const response = await fetch(`http://${IP}/actividadesMovil`);
         const data = await response.json();
         setEjercicios(data);
         setLoading(false);
@@ -105,8 +116,15 @@ function VerEjerciciosScreen() {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                  <Image style={styles.maquinaImagen} source={{ uri: `http://192.168.1.129:8080/img/${item.imagen}` }} />
+                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/${item.imagen}` }} />
                   <Text style={styles.maquinaNombre}>{item.nombre}</Text>
+                  <View style={styles.activityInfo}>
+                  <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
+                    <Text style={styles.maquinaDetalles}>
+                    <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
+                    </Text>
+                  </TouchableOpacity>
+                  </View>     
                 </View>
               </Card>
             </TouchableOpacity>
@@ -114,12 +132,29 @@ function VerEjerciciosScreen() {
           keyExtractor={(item) => item.id.toString()}
         />
       )}
-      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>
-          <Image style={styles.maquinaImagenModal} source={{ uri: `http://192.168.1.129:8080/img/${selectedEjercicio?.imagen}` }} />
-        </View>
+      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
+            <View style={styles.modalContainer}>
+            <Image source={{ uri: `http://${IP}/img/${selectedEjercicio?.imagen}` }} style={styles.imagenModal} />
+            <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Series: {selectedEjercicio?.series}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.series}</Text>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
+                <FontAwesome name="close" style={styles.modalCloseIcon} />
+            </TouchableOpacity>
+            {/* contenido adicional de la modal */}
+            </View>
       </Modal>
+      <Modal isVisible={isModalVisibleMaquina} onBackdropPress={toggleModalMaquina} animationType="slide">
+            <View style={styles.modalContainer}>
+            <Image source={{ uri: `http://${IP}/img/${selectedEjercicio?.maquina.imagen}` }} style={styles.imagenModal} />
+            <Text style={styles.modalTitle}>{selectedEjercicio?.maquina.nombre}</Text>
+            <Text style={styles.modalSubtitle}>Fecha de registro: {selectedEjercicio?.maquina.registro}</Text>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModalMaquina}>
+                <FontAwesome name="close" style={styles.modalCloseIcon} />
+            </TouchableOpacity>
+            {/* contenido adicional de la modal */}
+            </View>
+        </Modal>
     </View>
   );
 }
@@ -154,12 +189,13 @@ function MyTabs() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#6B3654',
     padding: 10,
   },
   loadingText: {
     fontSize: 20,
     fontWeight: 'bold',
+    color:'white',
   },
   maquinaCard: {
     borderRadius: 10,
@@ -168,10 +204,11 @@ const styles = StyleSheet.create({
   maquinaContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    borderRadius: 20,
   },
   maquinaImagen: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 90,
     marginRight: 10,
     borderRadius: 10,
   },
@@ -181,6 +218,19 @@ const styles = StyleSheet.create({
   },
   maquinaNombre: {
     fontSize: 20,
+    fontWeight:'bold',
+  },
+  activityText: {
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  activityInfo: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  imagenModal: {
+    width: 300,
+    height: 300,
   },
   modalContent: {
     backgroundColor: 'white',
@@ -194,6 +244,44 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalSubtitle: {
+    fontSize: 18,
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+  },
+  modalCloseIcon: {
+    fontSize: 30,
+    color: '#333',
+  },
+  activityButton: {
+    backgroundColor: '#3498db',
+    padding: 5,
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+  },
+  activityButtonIcon: {
+    color: '#fff',
+    fontSize: 20,
+  },
+  maquinaDetalles:{
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 20,
+  }
 });
 
 export default function Servicios() {

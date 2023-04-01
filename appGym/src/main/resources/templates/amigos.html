@@ -199,14 +199,15 @@
   <div id="ranking" class="tabcontent">
     <h1>Mis Amigos</h1>
     <ul>
-      <li th:each="usuario ,iterStat: ${friends}">
+      <li th:each="user ,iterStat: ${friends}">
         <div>
-          <span class="nombre" th:text="${iterStat.count}+'º'+${usuario.nombre}"></span>
+          <span th:if="${usuario.id == user.id}" class="nombre" th:text="${iterStat.count}+'º'+${user.nombre}+ ' (Tú)'"></span>
+          <span th:if="${usuario.id != user.id}" class="nombre" th:text="${iterStat.count}+'º'+${user.nombre}"></span>
           <br>
-          <span th:text="${usuario.apellidos}"></span>
+          <span th:text="${user.apellidos}"></span>
         </div>
         <div class="puntos">
-          <button type="button">[[${usuario.puntos}]] puntos</button>
+          <button type="button">[[${user.puntos}]] puntos</button>
         </div>
       </li>
     </ul>

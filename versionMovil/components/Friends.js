@@ -1,107 +1,223 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Avatar, ListItem } from 'react-native-elements';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { Icon } from 'react-native-elements';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import IP from '../config';
+const Tab = createBottomTabNavigator();
 
-const dummyData = [
-  {
-    id: 1,
-    name: 'John Doe',
-    avatar: 'https://picsum.photos/id/237/200/200',
-    messages: [
-      {
-        _id: 1,
-        text: 'Hey, what\'s up?',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'Jane Doe',
-          avatar: 'https://picsum.photos/id/238/200/200',
-        },
-      },
-      {
-        _id: 2,
-        text: 'Not much, you?',
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: 'John Doe',
-          avatar: 'https://picsum.photos/id/237/200/200',
-        },
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Jane Doe',
-    avatar: 'https://picsum.photos/id/238/200/200',
-    messages: [],
-  },
-  {
-    id: 3,
-    name: 'Bob Smith',
-    avatar: 'https://picsum.photos/id/239/200/200',
-    messages: [],
-  },
-];
+function BuscarContactosScreen({navigation}){
+  const [usuarios, setUsuarios] = useState([]);
+  const [busqueda, setBusqueda] = useState('');
 
-const Friends = () => {
-  const [data, setData] = useState(dummyData);
-  const [messages, setMessages] = useState([]);
-  const [selectedFriend, setSelectedFriend] = useState(null);
-
-  const handleSelectFriend = (friend) => {
-    setSelectedFriend(friend);
-    setMessages(friend.messages);
-  };
-
-  const handleSend = (newMessages) => {
-    const updatedData = data.map((friend) => {
-      if (friend.id === selectedFriend.id) {
-        return {
-          ...friend,
-          messages: GiftedChat.append(selectedFriend.messages, newMessages),
-        };
+  useEffect(() => {
+    async function obtenerUsuarios() {
+      try {
+        const respuesta = await fetch(`http://${IP}/mensajesMovil`);
+        const datos = await respuesta.json();
+        setUsuarios(datos);
+      } catch (error) {
+        console.error(error);
       }
-      return friend;
-    });
+    }
+    obtenerUsuarios();
+  }, []);
 
-    setData(updatedData);
-    setSelectedFriend({ ...selectedFriend, messages: GiftedChat.append(selectedFriend.messages, newMessages) });
+  const usuariosFiltrados = usuarios.filter(usuario => {
+    return usuario.nombre.toLowerCase().includes(busqueda.toLowerCase());
+  });
+
+  const enviarMensaje = (nombre,id) => {
+    navigation.navigate('ChatScreen', { userName: nombre, iduserName: id});
   };
-
-  const renderItem = ({ item }) => (
-    <ListItem onPress={() => handleSelectFriend(item)} bottomDivider>
-      <Avatar source={{ uri: item.avatar }} />
-      <ListItem.Content>
-        <ListItem.Title>{item.name}</ListItem.Title>
-      </ListItem.Content>
-    </ListItem>
-  );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
-      {selectedFriend && (
-        <GiftedChat
-          messages={messages}
-          onSend={handleSend}
-          user={{ _id: 1 }}
+    
+    <ScrollView style={styles.containerR}>
+      <View style={styles.busquedaContainer}>
+        <TextInput
+          style={styles.busquedaInput}
+          placeholder="Buscar"
+          value={busqueda}
+          onChangeText={texto => setBusqueda(texto)}
         />
-      )}
-    </View>
+      </View>
+      {usuariosFiltrados.map(usuario => (
+        <TouchableOpacity onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
+        <View key={usuario.id} style={styles.usuarioContainerR}>
+          <Avatar
+          size="medium"
+          rounded
+          title={usuario.nombre.substring(0, 2).toUpperCase()}
+          containerStyle={styles.avatar}
+          />
+          <View style={styles.infoContainerR}>
+            <Text style={styles.nombreUsuario}>{usuario.nombre} ({usuario.tipoUser})</Text>
+            <Text style={styles.emailUsuario}>{usuario.email}</Text>
+          </View>
+          <TouchableOpacity style={styles.enviarButton} onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
+            <Icon name='envelope' type='font-awesome-5' color='#FFDC00' size={16} />
+          </TouchableOpacity>
+        </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
-};
+}
+function MensajesRecientesScreen({navigation}){
+  const [usuarios, setUsuarios] = useState([]);
+  const [busqueda, setBusqueda] = useState('');
 
+  useEffect(() => {
+    async function obtenerUsuarios() {
+      try {
+        const respuesta = await fetch(`http://${IP}/mensajesRecientesMovil`);
+        const datos = await respuesta.json();
+        setUsuarios(datos);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    obtenerUsuarios();
+  }, [usuarios]);
+
+  const usuariosFiltrados = usuarios.filter(usuario => {
+    return usuario.nombre.toLowerCase().includes(busqueda.toLowerCase());
+  });
+
+  const enviarMensaje = (nombre,id) => {
+    navigation.navigate('ChatScreen', { userName: nombre, iduserName: id});
+  };
+
+  return (
+    
+    <ScrollView style={styles.containerR}>
+      <View style={styles.busquedaContainer}>
+        <TextInput
+          style={styles.busquedaInput}
+          placeholder="Buscar"
+          value={busqueda}
+          onChangeText={texto => setBusqueda(texto)}
+        />
+      </View>
+      {usuariosFiltrados.map(usuario => (
+        <TouchableOpacity onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
+        <View key={usuario.id} style={styles.usuarioContainerR}>
+          <Avatar
+          size="medium"
+          rounded
+          title={usuario.nombre.substring(0, 2).toUpperCase()}
+          containerStyle={styles.avatar}
+          />
+          <View style={styles.infoContainerR}>
+            <Text style={styles.nombreUsuario}>{usuario.nombre} ({usuario.tipoUser})</Text>
+            <Text style={styles.emailUsuario}>{usuario.email}</Text>
+          </View>
+          <TouchableOpacity style={styles.enviarButton} onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
+            <Icon name='envelope' type='font-awesome-5' color='#FFDC00' size={16} />
+          </TouchableOpacity>
+        </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
+}
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  busquedaContainer: {
+    padding: 10,
+    backgroundColor: '#6B3654',
+  },
+  busquedaInput: {
     backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 10,
+  },
+  avatar: {
+    marginRight: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFDC00',
+  },
+  nombreUsuario: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  emailUsuario: {
+    fontSize: 14,
+    color: '#555',
+  },
+  enviarButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#61E5FF',
+    borderRadius: 10,
+    padding: 5,
+  },
+  enviarText: {
+    fontSize: 14,
+    color: '#fff',
+  },
+  containerR: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#6B3654',
+    paddingBottom: 200,
+  },
+  usuarioContainerR: {
+    flex:1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 20,
+    backgroundColor: '#FFCC99',
+  },
+  usuarioContainerAltR: {
+    backgroundColor: '#f1f1f1',
+    paddingBottom: 100,
+  },
+  infoContainerR: {
+    flex: 1,
+    marginLeft: 10,
   },
 });
 
-export default Friends;
+function MyTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Mensajes recientes') {
+            iconName = focused ? 'chat' : 'chat-outline';
+          } else if (route.name === 'Buscar Contactos') {
+            iconName = focused ? 'account-search' : 'account-search-outline';
+          }
+          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: 'tomato',
+        inactiveTintColor: 'gray',
+        tabStyle: { backgroundColor: '#fff' },
+        labelStyle: { fontSize: 12 },
+      }}
+    >
+      <Tab.Screen name="Mensajes recientes" component={MensajesRecientesScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Buscar Contactos" component={BuscarContactosScreen} options={{ headerShown: false }}/>
+    </Tab.Navigator>
+  );
+}
+
+export default function Friends() {
+  return (
+    <View style={{ flex: 1,backgroundColor:'#F3E218'}}>
+      <MyTabs />
+    </View>
+  );
+}

@@ -28,19 +28,12 @@ const HomeScreen = ({ navigation }) => {
     ]).start();
   }, []);
 
-  const handleLogout = () => {
-    // Aquí debes escribir la lógica para el logout
-  };
-
   return (
     
     <ImageBackground
-      source={require('../assets/logo.png')}
+      source={require('../assets/logo01.png')}
       style={styles.background}>
       <View style={styles.container}>
-        <Text style={styles.title}>
-          ¡Bienvenido a la aplicación del gimnasio!
-        </Text>
         <View style={styles.buttons}>
           <Animated.View
             style={{
@@ -122,13 +115,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 15,
     color: 'white',
     textAlign: 'center',
+    letterSpacing: 2,
   },
   buttons: {
-    width: '80%',
-    alignItems: 'center',
     justifyContent: 'center',
   },
   button: {
@@ -138,11 +130,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 10,
-    backgroundColor: '#ff7f50',
+    backgroundColor: '#6B3654',
   },
   buttonText: {
     fontSize: 18,
     color: 'white',
+    fontWeight: 'bold',
   },
 });
 

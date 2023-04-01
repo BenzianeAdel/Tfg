@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, Button, StyleSheet } from 'react-native';
 import DateTimePicker  from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ScrollView } from 'react-native-gesture-handler';
+import IP from '../config';
 const RegistroScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,34 +21,55 @@ const RegistroScreen = () => {
   const handleShowPicker = () => {
     setShowPicker(true);
   };
-  const handleSubmit = () => {
-    const isoDate = birthdate.toISOString().slice(0, 10);
-    console.log({
-      name,
-      email,
-      password,
-      birthdate: isoDate,
-    });
+  const handleSubmit = async () =>  {
+    try {
+      const requestData = {
+        eMail: email,
+        password: password,
+        nombre: name,
+        apellidos: apellidos,
+        fechaNacimiento: birthdate
+      };
+
+      const response = await fetch(`http://${IP}/registroMovil`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+      });
+      if(response.ok){
+        const data = await response.json();
+        alert(data.message);
+        setEmail('');
+        setApellidos('');
+        setName('');
+        setPassword('');
+      }
+      else{
+        const errorData = await response.json();
+        alert(errorData.message);
+        setEmail('');
+        setApellidos('');
+        setName('');
+        setPassword('');
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
   
   return (
-    <View style={styles.container}>
-      <View style={{ alignItems: 'center', marginBottom: 20 }}>
-        <View
-          style={{
-            width: 80,
-            height: 80,
+    <ScrollView style={styles.container}>
+      <View style={{ alignItems: 'center', marginBottom: 30 }}>
+      <Image style={{
+            width: 300,
+            height: 200,
             borderRadius: 40,
             backgroundColor: '#ccc',
             justifyContent: 'center',
             alignItems: 'center',
-          }}
-        >
-          <Icon name="account-circle" size={50} color="#fff" />
-        </View>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginTop: 10 }}>
-          Registro de Usuario
-        </Text>
+          }} source={require('../assets/logo0.png')}/>
       </View>
       <View style={styles.formContainer}>
         <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Apellidos</Text>
@@ -101,7 +124,7 @@ const RegistroScreen = () => {
           <Text style={styles.buttonText}>Registrarse</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -121,9 +144,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFCC99',
   },
   title: {
     fontSize: 24,
@@ -135,6 +157,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f2f2f2',
     borderRadius: 10,
+    marginBottom: 30,
   },
   input: {
     height: 40,
@@ -148,7 +171,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
     borderRadius: 10,
-    backgroundColor: '#f2c94c',
+    backgroundColor: '#6B3654',
     alignItems: 'center',
     justifyContent: 'center',
   },

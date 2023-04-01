@@ -1,13 +1,15 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet, View, Button,FlatList, Image, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
+import { StyleSheet, View, Button,FlatList, Image, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { Icon } from 'react-native-elements';
 const Stack = createStackNavigator();
 import { Calendar } from 'react-native-calendars';
+import IP from '../config';
 
-export default function Reserva({ route }) {
+export default function Reserva({ navigation, route }) {
   const timeOptions = [
       '09:00',
       '10:00',
@@ -18,7 +20,7 @@ export default function Reserva({ route }) {
       '15:00',
       '16:00',
     ];
-    const { item } = route.params;
+    const { rutinaID } = route.params;
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(timeOptions[0]);
     const [monitores, setMonitores] = useState([]);
@@ -28,7 +30,7 @@ export default function Reserva({ route }) {
     
 
   useEffect(() => {
-    fetch('http://192.168.1.129:8080/monitores')
+    fetch(`http://${IP}/monitores`)
       .then(response => response.json())
       .then(data => setMonitores(data))
       .catch(error => console.error(error));
@@ -36,7 +38,7 @@ export default function Reserva({ route }) {
 
   useEffect(() => {
     if (selectedMonitor) {
-        fetch(`http://192.168.1.129:8080/monitores/${selectedMonitor}/reservas`)
+        fetch(`http://${IP}/monitores/${selectedMonitor}/reservas`)
             .then(response => response.json())
             .then(data => setReservas(data))
             .catch(error => console.error(error));
@@ -55,19 +57,20 @@ export default function Reserva({ route }) {
       const dateTime = selectedDate + ' ' + selectedTime;
       const requestData = {
         idMonitor: selectedMonitor,
-        idActividad: item,
-        titulo: titulo,
+        idRutina: rutinaID,
+        title: titulo,
         fecha: dateTime
       };
       console.log(requestData);
-      const respuesta = await fetch('http://192.168.1.129:8080/reservarMovil', {
+      const respuesta = await fetch(`http://${IP}/reservarMovil`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData)
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        alert(respuesta.json().message);
+        navigation.navigate('Ejercicios');
+        alert("La reserva se ha creado correctamente");
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -77,7 +80,7 @@ export default function Reserva({ route }) {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
         <TextInput
           style={styles.input}
           placeholder="Introduce titulo de reserva"
@@ -123,53 +126,58 @@ export default function Reserva({ route }) {
       {selectedDate && (
   <View>
     <Text style={styles.label}>Selecciona una franja horaria:</Text>
-    <Picker
-      selectedValue={selectedTime}
-      onValueChange={(itemValue, itemIndex) => handleTimeChange(itemValue)}
-      style={styles.picker}
-    >
-      {timeOptions.map((time) => (
-        <Picker.Item key={time} label={time} value={time} />
-      ))}
-    </Picker>
+    <View style={styles.selector}>
+      <Picker
+        selectedValue={selectedTime}
+        onValueChange={(itemValue, itemIndex) => handleTimeChange(itemValue)}
+        style={styles.picker}
+      >
+        {timeOptions.map((time) => (
+          <Picker.Item key={time} label={time} value={time} />
+        ))}
+      </Picker>
+    </View>
   </View>
 )}
-          <TouchableOpacity style={styles.seguirButton} onPress={() => realizarReserva()}>
-            <Icon name='clipboard-check' type='font-awesome-5' color='#fff' size={14} />
-            <Text style={styles.buttonText}>Realizar Reserva</Text>
+          <TouchableOpacity style={styles.reservarButton} onPress={() => realizarReserva()}>
+            <Text style={styles.buttonText}><Icon name='clipboard-check' type='font-awesome-5' color='#fff' size={16} /> Realizar Reserva</Text>
           </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#FFFFE0',
+    backgroundColor: '#6B3654',
   },
   selector: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFCC99',
     borderRadius: 5,
     marginBottom: 20,
   },
   buttonText: {
     fontSize: 18,
     color: 'white',
+    fontWeight: 'bold',
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#FFCC99'
   },
   calendar: {
     marginBottom: 20,
   },
   timeContainer: {
     marginBottom: 20,
+    backgroundColor:'#FFCC99',
   },
   timeSelector: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    color: 'red',
   },
   timeText: {
     fontSize: 16,
@@ -179,7 +187,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   detailsContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFCC99',
     borderRadius: 5,
     padding: 10,
   },
@@ -201,7 +209,15 @@ const styles = StyleSheet.create({
   },
   selectText: {
     fontSize: 16,
-    color: '#333',
+    color: 'red',
+  },
+  reservarButton: {
+    backgroundColor: '#2ecc71',
+    alignItems:'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginBottom: 50
   },
   input: {
     height: 40,

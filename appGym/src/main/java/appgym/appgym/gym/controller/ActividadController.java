@@ -20,10 +20,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -179,22 +178,27 @@ public class ActividadController {
     }
     @PostMapping("/reservarMovil")
     @ResponseBody
-    public ResponseEntity<Object> reservarMovil(@Valid@RequestBody ReservaBody reservaBody){
+    public ResponseEntity<Object> reservarMovil(@Valid@RequestBody ReservaBody reservaBody) throws ParseException {
         Long id = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(id);
+        String dateString = reservaBody.getFecha();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Date date = dateFormat.parse(dateString);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
         Usuario m = usuarioService.findById(reservaBody.getIdMonitor());
         Rutina a = actividadService.findRutinaById(reservaBody.getIdRutina());
         Reservation r = new Reservation();
         r.setTitle(reservaBody.getTitle());
         r.setCliente(u);
-        r.setStart(reservaBody.getFecha());
+        r.setStart(calendar);
         r.setMonitor(m);
         r.setRutina(a);
         r.setEstado(Estado.Pendiente);
         r.setValorada(false);
         actividadService.registrar(r);
         ApiResponse response = new ApiResponse("Reserva realizada corrrectamente");
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.ok().body(response);
     }
     @PostMapping("/reservar/finalizar/{id}")
     public String finalizar(@PathVariable(value="id") Long idReserva){
@@ -207,10 +211,17 @@ public class ActividadController {
         actividadService.valorar(idRutina,valorarData.getPuntos(),idReserva);
         return "redirect:/actividades";
     }
+    @PostMapping("/valorarMovil/{idR}/{idA}")
+    @ResponseBody
+    public ResponseEntity<Object> valorarMovil(@Valid@RequestBody ValorarData valorarData,@PathVariable(value="idR") Long idReserva,@PathVariable(value="idA") Long idRutina){
+        actividadService.valorar(idRutina,valorarData.getPuntos(),idReserva);
+        return ResponseEntity.ok().body("OK");
+    }
     @GetMapping("/reservas")
     @ResponseBody
     public List<Reservation>reservas(){
-        List<Reservation>reservas = actividadService.findAllReservas();
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        List<Reservation>reservas = actividadService.findActividades(u);
         return reservas;
     }
     @PostMapping("/actividades/eliminar")

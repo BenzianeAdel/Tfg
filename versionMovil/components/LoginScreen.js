@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { AsyncStorage } from 'react-native';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Image, TouchableOpacity, ImageBackground } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import IP from '../config';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -9,14 +10,10 @@ const LoginScreen = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const handleForgotPassword = () => {
-    // Agrega el código para manejar el evento de "Olvidó su contraseña"
-    console.log('Olvidó su contraseña');
-    navigation.navigate('Home');
+    navigation.navigate('Restablecer Contraseña');
   };
   const handleRegister = () => {
     navigation.navigate('Registro');
-    // Agrega el código para manejar el evento de "Registrarse"
-    console.log('Registrarse');
   };
   const handleLogin = async () => {
     if (!username || !password) {
@@ -29,7 +26,7 @@ const LoginScreen = ({ navigation }) => {
         password: password
       };
 
-      const response = await fetch('http://192.168.1.129:8080/login', {
+      const response = await fetch(`http://${IP}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,29 +64,23 @@ const LoginScreen = ({ navigation }) => {
   return (
       
       <View style={styles.container}>
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
-        <View
-          style={{
-            width: 80,
-            height: 80,
+        <View style={{ alignItems: 'center', marginBottom: 50 }}>
+
+        <Image style={{
+            width: 300,
+            height: 200,
             borderRadius: 40,
             backgroundColor: '#ccc',
             justifyContent: 'center',
             alignItems: 'center',
-          }}
-        >
-          <Icon name="account-circle" size={50} color="#fff" />
-        </View>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginTop: 10 , color:'black'}}>
-        Bienvenido de nuevo
-        </Text>
+          }} source={require('../assets/logo0.png')}/>
         </View>
         <View style={styles.form}>
           {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
           <TextInput
             style={styles.input}
             autoCapitalize="none"
-            placeholder="Nombre de usuario"
+            placeholder="Correo electrónico"
             onChangeText={(text) => setUsername(text)}
             value={username}
           />
@@ -122,8 +113,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFCC99'
   },
   greeting: {
     fontSize: 24,
@@ -150,11 +143,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 10,
-    backgroundColor: '#ff7f50',
+    backgroundColor: '#6B3654',
   },
   buttonText: {
     fontSize: 18,
     color: 'white',
+    fontWeight: 'bold',
   },
   errorMessage: {
     color: 'red',
@@ -164,14 +158,16 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   registerButtonText: {
-    color: 'blue',
+    color: 'white',
+    fontWeight: 'bold',
   },
   forgotPasswordButton: {
     marginTop: 10,
     marginBottom: 5,
   },
   forgotPasswordButtonText: {
-    color: 'blue',
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

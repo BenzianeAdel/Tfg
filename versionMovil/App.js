@@ -16,6 +16,8 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AsyncStorage } from 'react-native';
+import ChatScreen from './components/ChatScreen';
+import ForgotPasswordScreen from './components/ForgotPasswordScreen';
 
 const Stack = createStackNavigator();
 const removeUserInfo = async () => {
@@ -34,12 +36,19 @@ export default function App() {
   return (
     <NavigationContainer>
     <Stack.Navigator initialRouteName="Inicio Sesion">
-      <Stack.Screen name="Home" component={HomeScreen} options={({ navigation }) => ({headerRight: () => (
-      <TouchableOpacity style={{ marginRight: 10 }} onPress={()=>handleLogout(navigation)}>
-        <Ionicons name="exit-outline" size={24} color="black" />
+    <Stack.Screen 
+  name="Home" 
+  component={HomeScreen} 
+  options={({ navigation }) => ({
+    headerTitle: "Home",
+    headerLeft: false,
+    headerRight: () => (
+      <TouchableOpacity style={{ marginRight: 10,marginBottom:-10 }} onPress={()=>handleLogout(navigation)}>
+        <Ionicons name="exit-outline" size={30} color="black" />
       </TouchableOpacity>
     ),
-  })}/>
+  })}
+/>
       <Stack.Screen name="Registro" component={RegistroScreen} />
       <Stack.Screen name="Inicio Sesion" component={LoginScreen} />
       <Stack.Screen name="MiPerfil" component={MiPerfil} />
@@ -49,6 +58,8 @@ export default function App() {
       <Stack.Screen name="Ejercicios" component={Ejercicios} />
       <Stack.Screen name="Reserva" component={Reserva} />
       <Stack.Screen name="Lista Actividades" component={ActivitiesScreen} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="Restablecer Contraseña" component={ForgotPasswordScreen} />
     </Stack.Navigator>
    </NavigationContainer>
   );

@@ -8,6 +8,8 @@ import { Avatar } from 'react-native-elements';
 import { random } from 'lodash';
 import * as Animatable from 'react-native-animatable';
 import { FontAwesome } from '@expo/vector-icons';
+import { AsyncStorage } from 'react-native';
+import IP from '../config';
 const Tab = createBottomTabNavigator();
 
 function BuscarAmigosScreen() {
@@ -17,7 +19,7 @@ function BuscarAmigosScreen() {
   useEffect(() => {
     async function obtenerUsuarios() {
       try {
-        const respuesta = await fetch('http://192.168.1.129:8080/usuarios');
+        const respuesta = await fetch(`http://${IP}/usuarios`);
         const datos = await respuesta.json();
         setUsuarios(datos);
       } catch (error) {
@@ -34,7 +36,7 @@ function BuscarAmigosScreen() {
 
   async function seguirUsuario(usuarioId) {
     try {
-      const respuesta = await fetch(`http://192.168.1.129:8080/amigosMovil/seguir/${usuarioId}`, {
+      const respuesta = await fetch(`http://${IP}/amigosMovil/seguir/${usuarioId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         // Puedes agregar aquí el token de autenticación si es necesario
@@ -93,7 +95,7 @@ const styles = StyleSheet.create({
   },
   busquedaContainer: {
     padding: 10,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#6B3654',
   },
   busquedaInput: {
     backgroundColor: '#fff',
@@ -105,7 +107,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    backgroundColor: '#f8f8f8',
+    marginBottom: 20,
+    backgroundColor: '#FFCC99',
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
   },
@@ -168,11 +171,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+    backgroundColor: '#FFCC99',
     borderRadius: 10,
   },
   containerR: {
     padding: 20,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#6B3654',
   },
   tituloR: {
     fontSize: 24,
@@ -184,11 +188,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    marginBottom: 10,
-    backgroundColor: '#fff',
+    marginBottom: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFCC99',
   },
   usuarioContainerAltR: {
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#FFCC99',
   },
   avatarContainerR: {
     flexDirection: 'row',
@@ -230,7 +235,7 @@ function MisAmigosScreen() {
   useEffect(() => {
     async function obtenerAmigos() {
       try {
-        const respuesta = await fetch('http://192.168.1.129:8080/misamigos');
+        const respuesta = await fetch(`http://${IP}/misamigos`);
         const datos = await respuesta.json();
         setUsuarios(datos);
       } catch (error) {
@@ -247,7 +252,7 @@ function MisAmigosScreen() {
 
   async function dejarSeguir(usuarioId) {
     try {
-      const respuesta = await fetch(`http://192.168.1.129:8080/amigosMovil/dejar/${usuarioId}`, {
+      const respuesta = await fetch(`http://${IP}/amigosMovil/dejar/${usuarioId}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         // Puedes agregar aquí el token de autenticación si es necesario
@@ -301,13 +306,17 @@ function MisAmigosScreen() {
 
 function RankingScreen() {
   const [usuarios, setUsuarios] = useState([]);
+  const [id,setId] = useState(0);
 
   useEffect(() => {
     async function obtenerUsuarios() {
       try {
-        const respuesta = await fetch('http://192.168.1.129:8080/rankingAmigos');
+        const respuesta = await fetch(`http://${IP}/rankingAmigos`);
         const datos = await respuesta.json();
         setUsuarios(datos);
+        const storedData = await AsyncStorage.getItem('userData');
+        const userData = JSON.parse(storedData);
+        setId(userData.id);
       } catch (error) {
         console.error(error);
       }
@@ -316,8 +325,7 @@ function RankingScreen() {
   }, [usuarios]);
 
   return (
-    <ScrollView contentContainerStyle={styles.containerR}>
-      <Text style={styles.tituloR}>Ranking de puntos</Text>
+    <ScrollView style={styles.containerR}>
       {usuarios.map((usuario, index) => (
         <Animatable.View key={usuario.id} style={[styles.usuarioContainerR, index % 2 !== 0 && styles.usuarioContainerAltR]} animation="fadeInUp" delay={index * 100}>
           <View style={styles.avatarContainerR}>
@@ -325,7 +333,11 @@ function RankingScreen() {
             <Text style={styles.puntosR}>{usuario.puntos} pts.</Text>
           </View>
           <View style={styles.infoContainerR}>
-            <Text style={styles.nombreR}>{usuario.nombre}</Text>
+              {usuario.id == id ? (
+              <Text style={styles.nombreR}>{usuario.nombre} (Tú)</Text>
+               ) : (
+              <Text style={styles.nombreR}>{usuario.nombre}</Text>
+              )}
             <Text style={styles.emailR}>{usuario.email}</Text>
           </View>
           <View style={styles.iconoContainerR}>
