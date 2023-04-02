@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import IP from '../config';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleResetPassword = async () =>  {
+    if (!email) {
+      setErrorMessage('Por favor ingrese un correo electrónico');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Por favor ingrese un correo electrónico válido.');
+      return;
+    }
     try {
       const requestData = {
         eMail: email
@@ -41,6 +52,12 @@ export default function ForgotPasswordScreen() {
       <Text style={styles.subtitle}>
         Ingresa tu correo electrónico con el que creaste la cuenta en nuestro sistema y te enviaremos un enlace para restablecer tu contraseña.
       </Text>
+      {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Icon name="error" size={20} color="#FF6F6F" style={styles.errorIcon} />
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+      )}
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -97,5 +114,24 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE7E7',
+    borderWidth: 1,
+    borderColor: '#FF6F6F',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 20,
+  },
+  errorIcon: {
+    marginRight: 5,
+  },
+  errorMessage: {
+    color: '#FF6F6F',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

@@ -27,6 +27,7 @@ export default function Reserva({ navigation, route }) {
     const [selectedMonitor, setSelectedMonitor] = useState(null);
     const [titulo,settitulo] = useState('');
     const [reservas, setReservas] = useState({});
+    const [errorMessage, setErrorMessage] = useState(null);
     
 
   useEffect(() => {
@@ -53,6 +54,10 @@ export default function Reserva({ navigation, route }) {
     setSelectedTime(itemValue);
   };
   async function realizarReserva() {
+    if (!selectedDate || !selectedMonitor || !titulo) {
+      setErrorMessage('Por favor ingrese un titulo de reserva, el monitor, fecha y la hora deseada.');
+      return;
+    }
     try {
       const dateTime = selectedDate + ' ' + selectedTime;
       const requestData = {
@@ -61,7 +66,6 @@ export default function Reserva({ navigation, route }) {
         title: titulo,
         fecha: dateTime
       };
-      console.log(requestData);
       const respuesta = await fetch(`http://${IP}/reservarMovil`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,6 +85,12 @@ export default function Reserva({ navigation, route }) {
 
   return (
     <ScrollView style={styles.container}>
+      {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Icon name="error" size={20} color="#FF6F6F" style={styles.errorIcon} />
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+      )}
         <TextInput
           style={styles.input}
           placeholder="Introduce titulo de reserva"
@@ -225,5 +235,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 10,
     backgroundColor: '#fff',
-  }
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE7E7',
+    borderWidth: 1,
+    borderColor: '#FF6F6F',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 20,
+  },
+  errorIcon: {
+    marginRight: 5,
+  },
+  errorMessage: {
+    color: '#FF6F6F',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

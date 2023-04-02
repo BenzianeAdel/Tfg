@@ -2,6 +2,7 @@ import React, { useState, useEffect} from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { AsyncStorage } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import IP from '../config';
 
 const MiPerfil = () => {
@@ -11,6 +12,7 @@ const MiPerfil = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [editing, setEditing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -33,7 +35,20 @@ const MiPerfil = () => {
     setEditing(true);
   };
   const handleSave = async () => {
-    console.log('Holaaaa');
+    if (!email || !password || !nombre || !apellidos) {
+      setErrorMessage('Por favor ingrese un correo electrónico, nombre, apellidos y contraseña.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Por favor ingrese un correo electrónico válido.');
+      return;
+    }
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setErrorMessage('La contraseña debe tener al menos 8 caracteres, incluyendo al menos un número, una letra mayúscula y una letra minúscula.');
+      return;
+    }
     try {
       const newUserData = {
         id: userData.id,
@@ -77,6 +92,15 @@ const MiPerfil = () => {
             </TouchableOpacity>
           )}
         </View>
+        <View style={styles.error}>
+        {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Icon name="error" size={20} color="#FF6F6F" style={styles.errorIcon} />
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+          )}
+        </View>
+        
         <View style={styles.content}>
           <View style={styles.field}>
             <Text style={styles.label}>Nombre</Text>
@@ -113,6 +137,7 @@ const MiPerfil = () => {
                 keyboardType="email-address"
                 onChangeText={setEmail}
                 value={email}
+                editable={false}
               />
             ) : (
               <Text style={styles.value}>{email}</Text>
@@ -197,6 +222,30 @@ const styles = StyleSheet.create({
       paddingHorizontal: 10,
       fontSize: 18,
       color: '#555',
+    },
+    errorContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFE7E7',
+      borderWidth: 1,
+      borderColor: '#FF6F6F',
+      borderRadius: 5,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      marginBottom: 20,
+    },
+    errorIcon: {
+      marginRight: 5,
+    },
+    error:{
+      marginLeft:10,
+      marginRight: 10,
+      marginBottom:10,
+    },
+    errorMessage: {
+      color: '#FF6F6F',
+      fontSize: 16,
+      fontWeight: 'bold',
     },
   });
   export default MiPerfil;

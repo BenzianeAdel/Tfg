@@ -175,8 +175,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   containerR: {
-    padding: 20,
+    flex:1,
+    padding: 10,
     backgroundColor: '#6B3654',
+    paddingBottom: 200,
   },
   tituloR: {
     fontSize: 24,

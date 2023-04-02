@@ -12,6 +12,7 @@ const RegistroScreen = () => {
   const [birthdate, setBirthdate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [hidePassword, setHidePassword] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || birthdate;
@@ -22,6 +23,20 @@ const RegistroScreen = () => {
     setShowPicker(true);
   };
   const handleSubmit = async () =>  {
+    if (!email || !password || !name || !birthdate || !apellidos) {
+      setErrorMessage('Por favor ingrese un correo electrónico, nombre, apellidos, fecha nacimiento y contraseña.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Por favor ingrese un correo electrónico válido.');
+      return;
+    }
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setErrorMessage('La contraseña debe tener al menos 8 caracteres, incluyendo al menos un número, una letra mayúscula y una letra minúscula.');
+      return;
+    }
     try {
       const requestData = {
         eMail: email,
@@ -45,6 +60,7 @@ const RegistroScreen = () => {
         setApellidos('');
         setName('');
         setPassword('');
+        setErrorMessage('');
       }
       else{
         const errorData = await response.json();
@@ -53,6 +69,7 @@ const RegistroScreen = () => {
         setApellidos('');
         setName('');
         setPassword('');
+        setErrorMessage('');
       }
     } catch (error) {
       console.error(error);
@@ -71,6 +88,12 @@ const RegistroScreen = () => {
             alignItems: 'center',
           }} source={require('../assets/logo0.png')}/>
       </View>
+      {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Icon name="error" size={20} color="#FF6F6F" style={styles.errorIcon} />
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+      )}
       <View style={styles.formContainer}>
         <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Apellidos</Text>
         <TextInput
@@ -177,6 +200,25 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+    fontWeight: 'bold',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE7E7',
+    borderWidth: 1,
+    borderColor: '#FF6F6F',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 20,
+  },
+  errorIcon: {
+    marginRight: 5,
+  },
+  errorMessage: {
+    color: '#FF6F6F',
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });

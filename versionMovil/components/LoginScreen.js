@@ -17,7 +17,12 @@ const LoginScreen = ({ navigation }) => {
   };
   const handleLogin = async () => {
     if (!username || !password) {
-      setErrorMessage('Por favor ingrese un nombre de usuario y una contraseña.');
+      setErrorMessage('Por favor ingrese un correo electrónico y una contraseña.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(username)) {
+      setErrorMessage('Por favor ingrese un correo electrónico válido.');
       return;
     }
     try {
@@ -76,7 +81,12 @@ const LoginScreen = ({ navigation }) => {
           }} source={require('../assets/logo0.png')}/>
         </View>
         <View style={styles.form}>
-          {errorMessage && <Text style={styles.errorMessage}>{errorMessage}</Text>}
+          {errorMessage && (
+          <View style={styles.errorContainer}>
+            <Icon name="error" size={20} color="#FF6F6F" style={styles.errorIcon} />
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          </View>
+          )}
           <TextInput
             style={styles.input}
             autoCapitalize="none"
@@ -167,6 +177,25 @@ const styles = StyleSheet.create({
   },
   forgotPasswordButtonText: {
     color: 'white',
+    fontWeight: 'bold',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE7E7',
+    borderWidth: 1,
+    borderColor: '#FF6F6F',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 20,
+  },
+  errorIcon: {
+    marginRight: 5,
+  },
+  errorMessage: {
+    color: '#FF6F6F',
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });
