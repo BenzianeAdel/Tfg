@@ -1,6 +1,8 @@
 package appgym.appgym.gym.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -11,7 +13,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "usuarios")
 public class Usuario implements Serializable {

@@ -1,13 +1,19 @@
 package appgym.appgym.gym.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "actividades")
 public class Actividad {
@@ -18,8 +24,6 @@ public class Actividad {
     private Long id;
     @NotNull
     private String nombre;
-
-    private String imagen;
     private ZonaCuerpo zonaCuerpo;
     private int repeticiones;
     private int series;
@@ -28,5 +32,8 @@ public class Actividad {
     @OneToOne
     @JoinColumn(name = "maquina_id")
     private Maquina maquina;
+
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    List<Multimedia> multimedia = new ArrayList<>();
 
 }

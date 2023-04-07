@@ -22,3 +22,7 @@
 .delete-icon i {
     color: red;
 }
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    color: black !important;
+}

@@ -19,6 +19,9 @@ public class ActividadService {
     @Autowired
     private RutinaRepository rutinaRepository;
 
+    @Autowired
+    private MultimediaRepository multimediaRepository;
+
     @Transactional(readOnly = true)
     public Actividad findById(Long actividadId) {
         return actividadRepository.findById(actividadId).orElse(null);
@@ -52,6 +55,9 @@ public class ActividadService {
     }
     public Reservation registrar(Reservation r){
         return reservationRepository.save(r);
+    }
+    public Multimedia registrar(Multimedia m){
+        return multimediaRepository.save(m);
     }
     public Rutina registrar(Rutina r){
         return rutinaRepository.save(r);

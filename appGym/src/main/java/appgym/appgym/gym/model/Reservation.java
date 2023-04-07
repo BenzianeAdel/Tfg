@@ -1,6 +1,9 @@
 package appgym.appgym.gym.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,7 +13,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "reservas")
 public class Reservation {

@@ -93,7 +93,7 @@
   <div class="row">
     <div class="col-md-6" th:each="maquina : ${maquinas}">
       <div class="card">
-        <img class="card-img-top" style="height: 500px;width: 500px" th:src="@{/img/__${maquina.imagen}__}">
+        <img class="card-img-top" style="height: 500px;width: 500px" th:src="@{/img/maquinas/__${maquina.id}__/__${maquina.imagen}__}">
         <div class="card-body">
           <h5 class="card-title" th:text="${maquina.nombre}"></h5>
           <p class="card-text" th:text="${maquina.registro}"></p>

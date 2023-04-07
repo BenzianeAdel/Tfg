@@ -1,6 +1,8 @@
 package appgym.appgym.gym.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -10,7 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "maquinas")
 public class Maquina implements Serializable {
@@ -21,9 +24,11 @@ public class Maquina implements Serializable {
     private Long id;
     @NotNull
     private String nombre;
+
     private String imagen;
 
     @Column(name = "fecha_registro")
     @Temporal(TemporalType.DATE)
     private Date registro;
+
 }

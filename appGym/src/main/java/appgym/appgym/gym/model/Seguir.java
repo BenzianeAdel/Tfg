@@ -1,10 +1,13 @@
 package appgym.appgym.gym.model;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "usuario_seguir_usuario")
 public class Seguir {

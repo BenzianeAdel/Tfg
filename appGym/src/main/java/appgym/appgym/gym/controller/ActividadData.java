@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.Multipart;
 import javax.validation.constraints.Null;
+import java.util.List;
 
 public class ActividadData {
     private Long id;
@@ -15,7 +16,7 @@ public class ActividadData {
     private int repeticiones;
     @Null
     private Maquina maquina;
-    private MultipartFile imagen;
+    private List<MultipartFile> archivos;
 
     public Long getId(){
         return id;
@@ -54,10 +55,10 @@ public class ActividadData {
         this.maquina = m;
     }
 
-    public void setImagen(MultipartFile i){
-        this.imagen = i;
+    public void setArchivos(List<MultipartFile> i){
+        this.archivos = i;
     }
-    public MultipartFile getImagen(){
-        return imagen;
+    public List<MultipartFile> getArchivos(){
+        return archivos;
     }
 }

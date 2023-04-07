@@ -122,22 +122,24 @@ public class ActividadController {
         return monitores;
     }
     @PostMapping("/actividades")
-    public String nuevaActividad(ActividadData actividadData, @RequestParam("imagen") MultipartFile imagen, BindingResult result){
+    public String nuevaActividad(ActividadData actividadData, @RequestParam("archivos") List<MultipartFile> archivos, BindingResult result){
         if (result.hasErrors()) {
             return "actividad";
         }
-        if (!imagen.isEmpty()) {
-            try {
-                byte[] bytesImagen = imagen.getBytes();
-                Path rutaImagen = Paths.get("src/main/resources/static/img/" + imagen.getOriginalFilename());
-                Files.write(rutaImagen, bytesImagen);
-                actividadData.setImagen(imagen);
-            } catch (IOException e) {
-                e.printStackTrace();
+        for (MultipartFile archivo : archivos) {
+            if (!archivo.isEmpty()) {
+                try {
+                    byte[] bytesArchivo = archivo.getBytes();
+                    Path rutaArchivo = Paths.get("src/main/resources/static/img/" + archivo.getOriginalFilename());
+                    Files.write(rutaArchivo, bytesArchivo);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
+        actividadData.setArchivos(archivos);
         Actividad a = new Actividad();
-        a.setImagen(imagen.getOriginalFilename());
         a.setNombre(actividadData.getNombre());
         a.setSeries(actividadData.getSeries());
         a.setRepeticiones(actividadData.getRepeticiones());
@@ -148,6 +150,12 @@ public class ActividadController {
         }
         a.setZonaCuerpo(actividadData.getZonaCuerpo());
         actividadService.registrar(a);
+        for(int i=0;i<actividadData.getArchivos().size();i++){
+            Multimedia m = new Multimedia();
+            m.setActividad(a);
+            m.setNombre(actividadData.getArchivos().get(i).getOriginalFilename());
+            actividadService.registrar(m);
+        }
         return "redirect:/actividades";
     }
     @PostMapping("/rutinas")
@@ -221,6 +229,13 @@ public class ActividadController {
     @ResponseBody
     public List<Reservation>reservas(){
         Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        List<Reservation>reservas = actividadService.findActividades(u);
+        return reservas;
+    }
+    @GetMapping("/reservas/{idMonitor}")
+    @ResponseBody
+    public List<Reservation>reservas(@PathVariable(value="idMonitor") Long idMonitor){
+        Usuario u = usuarioService.findById(idMonitor);
         List<Reservation>reservas = actividadService.findActividades(u);
         return reservas;
     }

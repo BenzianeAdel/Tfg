@@ -100,13 +100,32 @@
             <div class="row">
                 <div class="col-md-6" th:each="actividad : ${actividades}">
                     <div class="card">
-                        <img class="card-img-top" style="height: 500px;width: 500px" th:src="@{/img/__${actividad.imagen}__}">
+                        <div th:id="carouselExampleControlsActividad + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                            <div class="carousel-inner">
+                                <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
+                                    <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
+                                        <video class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" th:src="@{/img/actividades/__${actividad.id}__/__${imagen.nombre}__}" controls></video>
+                                    </div>
+                                    <div th:if="${!imagen.nombre.endsWith('.mp4') and !imagen.nombre.endsWith('.avi') and !imagen.nombre.endsWith('.mov') and !imagen.nombre.endsWith('.wmv')}">
+                                        <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" th:src="@{/img/actividades/__${actividad.id}__/__${imagen.nombre}__}" alt="Imagen de la actvidad">
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="carousel-control-prev" th:href="'#carouselExampleControlsActividad' + ${actividad.id}" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="false"></span>
+                                <span class="sr-only">Anterior</span>
+                            </a>
+                            <a class="carousel-control-next" th:href="'#carouselExampleControlsActividad' + ${actividad.id}" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Siguiente</span>
+                            </a>
+                        </div>
                         <div class="card-body">
                             <h5 class="card-title" th:text="${actividad.nombre}"></h5>
                             <p class="card-text">Series [[${actividad.series}]]</p>
                             <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
                             <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                            <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                            <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.id + '/' + actividad.maquina.imagen}">
                                 [[${actividad.maquina.nombre}]]
                             </button>
                                 <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarActividadModal" th:data-id="${actividad.id}">
@@ -198,13 +217,32 @@
                     <div class="row">
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
-                                <img class="card-img-top" style="height: 300px;width: 300px" th:src="@{/img/__${actividad.imagen}__}">
+                                <div th:id="carouselExampleControlsRutina + ${rutina.id} + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <div class="carousel-inner">
+                                        <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
+                                            <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
+                                                <video class="card-img-top mx-auto d-block" style="height: 300px;width: 300px" th:src="@{/img/actividades/__${actividad.id}__/__${imagen.nombre}__}" controls></video>
+                                            </div>
+                                            <div th:if="${!imagen.nombre.endsWith('.mp4') and !imagen.nombre.endsWith('.avi') and !imagen.nombre.endsWith('.mov') and !imagen.nombre.endsWith('.wmv')}">
+                                                <img class="card-img-top mx-auto d-block" style="height: 300px;width: 300px" th:src="@{/img/actividades/__${actividad.id}__/__${imagen.nombre}__}" alt="Imagen de la actvidad">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="carousel-control-prev" th:href="'#carouselExampleControlsRutina' + ${rutina.id} + ${actividad.id}" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="false"></span>
+                                        <span class="sr-only">Anterior</span>
+                                    </a>
+                                    <a class="carousel-control-next" th:href="'#carouselExampleControlsRutina' + ${rutina.id} + ${actividad.id}" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Siguiente</span>
+                                    </a>
+                                </div>
                                 <div class="card-body">
                                     <h5 class="card-title" th:text="${actividad.nombre}"></h5>
                                     <p class="card-text">Series [[${actividad.series}]]</p>
                                     <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
                                     <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                                    <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                                    <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.id + '/' + actividad.maquina.imagen}">
                                         [[${actividad.maquina.nombre}]]
                                     </button>
                                 </div>
@@ -255,13 +293,32 @@
                     <div class="row">
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
-                                <img class="card-img-top" style="height: 300px;width: 300px" th:src="@{/img/__${actividad.imagen}__}">
+                                <div th:id="carouselExampleControlsDestacadas + ${rutina.id} + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <div class="carousel-inner">
+                                        <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
+                                            <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
+                                                <video class="card-img-top mx-auto d-block" style="height: 300px;width: 300px" th:src="@{/img/actividades/__${actividad.id}__/__${imagen.nombre}__}" controls></video>
+                                            </div>
+                                            <div th:if="${!imagen.nombre.endsWith('.mp4') and !imagen.nombre.endsWith('.avi') and !imagen.nombre.endsWith('.mov') and !imagen.nombre.endsWith('.wmv')}">
+                                                <img class="card-img-top mx-auto d-block" style="height: 300px;width: 300px" th:src="@{/img/actividades/__${actividad.id}__/__${imagen.nombre}__}" alt="Imagen de la actvidad">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="carousel-control-prev" th:href="'#carouselExampleControlsDestacadas' + ${rutina.id} + ${actividad.id}" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="false"></span>
+                                        <span class="sr-only">Anterior</span>
+                                    </a>
+                                    <a class="carousel-control-next" th:href="'#carouselExampleControlsDestacadas' + ${rutina.id} + ${actividad.id}" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Siguiente</span>
+                                    </a>
+                                </div>
                                 <div class="card-body">
                                     <h5 class="card-title" th:text="${actividad.nombre}"></h5>
                                     <p class="card-text">Series [[${actividad.series}]]</p>
                                     <p class="card-text">Repeticiones [[${actividad.repeticiones}]]</p>
                                     <p class="card-text">Zona Cuerpo [[${actividad.zonaCuerpo}]]</p>
-                                    <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.imagen}">
+                                    <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.id + '/' + actividad.maquina.imagen}">
                                         [[${actividad.maquina.nombre}]]
                                     </button>
                                 </div>
@@ -406,9 +463,10 @@
                 <div class="modal-body">
                     <form th:action="@{/actividades}" method="post" th:object="${actividadData}" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="imagen">Imagen</label>
-                            <input type="file" name="imagen" class="form-control-file" id="imagen">
+                            <label for="archivos">Multimedia</label>
+                            <input type="file" name="archivos" class="form-control-file" id="archivos" multiple required>
                         </div>
+                        <div id="archivos-error" style="color: red"></div>
                         <div class="form-group">
                             <label for="nombre">Nombre</label>
                             <input type="text" th:field="*{nombre}" class="form-control" id="nombre" name="nombre" minlength="3" maxlength="50" required/>
@@ -534,50 +592,30 @@
         var button = $(event.relatedTarget) // Botón que activó el modal
         var maquina = button.data('maquina') // Extrae el valor del atributo data-maquina
         var modalImage = $(this).find('#modal-image')
-        modalImage.attr('src', '/img/'+maquina)
+        modalImage.attr('src', '/img/maquinas/'+maquina)
     });
-    var eventos = {
-        'Monitor 1': [
-            {
-                title: 'Reserva 1',
-                start: '2023-03-14T10:00:00',
-                end: '2023-03-14T11:00:00'
-            },
-            {
-                title: 'Reserva 2',
-                start: '2023-03-15T14:00:00',
-                end: '2023-03-15T15:00:00'
+    document.querySelector('#archivos').addEventListener('change', function() {
+        var archivos = document.querySelector('#archivos');
+        if (archivos.files.length > 0) {
+            var totalSize = 0;
+            for (var i = 0; i < archivos.files.length; i++) {
+                totalSize += archivos.files[i].size;
             }
-        ],
-        'Monitor 2': [
-            {
-                title: 'Reserva 1',
-                start: '2023-03-14T14:00:00',
-                end: '2023-03-14T15:00:00'
-            },
-            {
-                title: 'Reserva 2',
-                start: '2023-03-16T12:00:00',
-                end: '2023-03-16T13:00:00'
+            var sizeInMB = totalSize / 1024 / 1024; // Convertir a MB
+            if (sizeInMB > 100) {
+                archivos.value = ''; // Limpiar la selección de archivos
+                document.querySelector('#archivos-error').textContent = '(*) El tamaño total de los archivos debe ser menor a 100MB.';
+            } else {
+                document.querySelector('#archivos-error').textContent = '';
             }
-        ],
-        'Monitor 3': [
-            {
-                title: 'Reserva 1',
-                start: '2023-03-15T10:00:00',
-                end: '2023-03-15T11:00:00'
-            },
-            {
-                title: 'Reserva 2',
-                start: '2023-03-16T10:00:00',
-                end: '2023-03-16T11:00:00'
-            }
-        ]
-    };
+        }
+    });
+
     $(document).ready(function() {
         var calendar = $('#calendar').fullCalendar({
             locale: 'es',
             editable:true,
+            slotDuration: '00:30:00',
             header:{
                 left:'prev,next today',
                 center:'title',
@@ -610,9 +648,28 @@
         });
 
         $('#monitor-select').change(function() {
-            var monitor = $(this).val();
+            var monitorId = $(this).val();
+            console.log(monitorId);
             calendar.fullCalendar('removeEvents');
-            calendar.fullCalendar('addEventSource', eventos[monitor]);
+            var eventos = [];
+            if (monitorId) {
+                fetch('/reservas/' + monitorId)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        for (var i = 0; i < data.length; i++) {
+                            var reserva = data[i];
+                            eventos.push({
+                                title: reserva.title,
+                                start: moment(reserva.start).format('YYYY-MM-DDTHH:mm:ss'),
+                                end: moment(reserva.start).add(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss'),
+                                editable: false
+                            });
+                        }
+                        calendar.fullCalendar('addEventSource', eventos);
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
         });
     });
     $('#reservaModal').on('show.bs.modal', function (event) {

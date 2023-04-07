@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
+import java.io.File;
 
 @Controller
 public class MaquinasController {
@@ -65,27 +67,48 @@ public class MaquinasController {
         if (result.hasErrors()) {
             return "maquinas";
         }
-        if (!imagen.isEmpty()) {
-            try {
-                byte[] bytesImagen = imagen.getBytes();
-                Path rutaImagen = Paths.get("src/main/resources/static/img/" + imagen.getOriginalFilename());
-                Files.write(rutaImagen, bytesImagen);
-                maquinaData.setImagen(imagen);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+
         Maquina m = new Maquina();
         m.setImagen(imagen.getOriginalFilename());
         m.setNombre(maquinaData.getNombre());
         m.setRegistro(maquinaData.getRegistro());
         maquinaService.registrar(m);
+
+        if (!imagen.isEmpty()) {
+            try {
+                byte[] bytesImagen = imagen.getBytes();
+                Path rutaCarpeta = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/");
+                Path rutaImagen = Paths.get(rutaCarpeta.toString() + imagen.getOriginalFilename());
+                // Verifica si la carpeta existe y si no la crea
+                if (!Files.exists(rutaCarpeta)) {
+                    Files.createDirectories(rutaCarpeta);
+                }
+                Path rutaFinal = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/"+imagen.getOriginalFilename());
+                Files.write(rutaFinal, bytesImagen);
+                maquinaData.setImagen(imagen);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return "redirect:/maquinas";
     }
     @PostMapping("/maquinas/eliminar")
     public String EliminarMaquina(MaquinaData maquinaData, RedirectAttributes flash){
         Maquina a = maquinaService.findById(maquinaData.getId());
         maquinaService.eliminarMaquina(a);
+        String carpetaImagenes = "src/main/resources/static/img/maquinas/" + maquinaData.getId();
+        Path pathCarpeta = Paths.get(carpetaImagenes);
+        File carpeta = new File(carpetaImagenes);
+        if(carpeta.exists() && carpeta.isDirectory()){
+            try {
+                Files.walk(pathCarpeta)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         flash.addFlashAttribute("correcto","Se ha eliminado correctamente la Maquina");
         return "redirect:/maquinas";
     }
