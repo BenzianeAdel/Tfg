@@ -126,18 +126,6 @@ public class ActividadController {
         if (result.hasErrors()) {
             return "actividad";
         }
-        for (MultipartFile archivo : archivos) {
-            if (!archivo.isEmpty()) {
-                try {
-                    byte[] bytesArchivo = archivo.getBytes();
-                    Path rutaArchivo = Paths.get("src/main/resources/static/img/" + archivo.getOriginalFilename());
-                    Files.write(rutaArchivo, bytesArchivo);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         actividadData.setArchivos(archivos);
         Actividad a = new Actividad();
         a.setNombre(actividadData.getNombre());
@@ -156,6 +144,24 @@ public class ActividadController {
             m.setNombre(actividadData.getArchivos().get(i).getOriginalFilename());
             actividadService.registrar(m);
         }
+        for (MultipartFile archivo : archivos) {
+            if (!archivo.isEmpty()) {
+                try {
+                    byte[] bytesImagen = archivo.getBytes();
+                    Path rutaCarpeta = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/");
+                    Path rutaImagen = Paths.get(rutaCarpeta.toString() + archivo.getOriginalFilename());
+                    // Verifica si la carpeta existe y si no la crea
+                    if (!Files.exists(rutaCarpeta)) {
+                        Files.createDirectories(rutaCarpeta);
+                    }
+                    Path rutaFinal = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/"+archivo.getOriginalFilename());
+                    Files.write(rutaFinal, bytesImagen);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
         return "redirect:/actividades";
     }
     @PostMapping("/rutinas")

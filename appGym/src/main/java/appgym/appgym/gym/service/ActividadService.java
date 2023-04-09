@@ -44,6 +44,10 @@ public class ActividadService {
     public List<Reservation> findAllReservas() {
         return (List<Reservation>) reservationRepository.findAllByOrderByIdDesc();
     }
+    @Transactional(readOnly = true)
+    public List<Multimedia> findAllImagenes() {
+        return (List<Multimedia>) multimediaRepository.findAllByOrderByIdDesc();
+    }
 
     @Transactional(readOnly = true)
     public List<Rutina> findAllRutinas() {

@@ -3,7 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Gimnasio Fit</title>
+    <title>Gimnasio ADUAFitness</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
 
     <!-- CSS de Bootstrap -->
     <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}" />
@@ -11,14 +17,13 @@
     <!-- CSS personalizado -->
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
 
-
 </head>
 
 <body style="background-color: #FFFFE7;">
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Gimnasio Fit</a>
+        <a class="navbar-brand" href="#">Gimnasio ADUAFitness</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -50,22 +55,62 @@
 
 <!-- Contenido -->
 <div class="container mt-3">
-    <h1>Bienvenido al Gimnasio Fit</h1>
-    <p>Ofrecemos una gran variedad de clases y horarios para que puedas entrenar de forma cómoda y efectiva.</p>
-
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <i class="fas fa-dumbbell"></i>
+        <p>Bienvenido al Gimnasio ADUAFitnes</p>
+    </div>
     <!-- Imágenes de las clases -->
-    <div class="row">
-        <div class="col-4 mb-4">
-            <img th:src="@{/img/zumba.jpg}" class="img-fluid" alt="Zumba">
-            <h4 class="mt-3">Zumba</h4>
+    <div class="row align-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Actividades</h5>
+                <div th:id="carouselExampleControlsActividadPrincipal" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div th:each="imagen, iterStat : ${multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
+                            <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
+                                <video class="card-img-top mx-auto d-block" style="height: 450px;width: 450px" th:src="@{/img/actividades/__${imagen.actividad.id}__/__${imagen.nombre}__}" controls></video>
+                            </div>
+                            <div th:if="${!imagen.nombre.endsWith('.mp4') and !imagen.nombre.endsWith('.avi') and !imagen.nombre.endsWith('.mov') and !imagen.nombre.endsWith('.wmv')}">
+                                <img class="card-img-top mx-auto d-block" style="height: 450px;width: 450px" th:src="@{/img/actividades/__${imagen.actividad.id}__/__${imagen.nombre}__}" alt="Imagen de la actvidad">
+                            </div>
+                        </div>
+                    </div>
+                    <a class="carousel-control-prev" th:href="'#carouselExampleControlsActividadPrincipal'" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="false"></span>
+                        <span class="sr-only">Anterior</span>
+                    </a>
+                    <a class="carousel-control-next" th:href="'#carouselExampleControlsActividadPrincipal'" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Siguiente</span>
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="col-4 mb-4">
-            <img th:src="@{/img/yoga.jpg}" class="img-fluid" alt="Yoga">
-            <h4 class="mt-3">Yoga</h4>
-        </div>
-        <div class="col-4 mb-4">
-            <img th:src="@{/img/crossfit.jpg}" class="img-fluid" alt="CrossFit">
-            <h4 class="mt-3">CrossFit</h4>
+        <div class="col-md-6">
+            <div class="card">
+                <h5 class="text-center">Nuestras Maquinas</h5>
+                <div th:id="carouselExampleControlsMaquinaPrincipal" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div th:each="maquina, iterStat : ${maquinas}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
+                            <div th:if="${maquina.imagen.endsWith('.mp4') or maquina.imagen.endsWith('.avi') or maquina.imagen.endsWith('.mov') or maquina.imagen.endsWith('.wmv')}">
+                                <video class="card-img-top mx-auto d-block" style="height: 450px;width: 450px" th:src="@{/img/maquinas/__${maquina.id}__/__${maquina.imagen}__}" controls></video>
+                            </div>
+                            <div th:if="${!maquina.imagen.endsWith('.mp4') and !maquina.imagen.endsWith('.avi') and !maquina.imagen.endsWith('.mov') and !maquina.imagen.endsWith('.wmv')}">
+                                <img class="card-img-top mx-auto d-block" style="height: 450px;width: 450px" th:src="@{/img/maquinas/__${maquina.id}__/__${maquina.imagen}__}" alt="Imagen de la maquina">
+                            </div>
+                        </div>
+                    </div>
+                    <a class="carousel-control-prev" th:href="'#carouselExampleControlsMaquinaPrincipal'" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="false"></span>
+                        <span class="sr-only">Anterior</span>
+                    </a>
+                    <a class="carousel-control-next" th:href="'#carouselExampleControlsMaquinaPrincipal'" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Siguiente</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -75,7 +120,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <footer style="position: absolute;bottom: 0;width: 100%;height: 60px;background-color: #333;color: black;" class="footer mt-4 py-3 bg-light text-white">
     <div class="container-fluid text-center">
-        <span style="color:black;">Gimnasio Fit &copy; 2023</span>
+        <span style="color:black;">Gimnasio ADUAFitness &copy; 2023</span>
     </div>
 </footer>
 </body>

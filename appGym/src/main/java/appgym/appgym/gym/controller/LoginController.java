@@ -118,7 +118,6 @@ public class LoginController {
         }
 
         if (usuarioService.findByEmail(usuarioData.geteMail()) != null) {
-            model.addAttribute("usuarioData", usuarioData);
             model.addAttribute("error", "El usuario " + usuarioData.geteMail() + " ya existe");
             return "formRegistro";
         }

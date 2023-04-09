@@ -9,6 +9,7 @@ const ActivitiesScreen = ({ route }) => {
   const { activities } = route.params;
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedMaquina, setSelectedMaquina] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const handleMachinePress = (machine) => {
     if (machine) {
@@ -23,6 +24,7 @@ const ActivitiesScreen = ({ route }) => {
 
   const handleModalActividadClose = () => {
     setSelectedActivity(null);
+    setCurrentImageIndex(0);
   };
   const handleModalMaquinaClose = () => {
     setSelectedMaquina(null);
@@ -35,7 +37,13 @@ const ActivitiesScreen = ({ route }) => {
         style={styles.activityContainer}
         onPress={() => handleActivityPress(item)}
       >
-        <Image source={{ uri: `http://${IP}/img/${item.imagen}` }} style={styles.activityImage}  />
+        {item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
+                    <Image style={styles.activityImage} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                    ) : item.multimedia[0].nombre.endsWith('.mp4') || item.multimedia[0].nombre.endsWith('.mov') ? (
+                    <Video style={styles.activityImage} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }}/>
+                    ) : (
+                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                    )}
         <View style={styles.activityInfo}>
           <Text style={styles.activityText}>Series: {item.series}</Text>
           <Text style={styles.activityText}>Repeticiones: {item.repeticiones}</Text>
@@ -60,7 +68,7 @@ const ActivitiesScreen = ({ route }) => {
       {selectedMaquina && (
         <Modal visible={true} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/${selectedMaquina.imagen}` }} style={styles.imagenModal} />
+            <Image source={{ uri: `http://${IP}/img/maquinas/${selectedMaquina.id}/${selectedMaquina.imagen}` }} style={styles.imagenModal} />
             <Text style={styles.modalTitle}>{selectedMaquina.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedMaquina.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={handleModalMaquinaClose}>
@@ -73,7 +81,20 @@ const ActivitiesScreen = ({ route }) => {
         {selectedActivity && (
         <Modal visible={true} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/${selectedActivity.imagen}` }} style={styles.imagenModal} />
+            {selectedActivity?.multimedia[currentImageIndex].nombre.endsWith('.jpg') || selectedActivity?.multimedia[currentImageIndex].nombre.endsWith('.png') || selectedActivity?.multimedia[currentImageIndex].nombre.endsWith('.jpeg') || selectedActivity?.multimedia[currentImageIndex].nombre.endsWith('.gif') ? (
+                    <Image style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedActivity?.id}/${selectedActivity?.multimedia[currentImageIndex].nombre}` }} />
+                    ) : selectedActivity?.multimedia[currentImageIndex].nombre.endsWith('.mp4') || selectedActivity?.multimedia[currentImageIndex].nombre.endsWith('.mov') ? (
+                    <Video style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedActivity?.id}/${selectedActivity?.multimedia[currentImageIndex].nombre}` }} useNativeControls={true}
+                    isLooping={true}/>
+                    ) : (
+                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                    )}
+            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex - 1)} disabled={currentImageIndex === 0} style={{display: currentImageIndex === 0 ? "none" : "flex"}}>
+              <FontAwesome name="arrow-left" size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex + 1)} disabled={currentImageIndex === selectedActivity?.multimedia.length - 1} style={{display: currentImageIndex === selectedActivity?.multimedia.length - 1 ? "none" : "flex"}}>
+              <FontAwesome name="arrow-right" size={24} color="#000" />
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>{selectedActivity.nombre}</Text>
             <Text style={styles.modalSubtitle}>Numero de Series: {selectedActivity.series}</Text>
             <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedActivity.series}</Text>

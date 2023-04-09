@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <title>Sobre mí</title>
   <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
-  <link rel="stylesheet" th:href="@{/css/sobremi.css}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body style="background-color: #FFFFE7;">
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Gimnasio Fit</a>
+    <a class="navbar-brand" href="#">Gimnasio ADUAFitness</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -42,32 +43,30 @@
 <div class="container">
   <h1 class="text-center">Sobre mí</h1>
   <hr>
-  <div class="row">
+  <div class="row align-items-center">
     <div class="col-md-4">
-      <img th:src="@{/img/profile-image.jpg}" class="img-responsive" alt="Imagen de perfil">
+      <img style="border-radius: 20px;" width="100%" height="auto" th:src="@{/img/person_avatar.jpg}" alt="Imagen de perfil">
     </div>
     <div class="col-md-8">
-      <h2>Nombre completo</h2>
-      <h4>Trabajo</h4>
-      <p>Una breve descripción sobre ti, qué haces y tu experiencia. Puedes incluir detalles como tus habilidades, logros y educación.</p>
+      <p>Benziane Adel es un graduado en ingeniería informática en software, apasionado por la programación en Java. Con experiencia en el desarrollo de aplicaciones de backend, Adel tiene un enfoque metódico y analítico para abordar problemas de programación. Su habilidad para descomponer problemas complejos en componentes más simples y resolverlos eficientemente es impresionante. Además, su atención al detalle y su enfoque riguroso garantizan que los proyectos se completen con precisión y en los plazos previstos.
+        En su tiempo libre, Adel es un ávido entusiasta del fitness y le gusta desafiarse a sí mismo en el gimnasio. Está interesado en aplicar sus habilidades en programación para ayudar a mejorar la experiencia de entrenamiento de los usuarios de la aplicación de gym, y está emocionado de explorar formas en que la tecnología puede ayudar a las personas a alcanzar sus objetivos de fitness de manera más efectiva.</p>
       <h3>Contacto</h3>
       <ul>
-        <li><i class="fa fa-envelope"></i> Correo electrónico: correo@ejemplo.com</li>
-        <li><i class="fa fa-phone"></i> Teléfono: 123-456-7890</li>
-        <li><i class="fa fa-map-marker"></i> Dirección: Ciudad, País</li>
+        <li><i class="fa fa-envelope"></i> Correo electrónico: adelbenzianeoran@gmail.com</li>
+        <li><i class="fa fa-phone"></i> Teléfono: 603205059</li>
       </ul>
       <h3>Redes sociales</h3>
+
       <ul class="list-inline">
-        <li><a th:href="@{'https://www.linkedin.com/in/usuario'}"><i class="fa fa-linkedin"></i></a></li>
-        <li><a th:href="@{'https://github.com/usuario'}"><i class="fa fa-github"></i></a></li>
-        <li><a th:href="@{'https://twitter.com/usuario'}"><i class="fa fa-twitter"></i></a></li>
+        <li><a th:href="@{'https://github.com/BenzianeAdel'}"><i class="fa fa-github"> Mis proyectos</i></a></li>
+        <li><a th:href="@{'https://www.instagram.com/adelmulama/'}"><i class="fa fa-instagram"> Conocer mejor</i></a></li>
       </ul>
     </div>
   </div>
 </div>
 <footer style="position: absolute;bottom: 0;width: 100%;height: 60px;background-color: #333;color: black;" class="footer mt-4 py-3 bg-light text-white">
   <div class="container-fluid text-center">
-    <span style="color:black;">Gimnasio Fit &copy; 2023</span>
+    <span style="color:black;">Gimnasio ADUAFitness &copy; 2023</span>
   </div>
 </footer>
 </body>

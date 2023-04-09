@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card, Button, Icon } from 'react-native-elements';
 import { FontAwesome } from '@expo/vector-icons';
 import Modal from 'react-native-modal';
+import { Video } from 'expo-av'; 
 import IP from '../config';
 const Tab = createBottomTabNavigator();
 
@@ -49,7 +50,7 @@ function VerMaquinasScreen() {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/${item.imagen}` }} />
+                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/maquinas/${item.id}/${item.imagen}` }} />
                   <Text style={styles.maquinaNombre}>{item.nombre}</Text>
                 </View>
               </Card>
@@ -60,7 +61,7 @@ function VerMaquinasScreen() {
       )}
       <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/${selectedMaquina?.imagen}` }} style={styles.imagenModal} />
+            <Image source={{ uri: `http://${IP}/img/maquinas/${selectedMaquina?.id}/${selectedMaquina?.imagen}` }} style={styles.imagenModal} />
             <Text style={styles.modalTitle}>{selectedMaquina?.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedMaquina?.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
@@ -78,9 +79,11 @@ function VerEjerciciosScreen() {
   const [selectedEjercicio, setSelectedEjercicio] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisibleMaquina, setModalVisibleMaquina] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
+    setCurrentImageIndex(0);
   };
   const toggleModalMaquina = () => {
     setModalVisibleMaquina(!isModalVisibleMaquina);
@@ -116,15 +119,23 @@ function VerEjerciciosScreen() {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/${item.imagen}` }} />
+                    {item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
+                    <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                    ) : item.multimedia[0].nombre.endsWith('.mp4') || item.multimedia[0].nombre.endsWith('.mov') ? (
+                    <Video style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                    ) : (
+                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                    )}
                   <Text style={styles.maquinaNombre}>{item.nombre}</Text>
-                  <View style={styles.activityInfo}>
-                  <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
-                    <Text style={styles.maquinaDetalles}>
-                    <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
-                    </Text>
-                  </TouchableOpacity>
-                  </View>     
+                  {item.maquina !== null && (
+                    <View style={styles.activityInfo}>
+                      <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
+                        <Text style={styles.maquinaDetalles}>
+                          <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}  
                 </View>
               </Card>
             </TouchableOpacity>
@@ -134,7 +145,20 @@ function VerEjerciciosScreen() {
       )}
       <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/${selectedEjercicio?.imagen}` }} style={styles.imagenModal} />
+            {selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.png') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpeg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.gif') ? (
+                    <Image style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }} />
+                    ) : selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mp4') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mov') ? (
+                    <Video style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }} useNativeControls={true}
+                    isLooping={true}/>
+                    ) : (
+                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                    )}
+            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex - 1)} disabled={currentImageIndex === 0} style={{display: currentImageIndex === 0 ? "none" : "flex"}}>
+              <FontAwesome name="arrow-left" size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex + 1)} disabled={currentImageIndex === selectedEjercicio?.multimedia.length - 1} style={{display: currentImageIndex === selectedEjercicio?.multimedia.length - 1 ? "none" : "flex"}}>
+              <FontAwesome name="arrow-right" size={24} color="#000" />
+            </TouchableOpacity>
             <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>
             <Text style={styles.modalSubtitle}>Numero de Series: {selectedEjercicio?.series}</Text>
             <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.series}</Text>
@@ -144,9 +168,10 @@ function VerEjerciciosScreen() {
             {/* contenido adicional de la modal */}
             </View>
       </Modal>
+      {selectedEjercicio?.maquina && (
       <Modal isVisible={isModalVisibleMaquina} onBackdropPress={toggleModalMaquina} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/${selectedEjercicio?.maquina.imagen}` }} style={styles.imagenModal} />
+            <Image source={{ uri: `http://${IP}/img/maquinas/${selectedEjercicio?.maquina.id}/${selectedEjercicio?.maquina.imagen}` }} style={styles.imagenModal} />
             <Text style={styles.modalTitle}>{selectedEjercicio?.maquina.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedEjercicio?.maquina.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModalMaquina}>
@@ -155,6 +180,7 @@ function VerEjerciciosScreen() {
             {/* contenido adicional de la modal */}
             </View>
         </Modal>
+     )}
     </View>
   );
 }
@@ -281,6 +307,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 20,
+  },
+  imageButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+  imageButton: {
+    padding: 10,
+    backgroundColor: '#ccc',
+    borderRadius: 5,
+  },
+  imageButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
   }
 });
 

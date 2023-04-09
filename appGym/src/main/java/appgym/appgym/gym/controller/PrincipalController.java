@@ -2,6 +2,8 @@ package appgym.appgym.gym.controller;
 
 
 import appgym.appgym.gym.authentication.ManagerUserSession;
+import appgym.appgym.gym.service.ActividadService;
+import appgym.appgym.gym.service.MaquinaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,6 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class PrincipalController {
     @Autowired
     ManagerUserSession managerUserSession;
+    @Autowired
+    ActividadService actividadService;
+
+    @Autowired
+    MaquinaService maquinaService;
     private boolean comprobarLogueado(){
         if(managerUserSession.usuarioLogeado() == null){
             return false;
@@ -18,10 +25,12 @@ public class PrincipalController {
         return true;
     }
     @GetMapping("/")
-    public String principal() {
+    public String principal(Model model) {
         if(comprobarLogueado()){
             return "redirect:/home";
         }
+        model.addAttribute("multimedia",actividadService.findAllImagenes());
+        model.addAttribute("maquinas",maquinaService.findAll());
         return "principal";
     }
     @GetMapping("/acerca")

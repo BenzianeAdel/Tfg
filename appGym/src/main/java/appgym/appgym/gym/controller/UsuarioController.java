@@ -56,6 +56,9 @@ public class UsuarioController {
     }
     @GetMapping("/perfil")
     public String perfil(Model model){
+        if(!comprobarLogueado()){
+            return "redirect:/login";
+        }
         Long idu = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(idu);
         model.addAttribute("esAdmin",User.admin);

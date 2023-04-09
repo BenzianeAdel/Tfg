@@ -38,3 +38,37 @@
 .contact-form button {
     margin-top: 1rem;
 }
+.alert {
+    background-color: #f44336;
+    color: white;
+    text-align: center;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.closebtn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.alert p {
+    margin: 0;
+    font-size: 18px;
+}
+
+.alert i {
+    font-size: 32px;
+    margin-right: 10px;
+}
+
+.fa-dumbbell:before {
+    content: "\f44b";
+}
+.carousel-control-prev-icon, .carousel-control-next-icon {
+    background-color: black !important;
+    /* otros estilos */
+}
