@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.annotation.MultipartConfig;
 import javax.validation.Valid;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -238,6 +239,24 @@ public class ActividadController {
         List<Reservation>reservas = actividadService.findActividades(u);
         return reservas;
     }
+    @GetMapping("/monitores/{iDmonitor}/{fecha}/reservas")
+    @ResponseBody
+    public List<String>reservasOcupadas(@PathVariable("iDmonitor")Long idMonitor,@PathVariable("fecha")String f) throws ParseException {
+        Usuario u = usuarioService.findById(idMonitor);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date = dateFormat.parse(f);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        List<Reservation>reservas = actividadService.findFranjas(u,calendar);
+        List<String>franjas = new ArrayList<>();
+        for(int j=0;j<reservas.size();j++){
+            Calendar c= reservas.get(j).getStart();
+            SimpleDateFormat dateFormatString = new SimpleDateFormat("HH:mm");
+            String hora = dateFormatString.format(c.getTime());
+            franjas.add(hora);
+        }
+        return franjas;
+    }
     @GetMapping("/reservas/{idMonitor}")
     @ResponseBody
     public List<Reservation>reservas(@PathVariable(value="idMonitor") Long idMonitor){
@@ -250,6 +269,19 @@ public class ActividadController {
         Actividad a = actividadService.findById(actividadData.getId());
         try{
             actividadService.eliminarActividad(a);
+            String carpetaImagenes = "src/main/resources/static/img/actividades/" + actividadData.getId();
+            Path pathCarpeta = Paths.get(carpetaImagenes);
+            File carpeta = new File(carpetaImagenes);
+            if(carpeta.exists() && carpeta.isDirectory()){
+                try {
+                    Files.walk(pathCarpeta)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch(Exception e){
             flash.addFlashAttribute("errorActividad","No se ha podido borrar porque esta asociada a una rutina");
         }

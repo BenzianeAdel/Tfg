@@ -3,9 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
-  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+  <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.print.min.css' rel='stylesheet' media='print' />
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/locale/es.min.js'></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
 </head>
 <!-- Navbar -->
 <body style="background-color: #FFFFE7;">
@@ -55,27 +68,124 @@
     </div>
   </div>
 </nav>
-<div class="container-fluid">
+<div class="container mt-3">
   <div class="row">
     <div th:if="${tipo==0}" class="col-md-12 mt-4">
-      <h2>Bienvenido Administrador</h2>
-      <p>En esta página, usted puede gestionar el gym y controlar cualquier tipo de incidencia</p>
+      <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <i class="fas fa-handshake"></i>
+        <h2>Bienvenido Administrador</h2>
+        <p>En este perfil, usted puede gestionar el gym y controlar cualquier tipo de incidencia</p>
+      </div>
     </div>
     <div th:if="${tipo==2}" class="col-md-12 mt-4">
-      <h2>Bienvenido Monitor</h2>
-      <p>En esta página, usted puede gestionar las actvividades de los clientes</p>
+      <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <i class="fas fa-handshake"></i>
+        <h2>Bienvenido Monitor</h2>
+        <p>En este perfil, usted puede gestionar las actvividades de los clientes</p>
+      </div>
     </div>
     <div th:if="${tipo==1}" class="col-md-12 mt-4">
-      <h2>Bienvenido Cliente</h2>
-      <p>En esta página, usted puede realizar actividades y gestionarlas como usted desee</p>
+      <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <i class="fas fa-handshake"></i>
+        <h2>Bienvenido Cliente</h2>
+        <p>En este perfil, usted puede realizar actividades y gestionarlas como usted desee</p>
+      </div>
+    </div>
+  </div>
+  <div th:if="${usuario.getTipoUser()!= esAdmin}" id="calendar" th:data-id="${usuario.id}" style="background-color:white; border: none; font-size: 10px; max-width: 100%; max-height: 500px; overflow: auto;"></div>
+  <div th:if="${usuario.getTipoUser()== esAdmin}" class="row align-content-center">
+    <div class="col-md-12">
+      <canvas th:id="'chart1'" width="800px" height="400px"></canvas>
     </div>
   </div>
 </div>
-
-<footer style="position: absolute;bottom: 0;width: 100%;height: 60px;background-color: #333;color: black;" class="footer mt-4 py-3 bg-light text-white">
-  <div class="container-fluid text-center">
-    <span style="color:black;">Gimnasio ADUAFitness &copy; 2023</span>
-  </div>
-</footer>
+<script type="text/javascript">
+  $(document).ready(function() {
+    var calendario = document.getElementById("calendar");
+    if (calendario) {
+      var user = calendario.getAttribute("data-id");
+      var events = [];
+      var calendar = $('#calendar').fullCalendar({
+        locale: 'es',
+        editable: false,
+        slotDuration: '00:30:00',
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'month,agendaWeek,agendaDay'
+        },
+        selectable: false,
+        selectHelper: false,
+        selectConstraint: 'businessHours',
+        eventConstraint: 'businessHours',
+        businessHours: {
+          dow: [1, 2, 3, 4, 5],
+          start: '08:00',
+          end: '18:00'
+        },
+        events: function(start, end, timezone, callback) {
+          if (user) {
+            fetch('/reservas/' + user)
+                    .then(response => response.json())
+                    .then(data => {
+                      for (var i = 0; i < data.length; i++) {
+                        var reserva = data[i];
+                        events.push({
+                          title: reserva.title,
+                          start: moment(reserva.start).format('YYYY-MM-DDTHH:mm:ss'),
+                          end: moment(reserva.start).add(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss'),
+                          editable: false
+                        });
+                      }
+                      callback(events);
+                    })
+                    .catch(error => console.error('Error:', error));
+          }
+        }
+      });
+      calendar.fullCalendar('addEventSource', events);
+    }else{
+      var admins = [[${admins}]];
+      var monitores = [[${monitores}]];
+      var clientes = [[${clientes}]];
+      var reservas = [[${reservacion}]];
+      var rutinas = [[${rutinas}]];
+      var actividades = [[${actividades}]];
+      var maquinas = [[${maquinas}]];
+      var data1 = {
+        labels: ["Administradores","Monitores","Clientes","Reservas","Rutinas","Actividades","Maquinas"],
+        datasets: [
+          {
+            label: "Cantidad",
+            backgroundColor: "#6B3654",
+            borderColor: "#FFCC99",
+            borderWidth: 1,
+            data: [admins,monitores,clientes,reservas,rutinas,actividades,maquinas]
+          }
+        ]
+      };
+      // Configuración para los gráficos
+      var options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      };
+      // Inicializar los gráficos
+      var ctx1 = document.getElementById('chart1').getContext('2d');
+      var myChart1 = new Chart(ctx1, {
+        type: 'bar',
+        data: data1,
+        options: options
+      });
+    }
+  });
+</script>
 </body>
 </html>

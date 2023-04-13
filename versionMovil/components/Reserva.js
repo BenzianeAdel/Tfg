@@ -5,20 +5,33 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { Icon } from 'react-native-elements';
+import moment from 'moment';
 const Stack = createStackNavigator();
 import { Calendar } from 'react-native-calendars';
 import IP from '../config';
 
 export default function Reserva({ navigation, route }) {
   const timeOptions = [
+      '08:00',
+      '08:30',
       '09:00',
+      '09:30',
       '10:00',
+      '10:30',
       '11:00',
+      '11:30',
       '12:00',
+      '12:30',
       '13:00',
+      '13:30',
       '14:00',
+      '14:30',
       '15:00',
+      '15:30',
       '16:00',
+      '16:30',
+      '17:00',
+      '17:30',
     ];
     const { rutinaID } = route.params;
     const [selectedDate, setSelectedDate] = useState(null);
@@ -26,7 +39,7 @@ export default function Reserva({ navigation, route }) {
     const [monitores, setMonitores] = useState([]);
     const [selectedMonitor, setSelectedMonitor] = useState(null);
     const [titulo,settitulo] = useState('');
-    const [reservas, setReservas] = useState({});
+    const [franjasOcupadas, setfranjasOcupadas] = useState([]);
     const [errorMessage, setErrorMessage] = useState(null);
     
 
@@ -37,24 +50,45 @@ export default function Reserva({ navigation, route }) {
       .catch(error => console.error(error));
   }, []);
 
-  useEffect(() => {
-    if (selectedMonitor) {
-        fetch(`http://${IP}/monitores/${selectedMonitor}/reservas`)
-            .then(response => response.json())
-            .then(data => setReservas(data))
-            .catch(error => console.error(error));
-    }
-  }, [selectedMonitor]);
-
   const onDayPress = (day) => {
-    setSelectedDate(day.dateString);
+      // Verificar si el día seleccionado es fin de semana
+    const isWeekend = day.dateString.startsWith('2023-') && [0, 6].includes(new Date(day.dateString).getDay());
+
+    // Verificar si el día seleccionado es una fecha pasada
+    const isPastDate = day.dateString <= new Date().toISOString().split('T')[0];
+
+    if (isWeekend) {
+      alert('Es fin de semana no trabajamos');
+    } else if (isPastDate) {
+      alert('No puedes seleccionar una fecha pasada ni la de hoy');
+    } else {
+      setSelectedDate(day.dateString);
+      if (selectedMonitor && day.dateString) {
+        fetch(`http://${IP}/monitores/${selectedMonitor}/${day.dateString}/reservas`)
+          .then((response) => response.json())
+          .then((data) => setfranjasOcupadas(data))
+          .catch((error) => console.error(error));
+      }
+    }
+  };
+  const onMonitorPress = (item) => {
+    setSelectedMonitor(item);
+      if (item && selectedDate) {
+        fetch(`http://${IP}/monitores/${item}/${selectedDate}/reservas`)
+          .then((response) => response.json())
+          .then((data) => setfranjasOcupadas(data))
+          .catch((error) => console.error(error));
+      }
+  };
+  const isFranjaOcupada = (time) => {
+    return franjasOcupadas.includes(time);
   };
 
   const handleTimeChange = (itemValue)=> {
     setSelectedTime(itemValue);
   };
   async function realizarReserva() {
-    if (!selectedDate || !selectedMonitor || !titulo) {
+    if (!selectedDate || !selectedMonitor || !titulo || !selectedTime) {
       setErrorMessage('Por favor ingrese un titulo de reserva, el monitor, fecha y la hora deseada.');
       return;
     }
@@ -82,6 +116,10 @@ export default function Reserva({ navigation, route }) {
       console.error(error);
     }
   }
+  const isWeekend = (date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6;
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -101,7 +139,7 @@ export default function Reserva({ navigation, route }) {
         <View style={styles.selector}>
           <Picker
             selectedValue={selectedMonitor}
-            onValueChange={(itemValue, itemIndex) => setSelectedMonitor(itemValue)}
+            onValueChange={(itemValue, itemIndex) => onMonitorPress(itemValue)}
           >
             <Picker.Item label="Selecciona un monitor" value={null} />
             {monitores.map(monitor => (
@@ -112,6 +150,8 @@ export default function Reserva({ navigation, route }) {
         <Calendar
         onDayPress={onDayPress}
         markedDates={{ [selectedDate]: { selected: true } }}
+        hideExtraDays={true}
+        disabledDaysIndexes={[0, 6]}
         style={styles.calendar}
         theme={{
           calendarBackground: '#f2f2f2',
@@ -143,8 +183,14 @@ export default function Reserva({ navigation, route }) {
         style={styles.picker}
       >
         {timeOptions.map((time) => (
-          <Picker.Item key={time} label={time} value={time} />
-        ))}
+        <Picker.Item
+        key={time}
+        label={isFranjaOcupada(time) ? `${time} - Ocupada` : time}
+        value={time}
+        enabled={!isFranjaOcupada(time)}
+        color={isFranjaOcupada(time) ? 'red' : 'black'}
+        />
+  ))}
       </Picker>
     </View>
   </View>

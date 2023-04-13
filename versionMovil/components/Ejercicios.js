@@ -9,6 +9,8 @@ import { random } from 'lodash';
 import * as Animatable from 'react-native-animatable';
 import { FontAwesome } from '@expo/vector-icons';
 import { Card } from 'react-native-elements';
+import Moment from 'moment';
+import 'moment-timezone';
 import Modal from 'react-native-modal';
 import StarRating from 'react-native-star-rating';
 import IP from '../config';
@@ -71,7 +73,7 @@ function MisReservasScreen(){
           <Text style={styles.reservaText}>Nombre Rutina: {item.rutina.nombre}</Text>
           <Text style={styles.reservaText}>Nombre Monitor: {item.monitor.nombre}</Text>
           <Text style={styles.reservaText}>Correo Monitor: {item.monitor.email}</Text>
-          <Text style={styles.reservaText}>Fecha: {new Date(item.start).toLocaleDateString()}</Text>
+          <Text style={styles.reservaText}>Fecha: {Moment.tz(item.start, 'Europe/Madrid').format('DD/MM/YYYY hh:mm a')}</Text>
           <Text style={styles.reservaText}>Estado: {item.estado}</Text>
         </View>
         {item.estado === 'Finalizada' && !item.valorada && (

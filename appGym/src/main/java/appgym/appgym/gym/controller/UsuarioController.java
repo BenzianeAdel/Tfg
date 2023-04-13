@@ -4,6 +4,8 @@ import appgym.appgym.gym.authentication.ManagerUserSession;
 import appgym.appgym.gym.model.Actividad;
 import appgym.appgym.gym.model.User;
 import appgym.appgym.gym.model.Usuario;
+import appgym.appgym.gym.service.ActividadService;
+import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +27,10 @@ import java.util.List;
 public class UsuarioController {
     @Autowired
     UsuarioService usuarioService;
+    @Autowired
+    ActividadService actividadService;
+    @Autowired
+    MaquinaService maquinaService;
 
     @Autowired
     ManagerUserSession managerUserSession;
@@ -52,6 +58,13 @@ public class UsuarioController {
         model.addAttribute("esAdmin",User.admin);
         model.addAttribute("esCliente",User.cliente);
         model.addAttribute("usuario",u);
+        model.addAttribute("monitores",usuarioService.findAllTip(User.monitor,null).size());
+        model.addAttribute("admins",usuarioService.findAllTip(User.admin,null).size());
+        model.addAttribute("clientes",usuarioService.findAllTip(User.cliente,null).size());
+        model.addAttribute("actividades",actividadService.findAll().size());
+        model.addAttribute("reservacion",actividadService.findAllReservas().size());
+        model.addAttribute("rutinas",actividadService.findAllRutinas().size());
+        model.addAttribute("maquinas",maquinaService.findAll().size());
         return "home";
     }
     @GetMapping("/perfil")

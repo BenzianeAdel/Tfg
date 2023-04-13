@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Service
@@ -91,6 +92,18 @@ public class ActividadService {
         r.setEstado(Estado.Finalizada);
         reservationRepository.save(r);
         return r;
+    }
+    @Transactional(readOnly = false)
+    public List<Reservation>findFranjas(Usuario monitor, Calendar f){
+        List<Reservation>reservas=new ArrayList<>();
+        for(int i=0;i<findAllReservas().size();i++){
+            if(findAllReservas().get(i).getMonitor().getId()==monitor.getId() && (findAllReservas().get(i).getStart().get(Calendar.YEAR) == f.get(Calendar.YEAR) &&
+                    findAllReservas().get(i).getStart().get(Calendar.MONTH) == f.get(Calendar.MONTH) &&
+                    findAllReservas().get(i).getStart().get(Calendar.DAY_OF_MONTH) == f.get(Calendar.DAY_OF_MONTH))){
+                reservas.add(findAllReservas().get(i));
+            }
+        }
+        return reservas;
     }
     @Transactional(readOnly = false)
     public void valorar(Long ida,int p,Long idR){
