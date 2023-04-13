@@ -60,6 +60,7 @@ public class ActividadController {
         List<Rutina> rutinas = actividadService.findAllRutinas();
         List<Reservation>reservas = actividadService.findActividades(u);
         List<Reservation>reservasPA= actividadService.findAllReservas();
+        Favoritos f = actividadService.getFavoritosUser(managerUserSession.usuarioLogeado());
         model.addAttribute("reservas",reservas);
         model.addAttribute("adminR",reservasPA);
         model.addAttribute("tipo",tipoC);
@@ -67,6 +68,8 @@ public class ActividadController {
         model.addAttribute("esCliente",User.cliente);
         model.addAttribute("usuario",u);
         model.addAttribute("actividades",actividades);
+        model.addAttribute("estaRutinaFavoritos",this);
+        model.addAttribute("favoritas",f.getRutinas());
         model.addAttribute("rutinas",rutinas);
         model.addAttribute("actividadData",new ActividadData());
         model.addAttribute("actividadDataEliminar",new ActividadData());
@@ -297,4 +300,19 @@ public class ActividadController {
         }
         return "redirect:/actividades";
     }
+    @PostMapping("/eliminarDeFavoritos/{idR}")
+    public String eliminarDeFavoritos(@PathVariable(value ="idR") Long id) {
+        actividadService.eliminarDeFavoritos(id, usuarioService.findById(managerUserSession.usuarioLogeado()));
+        return "redirect:/actividades";
+    }
+    @PostMapping("/anadirFavoritos/{idR}")
+    public String anadirFavoritos(@PathVariable(value = "idR") Long id) {
+        actividadService.anadirFavoritos(id, usuarioService.findById(managerUserSession.usuarioLogeado()));
+        return "redirect:/actividades";
+    }
+    public boolean buscarRutinaEnFavoritos(Long id){
+        boolean esta=actividadService.busquedaRutinaDentroFavoritos(id,managerUserSession.usuarioLogeado());
+        return esta;
+    }
+
 }

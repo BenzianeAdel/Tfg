@@ -22,6 +22,8 @@ public class ActividadService {
 
     @Autowired
     private MultimediaRepository multimediaRepository;
+    @Autowired
+    private FavoritosRepository favoritosRepository;
 
     @Transactional(readOnly = true)
     public Actividad findById(Long actividadId) {
@@ -121,5 +123,45 @@ public class ActividadService {
     @Transactional(readOnly = false)
     public void eliminarRutina(Rutina r){
         rutinaRepository.delete(r);
+    }
+
+    @Transactional(readOnly = false)
+    public void anadirFavoritos(Long idR,Usuario u){
+        Favoritos f = favoritosRepository.getFavoritosBy(u.getId());
+        if(f == null){
+            f = new Favoritos();
+            f.setUsuario(u);
+        }
+        Rutina r = findRutinaById(idR);
+        f.getRutinas().add(r);
+        favoritosRepository.save(f);
+    }
+    @Transactional(readOnly = false)
+    public void eliminarDeFavoritos(Long idR,Usuario u){
+        Favoritos f = favoritosRepository.getFavoritosBy(u.getId());
+        Rutina r = findRutinaById(idR);
+        f.getRutinas().remove(r);
+        favoritosRepository.save(f);
+    }
+    @Transactional(readOnly = true)
+    public boolean busquedaRutinaDentroFavoritos(Long idR,Long idU){
+        boolean esta=false;
+        Favoritos f = favoritosRepository.getFavoritosBy(idU);
+        if(f!=null){
+            for(int i=0;i<f.getRutinas().size() && esta==false;i++){
+                if(f.getRutinas().get(i).getId() == idR){
+                    esta=true;
+                }
+            }
+        }
+        return esta;
+    }
+    @Transactional(readOnly = true)
+    public Favoritos getFavoritosUser(Long idU){
+        Favoritos f = favoritosRepository.getFavoritosBy(idU);
+        if(f == null){
+            f = new Favoritos();
+        }
+        return f;
     }
 }
