@@ -15,7 +15,7 @@ import Reserva from './components/Reserva';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatScreen from './components/ChatScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
 

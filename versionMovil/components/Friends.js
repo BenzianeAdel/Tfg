@@ -44,7 +44,7 @@ function BuscarContactosScreen({navigation}){
         />
       </View>
       {usuariosFiltrados.map(usuario => (
-        <TouchableOpacity onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
+        <TouchableOpacity key={usuario.id.toString()} onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
         <View key={usuario.id} style={styles.usuarioContainerR}>
           <Avatar
           size="medium"
@@ -102,7 +102,7 @@ function MensajesRecientesScreen({navigation}){
         />
       </View>
       {usuariosFiltrados.map(usuario => (
-        <TouchableOpacity onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
+        <TouchableOpacity key={usuario.id.toString()} onPress={() => enviarMensaje(usuario.nombre,usuario.id)}>
         <View key={usuario.id} style={styles.usuarioContainerR}>
           <Avatar
           size="medium"
@@ -190,6 +190,10 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        tabBarLabelStyle: { fontSize: 12 },
+        tabBarStyle: { backgroundColor: '#fff' },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
@@ -201,12 +205,6 @@ function MyTabs() {
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
       })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-        tabStyle: { backgroundColor: '#fff' },
-        labelStyle: { fontSize: 12 },
-      }}
     >
       <Tab.Screen name="Mensajes recientes" component={MensajesRecientesScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Buscar Contactos" component={BuscarContactosScreen} options={{ headerShown: false }}/>

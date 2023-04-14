@@ -6,6 +6,7 @@ import appgym.appgym.gym.service.ActividadService;
 import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -305,11 +306,29 @@ public class ActividadController {
         actividadService.eliminarDeFavoritos(id, usuarioService.findById(managerUserSession.usuarioLogeado()));
         return "redirect:/actividades";
     }
+    @PostMapping("/eliminarDeFavoritosMovil/{idR}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminarDeFavoritosMovil(@PathVariable(value ="idR") Long id) {
+        actividadService.eliminarDeFavoritos(id, usuarioService.findById(managerUserSession.usuarioLogeado()));
+    }
     @PostMapping("/anadirFavoritos/{idR}")
     public String anadirFavoritos(@PathVariable(value = "idR") Long id) {
         actividadService.anadirFavoritos(id, usuarioService.findById(managerUserSession.usuarioLogeado()));
         return "redirect:/actividades";
     }
+    @PostMapping("/anadirFavoritosMovil/{idR}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void anadirFavoritosMovil(@PathVariable(value = "idR") Long id) {
+        actividadService.anadirFavoritos(id, usuarioService.findById(managerUserSession.usuarioLogeado()));
+    }
+
+    @GetMapping("/favoritosMovil")
+    @ResponseBody
+    public List<Rutina> favoritosMovil() {
+        Favoritos f = actividadService.getFavoritosUser(managerUserSession.usuarioLogeado());
+        return f.getRutinas();
+    }
+
     public boolean buscarRutinaEnFavoritos(Long id){
         boolean esta=actividadService.busquedaRutinaDentroFavoritos(id,managerUserSession.usuarioLogeado());
         return esta;

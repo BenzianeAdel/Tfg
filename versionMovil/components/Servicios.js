@@ -15,6 +15,7 @@ function VerMaquinasScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedMaquina, setSelectedMaquina] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -34,13 +35,25 @@ function VerMaquinasScreen() {
     fetchMaquinas();
   }, []);
 
+  const maquinasInfiltradas = maquinas.filter(maquina => {
+    return maquina.nombre.toLowerCase().includes(busqueda.toLowerCase());
+  });
+
   return (
     <View style={styles.container}>
+      <View style={styles.busquedaContainer}>
+        <TextInput
+          style={styles.busquedaInput}
+          placeholder="Buscar por nombre maquina"
+          value={busqueda}
+          onChangeText={texto => setBusqueda(texto)}
+        />
+      </View>
       {loading ? (
         <Text style={styles.loadingText}>Cargando...</Text>
       ) : (
         <FlatList
-          data={maquinas}
+          data={maquinasInfiltradas}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {
@@ -80,6 +93,7 @@ function VerEjerciciosScreen() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isModalVisibleMaquina, setModalVisibleMaquina] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [busqueda, setBusqueda] = useState('');
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -103,13 +117,25 @@ function VerEjerciciosScreen() {
     fetchEjercicios();
   }, []);
 
+  const ejerciciosInfiltrados = ejercicios.filter(ejercicio => {
+    return ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase());
+  });
+
   return (
     <View style={styles.container}>
+      <View style={styles.busquedaContainer}>
+        <TextInput
+          style={styles.busquedaInput}
+          placeholder="Buscar por nombre ejercicio"
+          value={busqueda}
+          onChangeText={texto => setBusqueda(texto)}
+        />
+      </View>
       {loading ? (
         <Text style={styles.loadingText}>Cargando...</Text>
       ) : (
         <FlatList
-          data={ejercicios}
+          data={ejerciciosInfiltrados}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {
@@ -188,6 +214,10 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        tabBarLabelStyle: { fontSize: 12 },
+        tabBarStyle: { backgroundColor: '#fff' },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
@@ -199,12 +229,6 @@ function MyTabs() {
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
       })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-        tabStyle: { backgroundColor: '#fff' },
-        labelStyle: { fontSize: 12 },
-      }}
     >
       <Tab.Screen name="Ver Maquinas" component={VerMaquinasScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Ver Ejericios" component={VerEjerciciosScreen} options={{ headerShown: false }}/>
@@ -323,7 +347,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-  }
+  },
+  busquedaContainer: {
+    padding: 10,
+    backgroundColor: '#6B3654',
+  },
+  busquedaInput: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    padding: 10,
+  },
 });
 
 export default function Servicios() {

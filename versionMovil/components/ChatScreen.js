@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, TextInput, Button, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import IP from '../config';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Moment from 'moment';
 import 'moment/locale/es';
 import { Ionicons } from '@expo/vector-icons';

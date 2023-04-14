@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import IP from '../config';
 

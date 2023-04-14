@@ -8,7 +8,7 @@ import { Avatar } from 'react-native-elements';
 import { random } from 'lodash';
 import * as Animatable from 'react-native-animatable';
 import { FontAwesome } from '@expo/vector-icons';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import IP from '../config';
 const Tab = createBottomTabNavigator();
 
@@ -355,6 +355,10 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
+        tabBarActiveTintColor: 'tomato',
+        tabBarInactiveTintColor: 'gray',
+        tabBarLabelStyle: { fontSize: 12 },
+        tabBarStyle: { backgroundColor: '#fff' },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
@@ -369,12 +373,6 @@ function MyTabs() {
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
       })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-        tabStyle: { backgroundColor: '#fff' },
-        labelStyle: { fontSize: 12 },
-      }}
     >
       <Tab.Screen name="Buscar amigos" component={BuscarAmigosScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Mis amigos" component={MisAmigosScreen} options={{ headerShown: false }}/>
