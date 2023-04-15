@@ -17,22 +17,16 @@ function BuscarAmigosScreen() {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     async function obtenerUsuarios() {
       try {
         const respuesta = await fetch(`http://${IP}/usuarios`);
         const datos = await respuesta.json();
-        if (isMounted) {
-          setUsuarios(datos);
-        }
+        setUsuarios(datos);
       } catch (error) {
         console.error(error);
       }
     }
     obtenerUsuarios();
-    return () => {
-      isMounted = false;
-    };
   }, [usuarios]);
   function getRandomColor() {
     const colors = ['#e57373', '#f06292', '#ba68c8', '#9575cd', '#7986cb', '#64b5f6', '#4fc3f7', '#4db6ac', '#81c784', '#aed581', '#ff8a65', '#d4e157', '#ffee58', '#ffb74d', '#a1887f', '#90a4ae'];
@@ -239,22 +233,16 @@ function MisAmigosScreen() {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     async function obtenerAmigos() {
       try {
         const respuesta = await fetch(`http://${IP}/misamigos`);
         const datos = await respuesta.json();
-        if (isMounted) {
-          setUsuarios(datos);
-        }
+        setUsuarios(datos);
       } catch (error) {
         console.error(error);
       }
     }
     obtenerAmigos();
-    return () => {
-      isMounted = false;
-    };
   }, [usuarios]);
   function getRandomColor() {
     const colors = ['#e57373', '#f06292', '#ba68c8', '#9575cd', '#7986cb', '#64b5f6', '#4fc3f7', '#4db6ac', '#81c784', '#aed581', '#ff8a65', '#d4e157', '#ffee58', '#ffb74d', '#a1887f', '#90a4ae'];
@@ -319,14 +307,11 @@ function RankingScreen() {
   const [id,setId] = useState(0);
 
   useEffect(() => {
-    let isMounted = true;
     async function obtenerUsuarios() {
       try {
         const respuesta = await fetch(`http://${IP}/rankingAmigos`);
         const datos = await respuesta.json();
-        if (isMounted) {
-          setUsuarios(datos);
-        }        
+        setUsuarios(datos);     
         const storedData = await AsyncStorage.getItem('userData');
         const userData = JSON.parse(storedData);
         setId(userData.id);
@@ -335,10 +320,7 @@ function RankingScreen() {
       }
     }
     obtenerUsuarios();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  }, [usuarios]);
 
   return (
     <ScrollView style={styles.containerR}>

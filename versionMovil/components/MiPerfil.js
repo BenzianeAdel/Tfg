@@ -15,26 +15,20 @@ const MiPerfil = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    let isMounted = true;
     const loadUserData = async () => {
       try {
         const userDataString = await AsyncStorage.getItem('userData');
         const userData = JSON.parse(userDataString);
-        if (isMounted) {
-          setUserData(userData);
+        setUserData(userData);
          setEmail(userData.email);
          setNombre(userData.nombre);
          setApellidos(userData.apellidos);
          setPassword(userData.password);
-        } 
       } catch (error) {
         console.log(error);
       }
     };
     loadUserData();
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const handleEdit = () => {

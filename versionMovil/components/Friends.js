@@ -12,22 +12,16 @@ function BuscarContactosScreen({navigation}){
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     async function obtenerUsuarios() {
       try {
         const respuesta = await fetch(`http://${IP}/mensajesMovil`);
         const datos = await respuesta.json();
-        if (isMounted) {
-          setUsuarios(datos);
-        }
+        setUsuarios(datos);
       } catch (error) {
         console.error(error);
       }
     }
     obtenerUsuarios();
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const usuariosFiltrados = usuarios.filter(usuario => {
@@ -76,22 +70,16 @@ function MensajesRecientesScreen({navigation}){
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     async function obtenerUsuarios() {
       try {
         const respuesta = await fetch(`http://${IP}/mensajesRecientesMovil`);
         const datos = await respuesta.json();
-        if (isMounted) {
-          setUsuarios(datos);
-        }
+        setUsuarios(datos);
       } catch (error) {
         console.error(error);
       }
     }
     obtenerUsuarios();
-    return () => {
-      isMounted = false;
-    };
   }, [usuarios]);
 
   const usuariosFiltrados = usuarios.filter(usuario => {

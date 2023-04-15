@@ -22,23 +22,17 @@ function VerMaquinasScreen() {
   };
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchMaquinas() {
       try {
         const response = await fetch(`http://${IP}/maquinasSala`);
         const data = await response.json();
-        if (isMounted) {
-          setMaquinas(data);
-          setLoading(false);
-        }
+        setMaquinas(data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
     }
     fetchMaquinas();
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const maquinasInfiltradas = maquinas.filter(maquina => {
@@ -110,23 +104,17 @@ function VerEjerciciosScreen() {
   };
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchEjercicios() {
       try {
         const response = await fetch(`http://${IP}/actividadesMovil`);
         const data = await response.json();
-        if (isMounted) {
-          setEjercicios(data);
-          setLoading(false);
-        }
+        setEjercicios(data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
     }
     fetchEjercicios();
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const ejerciciosInfiltrados = ejercicios.filter(ejercicio => {

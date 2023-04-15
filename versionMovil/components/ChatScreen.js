@@ -23,14 +23,11 @@ const ChatScreen = ({navigation,route}) => {
   }, [navigation, userName]);
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchMensajes() {
       try {
         const response = await fetch(`http://${IP}/mensajesMovilRecuperar/${iduserName}`);
         const data = await response.json();
-        if (isMounted) {
-          setMessages(data);
-        } 
+        setMessages(data); 
       } catch (error) {
         console.error(error);
       }
@@ -39,9 +36,6 @@ const ChatScreen = ({navigation,route}) => {
       setId(userData.id);
     }
     fetchMensajes();
-    return () => {
-      isMounted = false;
-    };
   }, [messages]);
 
   async function handleSendMessage() {
@@ -63,6 +57,7 @@ const ChatScreen = ({navigation,route}) => {
 
   return (
     <View style={styles.container}>
+      {messages.length > 0 &&
       <FlatList
         style={styles.messageList}
         ref={scrollViewRef}
@@ -80,6 +75,7 @@ const ChatScreen = ({navigation,route}) => {
         initialNumToRender={messages.length}
         onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: false })}
       />
+      }
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -135,6 +131,8 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: '#f2f2f2',
+      position: 'absolute',
+      bottom: 0,
       padding: 5,
       borderRadius: 10,
       marginLeft:10,

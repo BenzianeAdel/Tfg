@@ -12,7 +12,7 @@ import { Card } from 'react-native-elements';
 import Moment from 'moment';
 import 'moment-timezone';
 import Modal from 'react-native-modal';
-import StarRating from 'react-native-star-rating';
+import Rating from './Rating';
 import IP from '../config';
 
 const Tab = createBottomTabNavigator();
@@ -22,30 +22,24 @@ function MisReservasScreen(){
   const [loading, setLoading] = useState(true);
   const [idReserva, setidReserva] = useState(0);
   const [idRutina, setidRutina] = useState(0);
-  const [valoracion, setValoracion] = useState(0);
+  const [valoracion, setValoracion] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
   const [estadoActualizado, setEstadoActualizado] = useState(false);
   const [busqueda, setBusqueda] = useState('');
 
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchReservas() {
       try {
         const response = await fetch(`http://${IP}/reservas`);
         const data = await response.json();
-        if (isMounted) {
-          setReservas(data);
-          setLoading(false);
-        }
+        setReservas(data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
     }
     fetchReservas();
-    return () => {
-      isMounted = false;
-    };
   }, [estadoActualizado]);
 
   const handleValorarPress = (idRe,idRu) => {
@@ -119,18 +113,14 @@ function MisReservasScreen(){
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Valorar reserva</Text>
           <View style={styles.modalBody}>
-            <StarRating
-              disabled={false}
-              maxStars={5}
-              rating={valoracion}
-              selectedStar={(rating) => setValoracion(rating)}
-              fullStarColor="#F2C94C"
-              emptyStarColor="#EAEAEA"
-            />
+          <Rating defaultValue={valoracion} onChange={setValoracion} />
             <View style={styles.modalButtons}>
             <TouchableOpacity
                 style={styles.modalCloseButton}
-                onPress={() => setModalVisible(false)}
+                onPress={() => {
+                  setModalVisible(false);
+                  setValoracion(1);
+                }}
               >
                 <FontAwesome name="close" style={styles.modalCloseIcon} />
               </TouchableOpacity>
@@ -155,26 +145,19 @@ function RutinasScreen({navigation}){
 
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchRutinas() {
       try {
         const response = await fetch(`http://${IP}/rutinasMovil`);
         const data = await response.json();
-        if (isMounted) {
-          setRutinas(data);
-          setLoading(false);
-        }
+        setRutinas(data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
     }
     fetchRutinas();
-    return () => {
-      isMounted = false;
-    };
-  }, [loading]);
+  }, []);
   useEffect(() => {
-    let isMounted = true;
     async function fetchFavoritos() {
       try {
         const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
@@ -183,9 +166,7 @@ function RutinasScreen({navigation}){
         });
         if (respuesta.ok) {
           const data = await respuesta.json();
-          if (isMounted) {
-            setFavoritasRutinas(data);
-          }
+          setFavoritasRutinas(data);
         } else {
           console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
         }
@@ -194,9 +175,6 @@ function RutinasScreen({navigation}){
       }
     }
     fetchFavoritos();
-    return () => {
-      isMounted = false;
-    };
   }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
@@ -304,26 +282,19 @@ function Destacadas({ navigation }) {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchRutinas() {
       try {
         const response = await fetch(`http://${IP}/rutinasDestacadasMovil`);
         const data = await response.json();
-        if (isMounted) {
-          setRutinas(data);
-          setLoading(false);
-        }
+        setRutinas(data);
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
     }
     fetchRutinas();
-    return () => {
-      isMounted = false;
-    };
   }, []);
   useEffect(() => {
-    let isMounted = true;
     async function fetchFavoritos() {
       try {
         const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
@@ -332,9 +303,7 @@ function Destacadas({ navigation }) {
         });
         if (respuesta.ok) {
           const data = await respuesta.json();
-          if (isMounted) {
-            setFavoritasRutinas(data);
-          }
+          setFavoritasRutinas(data);
         } else {
           console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
         }
@@ -343,9 +312,6 @@ function Destacadas({ navigation }) {
       }
     }
     fetchFavoritos();
-    return () => {
-      isMounted = false;
-    };
   }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
@@ -450,7 +416,6 @@ function Favoritas({ navigation }) {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     async function fetchFavoritos() {
       try {
         const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
@@ -459,10 +424,8 @@ function Favoritas({ navigation }) {
         });
         if (respuesta.ok) {
           const data = await respuesta.json();
-          if (isMounted) {
-            setFavoritasRutinas(data);
-            setLoading(false);
-          }
+          setFavoritasRutinas(data);
+          setLoading(false);
         } else {
           console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
         }
@@ -471,9 +434,6 @@ function Favoritas({ navigation }) {
       }
     }
     fetchFavoritos();
-    return () => {
-      isMounted = false;
-    };
   }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
@@ -605,6 +565,8 @@ const styles = StyleSheet.create({
       fontSize: 20,
       textAlign: 'center',
       marginTop: 50,
+      fontWeight: 'bold',
+      color:'white',
     },
     rutinaContainer: {
       borderRadius: 10,
