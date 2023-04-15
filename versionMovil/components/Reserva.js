@@ -88,8 +88,8 @@ export default function Reserva({ navigation, route }) {
     setSelectedTime(itemValue);
   };
   async function realizarReserva() {
-    if (!selectedDate || !selectedMonitor || !titulo || !selectedTime) {
-      setErrorMessage('Por favor ingrese un titulo de reserva, el monitor, fecha y la hora deseada.');
+    if (!selectedDate || !selectedMonitor || !titulo || !selectedTime || isFranjaOcupada(selectedTime)) {
+      setErrorMessage('Por favor ingrese un titulo de reserva, el monitor, fecha y la hora deseada que no este ocupada.');
       return;
     }
     try {
@@ -187,7 +187,6 @@ export default function Reserva({ navigation, route }) {
         key={time}
         label={isFranjaOcupada(time) ? `${time} - Ocupada` : time}
         value={time}
-        enabled={!isFranjaOcupada(time)}
         color={isFranjaOcupada(time) ? 'red' : 'black'}
         />
   ))}

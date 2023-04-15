@@ -23,11 +23,14 @@ const ChatScreen = ({navigation,route}) => {
   }, [navigation, userName]);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchMensajes() {
       try {
         const response = await fetch(`http://${IP}/mensajesMovilRecuperar/${iduserName}`);
         const data = await response.json();
-        setMessages(data); 
+        if (isMounted) {
+          setMessages(data);
+        } 
       } catch (error) {
         console.error(error);
       }
@@ -36,6 +39,9 @@ const ChatScreen = ({navigation,route}) => {
       setId(userData.id);
     }
     fetchMensajes();
+    return () => {
+      isMounted = false;
+    };
   }, [messages]);
 
   async function handleSendMessage() {

@@ -29,17 +29,23 @@ function MisReservasScreen(){
 
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchReservas() {
       try {
         const response = await fetch(`http://${IP}/reservas`);
         const data = await response.json();
-        setReservas(data);
-        setLoading(false);
+        if (isMounted) {
+          setReservas(data);
+          setLoading(false);
+        }
       } catch (error) {
         console.error(error);
       }
     }
     fetchReservas();
+    return () => {
+      isMounted = false;
+    };
   }, [estadoActualizado]);
 
   const handleValorarPress = (idRe,idRu) => {
@@ -149,19 +155,26 @@ function RutinasScreen({navigation}){
 
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchRutinas() {
       try {
         const response = await fetch(`http://${IP}/rutinasMovil`);
         const data = await response.json();
-        setRutinas(data);
-        setLoading(false);
+        if (isMounted) {
+          setRutinas(data);
+          setLoading(false);
+        }
       } catch (error) {
         console.error(error);
       }
     }
     fetchRutinas();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [loading]);
   useEffect(() => {
+    let isMounted = true;
     async function fetchFavoritos() {
       try {
         const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
@@ -170,7 +183,9 @@ function RutinasScreen({navigation}){
         });
         if (respuesta.ok) {
           const data = await respuesta.json();
-          setFavoritasRutinas(data);
+          if (isMounted) {
+            setFavoritasRutinas(data);
+          }
         } else {
           console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
         }
@@ -179,6 +194,9 @@ function RutinasScreen({navigation}){
       }
     }
     fetchFavoritos();
+    return () => {
+      isMounted = false;
+    };
   }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
@@ -197,7 +215,6 @@ function RutinasScreen({navigation}){
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        console.log(`Se añadio ${id}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -213,7 +230,6 @@ function RutinasScreen({navigation}){
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        console.log(`Se elimino ${id}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -288,19 +304,26 @@ function Destacadas({ navigation }) {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchRutinas() {
       try {
         const response = await fetch(`http://${IP}/rutinasDestacadasMovil`);
         const data = await response.json();
-        setRutinas(data);
-        setLoading(false);
+        if (isMounted) {
+          setRutinas(data);
+          setLoading(false);
+        }
       } catch (error) {
         console.error(error);
       }
     }
     fetchRutinas();
+    return () => {
+      isMounted = false;
+    };
   }, []);
   useEffect(() => {
+    let isMounted = true;
     async function fetchFavoritos() {
       try {
         const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
@@ -309,7 +332,9 @@ function Destacadas({ navigation }) {
         });
         if (respuesta.ok) {
           const data = await respuesta.json();
-          setFavoritasRutinas(data);
+          if (isMounted) {
+            setFavoritasRutinas(data);
+          }
         } else {
           console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
         }
@@ -318,6 +343,9 @@ function Destacadas({ navigation }) {
       }
     }
     fetchFavoritos();
+    return () => {
+      isMounted = false;
+    };
   }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
@@ -335,7 +363,6 @@ function Destacadas({ navigation }) {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        console.log(`Se añadio ${id}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -351,7 +378,6 @@ function Destacadas({ navigation }) {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        console.log(`Se elimino ${id}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -424,6 +450,7 @@ function Favoritas({ navigation }) {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchFavoritos() {
       try {
         const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
@@ -432,8 +459,10 @@ function Favoritas({ navigation }) {
         });
         if (respuesta.ok) {
           const data = await respuesta.json();
-          setFavoritasRutinas(data);
-          setLoading(false);
+          if (isMounted) {
+            setFavoritasRutinas(data);
+            setLoading(false);
+          }
         } else {
           console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
         }
@@ -442,6 +471,9 @@ function Favoritas({ navigation }) {
       }
     }
     fetchFavoritos();
+    return () => {
+      isMounted = false;
+    };
   }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
@@ -459,7 +491,6 @@ function Favoritas({ navigation }) {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        console.log(`Se elimino ${id}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }

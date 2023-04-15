@@ -15,20 +15,26 @@ const MiPerfil = () => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     const loadUserData = async () => {
       try {
         const userDataString = await AsyncStorage.getItem('userData');
         const userData = JSON.parse(userDataString);
-        setUserData(userData);
-        setEmail(userData.email);
-        setNombre(userData.nombre);
-        setApellidos(userData.apellidos);
-        setPassword(userData.password);
+        if (isMounted) {
+          setUserData(userData);
+         setEmail(userData.email);
+         setNombre(userData.nombre);
+         setApellidos(userData.apellidos);
+         setPassword(userData.password);
+        } 
       } catch (error) {
         console.log(error);
       }
     };
     loadUserData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleEdit = () => {
@@ -57,7 +63,6 @@ const MiPerfil = () => {
         nombre: nombre,
         apellidos: apellidos
       };
-      console.log(newUserData)
       const response = await fetch(`http://${IP}/perfil/editar`, {
         method: 'POST',
         headers: {
@@ -67,7 +72,6 @@ const MiPerfil = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log(data)
         await AsyncStorage.setItem('userData',JSON.stringify(data));
       }
       const userDataString = await AsyncStorage.getItem('userData');

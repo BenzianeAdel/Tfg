@@ -17,16 +17,22 @@ function BuscarAmigosScreen() {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     async function obtenerUsuarios() {
       try {
         const respuesta = await fetch(`http://${IP}/usuarios`);
         const datos = await respuesta.json();
-        setUsuarios(datos);
+        if (isMounted) {
+          setUsuarios(datos);
+        }
       } catch (error) {
         console.error(error);
       }
     }
     obtenerUsuarios();
+    return () => {
+      isMounted = false;
+    };
   }, [usuarios]);
   function getRandomColor() {
     const colors = ['#e57373', '#f06292', '#ba68c8', '#9575cd', '#7986cb', '#64b5f6', '#4fc3f7', '#4db6ac', '#81c784', '#aed581', '#ff8a65', '#d4e157', '#ffee58', '#ffb74d', '#a1887f', '#90a4ae'];
@@ -42,8 +48,6 @@ function BuscarAmigosScreen() {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        // Aquí puedes actualizar el estado para indicar que se siguió al usuario
-        console.log(`Se siguió al usuario ${usuarioId}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -235,16 +239,22 @@ function MisAmigosScreen() {
   const [busqueda, setBusqueda] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     async function obtenerAmigos() {
       try {
         const respuesta = await fetch(`http://${IP}/misamigos`);
         const datos = await respuesta.json();
-        setUsuarios(datos);
+        if (isMounted) {
+          setUsuarios(datos);
+        }
       } catch (error) {
         console.error(error);
       }
     }
     obtenerAmigos();
+    return () => {
+      isMounted = false;
+    };
   }, [usuarios]);
   function getRandomColor() {
     const colors = ['#e57373', '#f06292', '#ba68c8', '#9575cd', '#7986cb', '#64b5f6', '#4fc3f7', '#4db6ac', '#81c784', '#aed581', '#ff8a65', '#d4e157', '#ffee58', '#ffb74d', '#a1887f', '#90a4ae'];
@@ -260,8 +270,6 @@ function MisAmigosScreen() {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
-        // Aquí puedes actualizar el estado para indicar que se siguió al usuario
-        console.log(`Se siguió al usuario ${usuarioId}`);
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -311,11 +319,14 @@ function RankingScreen() {
   const [id,setId] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
     async function obtenerUsuarios() {
       try {
         const respuesta = await fetch(`http://${IP}/rankingAmigos`);
         const datos = await respuesta.json();
-        setUsuarios(datos);
+        if (isMounted) {
+          setUsuarios(datos);
+        }        
         const storedData = await AsyncStorage.getItem('userData');
         const userData = JSON.parse(storedData);
         setId(userData.id);
@@ -324,7 +335,10 @@ function RankingScreen() {
       }
     }
     obtenerUsuarios();
-  }, [usuarios]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <ScrollView style={styles.containerR}>
