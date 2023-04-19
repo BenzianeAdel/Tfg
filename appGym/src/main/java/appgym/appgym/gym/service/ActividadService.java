@@ -157,6 +157,17 @@ public class ActividadService {
         return esta;
     }
     @Transactional(readOnly = true)
+    public boolean busquedaActividadPeligrosa(Long idA,Usuario u){
+        Actividad a = findById(idA);
+        boolean esta=false;
+        for(int i=0;i<u.getEnfermedades().size() && esta==false;i++){
+                if(u.getEnfermedades().get(i).getZonaEvitar() == a.getZonaCuerpo()){
+                    esta=true;
+                }
+        }
+        return esta;
+    }
+    @Transactional(readOnly = true)
     public Favoritos getFavoritosUser(Long idU){
         Favoritos f = favoritosRepository.getFavoritosBy(idU);
         if(f == null){

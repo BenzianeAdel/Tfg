@@ -95,6 +95,18 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Ver Ranking</Text>
             </TouchableOpacity>
           </Animated.View>
+          <Animated.View
+            style={{
+              opacity: buttonOpacity,
+              transform: [{ scale: buttonScale }],
+            }}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Listado de Enfermedades')}>
+              <Ionicons name="medkit-outline" size={24} color="white" />
+              <Text style={styles.buttonText}>Enfermedades</Text>
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </View>
     </ImageBackground>

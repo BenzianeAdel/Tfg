@@ -1,9 +1,7 @@
 package appgym.appgym.gym.controller;
 
 import appgym.appgym.gym.authentication.ManagerUserSession;
-import appgym.appgym.gym.model.Actividad;
-import appgym.appgym.gym.model.User;
-import appgym.appgym.gym.model.Usuario;
+import appgym.appgym.gym.model.*;
 import appgym.appgym.gym.service.ActividadService;
 import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
@@ -41,6 +39,18 @@ public class UsuarioController {
         }
         return true;
     }
+    private void eliminarPerfil(Long id){
+        Usuario u = usuarioService.findById(id);
+        if(u.getTipoUser()==User.cliente){
+            usuarioService.eliminarRelacionesCliente(u);
+        }
+        else{
+            if (u.getTipoUser()==User.monitor){
+                usuarioService.eliminarRelacionesMonitor(u);
+            }
+        }
+        usuarioService.eliminarUsuario(u);
+    }
     @GetMapping("/home")
     public String home(Model model){
         if(!comprobarLogueado()){
@@ -77,8 +87,56 @@ public class UsuarioController {
         model.addAttribute("esAdmin",User.admin);
         model.addAttribute("esCliente",User.cliente);
         model.addAttribute("usuario",u);
+        model.addAttribute("opciones", ZonaCuerpo.values());
+        model.addAttribute("enfermedades",u.getEnfermedades());
         model.addAttribute("usuarioData",new UsuarioData());
+        model.addAttribute("enfermedadData",new EnfermedadData());
         return "perfil";
+    }
+    @PostMapping("/enfermedades")
+    public String enfermedades(EnfermedadData enfermedadData){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        Enfermedades e = new Enfermedades();
+        e.setUsuario(u);
+        e.setLesion(enfermedadData.getLesion());
+        e.setZonaEvitar(enfermedadData.getZonaEvitar());
+        usuarioService.registrar(e);
+        return "redirect:/perfil";
+    }
+    @PostMapping("/enfermedades/{idE}/borrar")
+    public String enfermedadesEliminar(@PathVariable("idE") Long idE){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        Enfermedades e = usuarioService.findByIdEnfermedad(idE);
+        usuarioService.eliminarEnfermedad(e);
+        return "redirect:/perfil";
+    }
+    @PostMapping("/enfermedadesMovil/{idE}/borrar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void enfermedadesMovilEliminar(@PathVariable("idE") Long idE){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        Enfermedades e = usuarioService.findByIdEnfermedad(idE);
+        usuarioService.eliminarEnfermedad(e);
+    }
+    @PostMapping("/enfermedadesMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void enfermedadesMovil(@RequestBody EnfermedadData enfermedadData){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        Enfermedades e = new Enfermedades();
+        e.setUsuario(u);
+        e.setLesion(enfermedadData.getLesion());
+        e.setZonaEvitar(enfermedadData.getZonaEvitar());
+        usuarioService.registrar(e);
+    }
+    @GetMapping("/enfermedadesMovil")
+    @ResponseBody
+    public List<Enfermedades>getEnfermedades(){
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        return u.getEnfermedades();
+    }
+    @GetMapping("/zonasCuerpoMovil")
+    @ResponseBody
+    public ZonaCuerpo[] zonas(){
+        return ZonaCuerpo.values();
     }
     @GetMapping("/usuarios/{id}")
     @ResponseBody
@@ -123,23 +181,20 @@ public class UsuarioController {
     }
     @PostMapping("/eliminar")
     public String EliminarUsuario(UsuarioData usuarioData){
-        Usuario u = usuarioService.findById(usuarioData.getId());
-        usuarioService.eliminarUsuario(u);
+        eliminarPerfil(usuarioData.getId());
         return "redirect:/users";
     }
     @PostMapping("/perfil/eliminar")
     public String Eliminarperfil(UsuarioData usuarioData){
-        Usuario u = usuarioService.findById(usuarioData.getId());
-        if(u.getTipoUser()==User.cliente){
-            usuarioService.eliminarRelacionesCliente(u);
-        }
-        else{
-            if (u.getTipoUser()==User.monitor){
-                usuarioService.eliminarRelacionesMonitor(u);
-            }
-        }
-        usuarioService.eliminarUsuario(u);
+        eliminarPerfil(usuarioData.getId());
+        managerUserSession.logout();
         return "redirect:/login";
+    }
+    @PostMapping("/perfilMovil/eliminar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void EliminarperfilMovil(){
+        eliminarPerfil(managerUserSession.usuarioLogeado());
+        managerUserSession.logout();
     }
     @GetMapping("/users")
     public String users(Model model){

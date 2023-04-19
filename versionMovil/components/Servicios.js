@@ -87,6 +87,7 @@ function VerMaquinasScreen() {
   );
 }
 function VerEjerciciosScreen() {
+  const [enfermedades, setEnfermedades] = useState([]);
   const [ejercicios, setEjercicios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEjercicio, setSelectedEjercicio] = useState(null);
@@ -117,10 +118,62 @@ function VerEjerciciosScreen() {
     fetchEjercicios();
   }, []);
 
+  useEffect(() => {
+    async function fetchEnfermedades() {
+      try {
+        const response = await fetch(`http://${IP}/enfermedadesMovil`);
+        const data = await response.json();
+        setEnfermedades(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchEnfermedades();
+  }, []);
+
   const ejerciciosInfiltrados = ejercicios.filter(ejercicio => {
     return ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase());
   });
 
+
+  const renderEjercicios = ({item})=>{
+    const tienePeligro = enfermedades.some((enfermedad) => enfermedad.zonaEvitar === item.zonaCuerpo);
+    return(
+      <TouchableOpacity
+              onPress={() => {
+                setSelectedEjercicio(item);
+                toggleModal();
+              }}
+            >
+              <Card containerStyle={styles.maquinaContainer}>
+                <View style={styles.maquinaCard}>
+                    {item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
+                    <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                    ) : item.multimedia[0].nombre.endsWith('.mp4') || item.multimedia[0].nombre.endsWith('.mov') ? (
+                    <Video style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                    ) : (
+                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                    )}
+                  <Text style={styles.maquinaNombre}>{item.nombre} {tienePeligro && (
+                  <TouchableOpacity style={styles.dangerButton} onPress={()=> alert('Este ejercicio presenta riesgos para la salud')}>
+                    <FontAwesome name="exclamation-triangle" size={16} color="red" />
+                  </TouchableOpacity>
+                  )}
+                  </Text>
+                  {item.maquina !== null && (
+                    <View style={styles.activityInfo}>
+                      <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
+                        <Text style={styles.maquinaDetalles}>
+                          <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
+                        </Text>
+                      </TouchableOpacity>  
+                    </View>
+                  )}
+                </View>
+              </Card>
+        </TouchableOpacity>
+    );
+  };
   return (
     <View style={styles.container}>
       <View style={styles.busquedaContainer}>
@@ -136,36 +189,7 @@ function VerEjerciciosScreen() {
       ) : (
         <FlatList
           data={ejerciciosInfiltrados}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedEjercicio(item);
-                toggleModal();
-              }}
-            >
-              <Card containerStyle={styles.maquinaContainer}>
-                <View style={styles.maquinaCard}>
-                    {item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
-                    <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
-                    ) : item.multimedia[0].nombre.endsWith('.mp4') || item.multimedia[0].nombre.endsWith('.mov') ? (
-                    <Video style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
-                    ) : (
-                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
-                    )}
-                  <Text style={styles.maquinaNombre}>{item.nombre}</Text>
-                  {item.maquina !== null && (
-                    <View style={styles.activityInfo}>
-                      <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
-                        <Text style={styles.maquinaDetalles}>
-                          <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}  
-                </View>
-              </Card>
-            </TouchableOpacity>
-          )}
+          renderItem={renderEjercicios}
           keyExtractor={(item) => item.id.toString()}
         />
       )}

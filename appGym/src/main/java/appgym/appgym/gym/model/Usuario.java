@@ -8,9 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 @Getter
@@ -43,7 +41,7 @@ public class Usuario implements Serializable {
 
 
     @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    Set<Enfermedades> enfermedades = new HashSet<>();
+    List<Enfermedades> enfermedades = new ArrayList<>();
 
 
 }

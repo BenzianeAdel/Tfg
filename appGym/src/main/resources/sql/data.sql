@@ -2,6 +2,8 @@ delete from enfermedades;
 delete from usuario_seguir_usuario;
 delete from mensajes;
 delete from reservas;
+delete from favoritos_rutinas;
+delete from favoritos;
 delete from usuarios;
 delete from rutina_actividad;
 delete from multimedia;

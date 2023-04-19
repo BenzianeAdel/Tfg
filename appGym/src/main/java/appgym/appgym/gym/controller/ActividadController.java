@@ -69,7 +69,7 @@ public class ActividadController {
         model.addAttribute("esCliente",User.cliente);
         model.addAttribute("usuario",u);
         model.addAttribute("actividades",actividades);
-        model.addAttribute("estaRutinaFavoritos",this);
+        model.addAttribute("metodos",this);
         model.addAttribute("favoritas",f.getRutinas());
         model.addAttribute("rutinas",rutinas);
         model.addAttribute("actividadData",new ActividadData());
@@ -332,6 +332,10 @@ public class ActividadController {
     public boolean buscarRutinaEnFavoritos(Long id){
         boolean esta=actividadService.busquedaRutinaDentroFavoritos(id,managerUserSession.usuarioLogeado());
         return esta;
+    }
+    public boolean buscarActividadPeligrosa(Long idA){
+        boolean encontrada = actividadService.busquedaActividadPeligrosa(idA,usuarioService.findById(managerUserSession.usuarioLogeado()));
+        return encontrada;
     }
 
 }

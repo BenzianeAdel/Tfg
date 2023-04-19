@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, Modal } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
@@ -10,6 +10,21 @@ const ActivitiesScreen = ({ route }) => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [selectedMaquina, setSelectedMaquina] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [enfermedades, setEnfermedades] = useState([]);
+
+
+  useEffect(() => {
+    async function fetchEnfermedades() {
+      try {
+        const response = await fetch(`http://${IP}/enfermedadesMovil`);
+        const data = await response.json();
+        setEnfermedades(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchEnfermedades();
+  }, []);
 
   const handleMachinePress = (machine) => {
     if (machine) {
@@ -31,6 +46,7 @@ const ActivitiesScreen = ({ route }) => {
   };
 
   const renderActivity = ({ item }) => {
+    const tienePeligro = enfermedades.some((enfermedad) => enfermedad.zonaEvitar === item.zonaCuerpo);
     return (
       <Card>
       <TouchableOpacity
@@ -47,6 +63,11 @@ const ActivitiesScreen = ({ route }) => {
         <View style={styles.activityInfo}>
           <Text style={styles.activityText}>Series: {item.series}</Text>
           <Text style={styles.activityText}>Repeticiones: {item.repeticiones}</Text>
+          {tienePeligro && (
+                  <TouchableOpacity style={styles.dangerButton} onPress={()=> alert('Este ejercicio presenta riesgos para la salud')}>
+                    <FontAwesome name="exclamation-triangle" size={16} color="red" />
+                  </TouchableOpacity>
+                  )}
           {item.maquina && (
             <TouchableOpacity
               style={styles.activityButton}

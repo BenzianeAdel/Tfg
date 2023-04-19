@@ -1,5 +1,6 @@
 package appgym.appgym.gym.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Setter
 @Entity
 @Table(name = "enfermedades")
+@JsonIgnoreProperties(value = {"usuario"})
 public class Enfermedades implements Serializable {
     private static final long serialVersionUID = 1L;
 

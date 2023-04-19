@@ -31,6 +31,8 @@ public class UsuarioService {
 
     @Autowired
     private MensajesRepository mensajesRepository;
+    @Autowired
+    private EnfermedadRepository enfermedadRepository;
 
     @Autowired
     private JavaMailSender correo;
@@ -62,12 +64,20 @@ public class UsuarioService {
         else return usuarioRepository.save(usuario);
     }
     @Transactional
+    public void registrar(Enfermedades enfermedades){
+        enfermedadRepository.save(enfermedades);
+    }
+    @Transactional
     public void editarUsuario(Usuario u){
         usuarioRepository.save(u);
     }
     @Transactional
     public void eliminarUsuario(Usuario u){
         usuarioRepository.delete(u);
+    }
+    @Transactional
+    public void eliminarEnfermedad(Enfermedades e){
+        enfermedadRepository.delete(e);
     }
     @Transactional(readOnly = true)
     public Usuario findByEmail(String email) {
@@ -77,6 +87,10 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public Usuario findById(Long usuarioId) {
         return usuarioRepository.findById(usuarioId).orElse(null);
+    }
+    @Transactional(readOnly = true)
+    public Enfermedades findByIdEnfermedad(Long enfermedadID) {
+        return enfermedadRepository.findById(enfermedadID).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -213,6 +227,7 @@ public class UsuarioService {
         usuarioRepository.eliminarEntidadRelacionadaReservaPorCliente(u);
         usuarioRepository.eliminarEntidadRelacionadaSeguirPorCliente(u);
         usuarioRepository.eliminarEntidadRelacionadaMensajes(u);
+        usuarioRepository.eliminarEntidadRelacionadaFavoritos(u);
     }
     @Transactional(readOnly = false)
     public void eliminarRelacionesMonitor(Usuario u){

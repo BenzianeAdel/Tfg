@@ -118,6 +118,34 @@
       </a>
     </div>
   </div>
+  <div th:if="${usuario.getTipoUser()== esCliente}" class="container mt-5">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaEnfermedadModal">Nueva Enfermedad</button>
+    <h2>Listado de Enfermedades</h2>
+    <table class="table table-hover">
+      <!-- Encabezados de la tabla -->
+      <thead>
+      <tr style="color:white;">
+        <th>#</th>
+        <th>Lesion</th>
+        <th>Zona a Evitar</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <!-- Datos de la tabla -->
+      <tbody>
+      <!-- Iteración sobre la lista de enfermedades -->
+      <!-- Cambiar "enfermedades" por el nombre de la lista de enfermedades en tu aplicación -->
+      <tr style="color:white;" th:each="enfermedad, status : ${enfermedades}">
+        <td th:text="${status.index + 1}"></td>
+        <td th:text="${enfermedad.lesion}"></td>
+        <td th:text="${enfermedad.zonaEvitar}"></td>
+        <td>
+          <button class="btn btn-danger btn-xs" th:onclick="'del(\'/enfermedades/' + ${enfermedad.id} + '/borrar\')'">borrar</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 <!-- Eliminar usuario Modal -->
 <div class="modal fade" id="eliminarAdminModal" tabindex="-1" role="dialog" aria-labelledby="eliminarAdminModalLabel" aria-hidden="true">
@@ -188,6 +216,34 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="nuevaEnfermedadModal" tabindex="-1" role="dialog" aria-labelledby="nuevaEnfermedadModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="nuevaEnfermedadModalLabel">Nueva Enfermedad</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/enfermedades}" method="post" th:object="${enfermedadData}">
+          <div class="form-group">
+            <label for="lesion">Lesion</label>
+            <input type="text" th:field="*{lesion}" class="form-control" id="lesion" name="lesion" minlength="3" maxlength="50" required/>
+          </div>
+          <div class="form-group">
+            <label for="zona">Zona A Evitar</label>
+            <select name="zona" th:field="*{zonaEvitar}" class="form-control" id="zona" required>
+              <option value="">-- Seleccionar --</option>
+              <option th:each="opcion : ${opciones}" th:value="${opcion}" th:text="${opcion}"></option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Crear</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   $(document).ready(function() {
     $('#birthdatePicker').datetimepicker({
@@ -227,6 +283,11 @@
     var modal = $(this);
     modal.find('.modal-body #usuarioIdEliminar').val(usuarioId); // Establecer el valor del campo oculto
   });
+  function del(urlBorrar) {
+      fetch(urlBorrar, {
+        method: 'POST'
+      }).then((res) => location.reload());
+  }
 </script>
 </body>
 </html>

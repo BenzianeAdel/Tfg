@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatScreen from './components/ChatScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import EnfermedadesScreen from './components/EnfermedadesScreen';
 
 const Stack = createStackNavigator();
 const removeUserInfo = async () => {
@@ -60,6 +61,7 @@ export default function App() {
       <Stack.Screen name="Lista Actividades" component={ActivitiesScreen} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="Restablecer Contraseña" component={ForgotPasswordScreen} />
+      <Stack.Screen name="Listado de Enfermedades" component={EnfermedadesScreen} />
     </Stack.Navigator>
    </NavigationContainer>
   );
