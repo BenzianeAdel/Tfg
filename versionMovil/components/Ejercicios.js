@@ -2,6 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, Image, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Icon } from 'react-native-elements';
 import { Avatar } from 'react-native-elements';
@@ -17,34 +18,43 @@ import IP from '../config';
 
 const Tab = createBottomTabNavigator();
 
-function MisReservasScreen(){
+function MisReservasScreen({navigation}){
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [idReserva, setidReserva] = useState(0);
-  const [idRutina, setidRutina] = useState(0);
   const [valoracion, setValoracion] = useState(1);
   const [modalVisible, setModalVisible] = useState(false);
-  const [estadoActualizado, setEstadoActualizado] = useState(false);
   const [busqueda, setBusqueda] = useState('');
+  const [rol, setRol] = useState('');
 
+
+  const cargarReservas = () => {
+    fetch(`http://${IP}/reservas`)
+      .then(respuesta => respuesta.json())
+      .then(data => setReservas(data))
+      .catch(error => console.error(error));
+  };
 
   useEffect(() => {
-    async function fetchReservas() {
-      try {
-        const response = await fetch(`http://${IP}/reservas`);
-        const data = await response.json();
-        setReservas(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchReservas();
-  }, [estadoActualizado]);
+    cargarReservas();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarReservas();
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
-  const handleValorarPress = (idRe,idRu) => {
+  useEffect(() => {
+    async function fetchRol() {
+      const storedData = await AsyncStorage.getItem('userData');
+      const userData = JSON.parse(storedData);
+      setRol(userData.tipoUser);
+    }
+    fetchRol();
+  }, []);
+
+  const handleValorarPress = (idRe) => {
     setidReserva(idRe);
-    setidRutina(idRu)
     setModalVisible(true);
   };
   async function handleEnviarValoracion() {
@@ -52,13 +62,13 @@ function MisReservasScreen(){
       const requestData = {
         puntos: valoracion
       };
-      const respuesta = await fetch(`http://${IP}/valorarMovil/${idReserva}/${idRutina}`, {
+      const respuesta = await fetch(`http://${IP}/valorarMovil/${idReserva}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData)
       });
       if (respuesta.ok) {
-        setEstadoActualizado(!estadoActualizado);
+        cargarReservas();
         setModalVisible(false);
         alert('La reserva ha sido valorada correctamente');
       } else {
@@ -68,6 +78,39 @@ function MisReservasScreen(){
       console.error(error);
     }
   }
+  async function handleFinalizarPress(idR) {
+    try {
+      const respuesta = await fetch(`http://${IP}/reservarMovil/finalizar/${idR}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (respuesta.ok) {
+        cargarReservas();
+        setModalVisible(false);
+        alert('La reserva ha sido finalizada correctamente');
+      } else {
+        console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  async function eliminarReserva(id){
+    try {
+        const respuesta = await fetch(`http://${IP}/reservar/eliminar/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (respuesta.ok) {
+          cargarReservas();
+        } else {
+          console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+  }
+
   const reservasInfiltradas = reservas.filter(reserva => {
     return reserva.title.toLowerCase().includes(busqueda.toLowerCase());
   });
@@ -76,15 +119,48 @@ function MisReservasScreen(){
     <Card containerStyle={styles.reservaContainer}>
         <View style={styles.reservaInfo}>
           <Text style={styles.reservaTitle}>{item.title}</Text>
-          <Text style={styles.reservaText}>Nombre Rutina: {item.rutina.nombre}</Text>
-          <Text style={styles.reservaText}>Nombre Monitor: {item.monitor.nombre}</Text>
-          <Text style={styles.reservaText}>Correo Monitor: {item.monitor.email}</Text>
+          {item.rutina !=null ? (
+            <Text style={styles.reservaText}>Nombre Rutina: {item.rutina.nombre}</Text>
+          ):(
+            <Text style={styles.reservaText}>Nombre Rutina: NO DISPONIBLE</Text>
+          )}
+          {rol === 'cliente' && (
+            <View>
+              <Text style={styles.reservaText}>Nombre Monitor: {item.monitor.nombre}</Text>
+              <Text style={styles.reservaText}>Correo Monitor: {item.monitor.email}</Text>
+            </View>
+          )}
+          {rol === 'monitor' && (
+            <View>
+            <Text style={styles.reservaText}>Nombre Cliente: {item.cliente.nombre}</Text>
+            <Text style={styles.reservaText}>Correo Cliente: {item.cliente.email}</Text>
+          </View>
+          )}
+          {rol === 'admin' && (
+            <View>
+            <Text style={styles.reservaText}>Nombre Monitor: {item.monitor.nombre}</Text>
+            <Text style={styles.reservaText}>Correo Monitor: {item.monitor.email}</Text>
+            <Text style={styles.reservaText}>Nombre Cliente: {item.cliente.nombre}</Text>
+            <Text style={styles.reservaText}>Correo Cliente: {item.cliente.email}</Text>
+          </View>
+          )}
+
           <Text style={styles.reservaText}>Fecha: {Moment.tz(item.start, 'Europe/Madrid').format('DD/MM/YYYY hh:mm a')}</Text>
           <Text style={styles.reservaText}>Estado: {item.estado}</Text>
         </View>
-        {item.estado === 'Finalizada' && !item.valorada && (
-          <TouchableOpacity style={styles.valorarButton} onPress={() => handleValorarPress(item.id,item.rutina.id)}>
+        {rol== 'cliente'  && item.rutina != null && item.estado === 'Finalizada' && !item.valorada && (
+          <TouchableOpacity style={styles.valorarButton} onPress={() => handleValorarPress(item.id)}>
             <Text style={styles.valorarTexto}><FontAwesome name="star" size={20} color="#FFFFFF" /> Valorar</Text>
+          </TouchableOpacity>
+        )}
+        {(rol== 'cliente'  || rol== 'monitor') && (
+          <TouchableOpacity style={styles.eliminarButton} onPress={() => eliminarReserva(item.id)}>
+            <Text style={styles.eliminarTexto}><FontAwesome name="trash" size={20} color="#FFFFFF" /> Eliminar</Text>
+          </TouchableOpacity>
+        )}
+        {rol== 'monitor' && item.estado === 'Pendiente' && (
+          <TouchableOpacity style={styles.finalizarButton} onPress={() => handleFinalizarPress(item.id)}>
+            <Text style={styles.finalizarTexto}><FontAwesome name="check-circle" size={20} color="#FFFFFF" /> finalizar</Text>
           </TouchableOpacity>
         )}
       </Card>
@@ -142,40 +218,39 @@ function RutinasScreen({navigation}){
   const [loading, setLoading] = useState(true);
   const [favoritasRutinas, setFavoritasRutinas] = useState([]);
   const [busqueda, setBusqueda] = useState('');
+  const [rol, setRol] = useState('');
 
-
+  const cargarRutinas = () => {
+    fetch(`http://${IP}/rutinasMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setRutinas(data))
+      .catch(error => console.error(error));
+  };
+  const cargarFavoritos = () => {
+    fetch(`http://${IP}/favoritosMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setFavoritasRutinas(data))
+      .catch(error => console.error(error));
+  };
   useEffect(() => {
-    async function fetchRutinas() {
-      try {
-        const response = await fetch(`http://${IP}/rutinasMovil`);
-        const data = await response.json();
-        setRutinas(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchRutinas();
+    cargarRutinas();
+    cargarFavoritos();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarRutinas();
+      cargarFavoritos();
+      setLoading(false);
+    });
+    return unsubscribe;
   }, []);
+
   useEffect(() => {
-    async function fetchFavoritos() {
-      try {
-        const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
-          headers: { 'Content-Type': 'application/json' },
-          // Puedes agregar aquí el token de autenticación si es necesario
-        });
-        if (respuesta.ok) {
-          const data = await respuesta.json();
-          setFavoritasRutinas(data);
-        } else {
-          console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
-        }
-      } catch (error) {
-        console.error(error);
-      }
+    async function fetchRol() {
+      const storedData = await AsyncStorage.getItem('userData');
+      const userData = JSON.parse(storedData);
+      setRol(userData.tipoUser);
     }
-    fetchFavoritos();
-  }, [favoritasRutinas]);
+    fetchRol();
+  }, []);
 
   const handleDetallePress = (actividad) => {
     navigation.navigate('Lista Actividades', { activities: actividad });
@@ -193,6 +268,8 @@ function RutinasScreen({navigation}){
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarRutinas();
+        cargarFavoritos();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -208,6 +285,8 @@ function RutinasScreen({navigation}){
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarRutinas();
+        cargarFavoritos();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -221,7 +300,6 @@ function RutinasScreen({navigation}){
 
   const renderRutina = ({ item }) => {
     const enFavoritos = favoritasRutinas.some((favorito) => favorito.id === item.id);
-
     return (
       <Card containerStyle={styles.rutinaContainer}>
         <View style={styles.rutinaCard}>
@@ -234,18 +312,22 @@ function RutinasScreen({navigation}){
             <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
               <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
             </TouchableOpacity>
-            {enFavoritos ? (
-            <TouchableOpacity onPress={() => handleEliminarFavoritosPress(item.id)}>
-              <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart" size={20} color="#FF0000" /></Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity onPress={() => handleAnadirFavoritosPress(item.id)}>
-              <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart-o" size={20} color="#FF0000" /></Text>
-            </TouchableOpacity>
-          )}
-            <TouchableOpacity style={styles.rutinaBotonReservar} onPress={() => handleReservarPress(item.id)}>
+            { rol == 'cliente' && (
+              enFavoritos ? (
+                <TouchableOpacity onPress={() => handleEliminarFavoritosPress(item.id)}>
+                  <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart" size={20} color="#FF0000" /></Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={() => handleAnadirFavoritosPress(item.id)}>
+                  <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart-o" size={20} color="#FF0000" /></Text>
+                </TouchableOpacity>
+              )
+            )}
+            { rol == 'cliente' &&(
+              <TouchableOpacity style={styles.rutinaBotonReservar} onPress={() => handleReservarPress(item.id)}>
               <Text style={styles.rutinaBotonTexto}><FontAwesome name="calendar-plus-o" size={20} color="#FFFFFF" /> Reservar</Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Card>
@@ -280,39 +362,40 @@ function Destacadas({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [favoritasRutinas, setFavoritasRutinas] = useState([]);
   const [busqueda, setBusqueda] = useState('');
+  const [rol, setRol] = useState('');
+
+  const cargarRutinas = () => {
+    fetch(`http://${IP}/rutinasDestacadasMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setRutinas(data))
+      .catch(error => console.error(error));
+  };
+  const cargarFavoritos = () => {
+    fetch(`http://${IP}/favoritosMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setFavoritasRutinas(data))
+      .catch(error => console.error(error));
+  };
+  useEffect(() => {
+    cargarRutinas();
+    cargarFavoritos();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarRutinas();
+      cargarFavoritos();
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+  
 
   useEffect(() => {
-    async function fetchRutinas() {
-      try {
-        const response = await fetch(`http://${IP}/rutinasDestacadasMovil`);
-        const data = await response.json();
-        setRutinas(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
-      }
+    async function fetchRol() {
+      const storedData = await AsyncStorage.getItem('userData');
+      const userData = JSON.parse(storedData);
+      setRol(userData.tipoUser);
     }
-    fetchRutinas();
+    fetchRol();
   }, []);
-  useEffect(() => {
-    async function fetchFavoritos() {
-      try {
-        const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
-          headers: { 'Content-Type': 'application/json' },
-          // Puedes agregar aquí el token de autenticación si es necesario
-        });
-        if (respuesta.ok) {
-          const data = await respuesta.json();
-          setFavoritasRutinas(data);
-        } else {
-          console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchFavoritos();
-  }, [favoritasRutinas]);
 
   const handleDetallePress = (actividad) => {
     navigation.navigate('Lista Actividades', { activities: actividad });
@@ -329,6 +412,8 @@ function Destacadas({ navigation }) {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarRutinas();
+        cargarFavoritos();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -344,6 +429,8 @@ function Destacadas({ navigation }) {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarRutinas();
+        cargarFavoritos();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -370,18 +457,22 @@ function Destacadas({ navigation }) {
             <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
               <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
             </TouchableOpacity>
-            {enFavoritos ? (
-            <TouchableOpacity onPress={() => handleEliminarFavoritosPress(item.id)}>
-              <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart" size={20} color="#FF0000" /></Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity onPress={() => handleAnadirFavoritosPress(item.id)}>
-              <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart-o" size={20} color="#FF0000" /></Text>
-            </TouchableOpacity>
-          )}
-            <TouchableOpacity style={styles.rutinaBotonReservar} onPress={() => handleReservarPress(item.id)}>
+            { rol == 'cliente' && (
+              enFavoritos ? (
+                <TouchableOpacity onPress={() => handleEliminarFavoritosPress(item.id)}>
+                  <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart" size={20} color="#FF0000" /></Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={() => handleAnadirFavoritosPress(item.id)}>
+                  <Text style={styles.rutinaBotonTexto}><FontAwesome name="heart-o" size={20} color="#FF0000" /></Text>
+                </TouchableOpacity>
+              )
+            )}
+            { rol == 'cliente' &&(
+              <TouchableOpacity style={styles.rutinaBotonReservar} onPress={() => handleReservarPress(item.id)}>
               <Text style={styles.rutinaBotonTexto}><FontAwesome name="calendar-plus-o" size={20} color="#FFFFFF" /> Reservar</Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Card>
@@ -415,26 +506,20 @@ function Favoritas({ navigation }) {
   const [favoritasRutinas, setFavoritasRutinas] = useState([]);
   const [busqueda, setBusqueda] = useState('');
 
+  const cargarFavoritos = () => {
+    fetch(`http://${IP}/favoritosMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setFavoritasRutinas(data))
+      .catch(error => console.error(error));
+  };
   useEffect(() => {
-    async function fetchFavoritos() {
-      try {
-        const respuesta = await fetch(`http://${IP}/favoritosMovil`, {
-          headers: { 'Content-Type': 'application/json' },
-          // Puedes agregar aquí el token de autenticación si es necesario
-        });
-        if (respuesta.ok) {
-          const data = await respuesta.json();
-          setFavoritasRutinas(data);
-          setLoading(false);
-        } else {
-          console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchFavoritos();
-  }, [favoritasRutinas]);
+    cargarFavoritos();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarFavoritos();
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
 
   const handleDetallePress = (actividad) => {
     navigation.navigate('Lista Actividades', { activities: actividad });
@@ -451,6 +536,7 @@ function Favoritas({ navigation }) {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarFavoritos();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -550,6 +636,39 @@ const styles = StyleSheet.create({
       padding: 8,
       borderRadius: 5,
       alignSelf: 'flex-end',
+    },
+    eliminarButton: {
+      backgroundColor: '#FF1212',
+      padding: 8,
+      borderRadius: 5,
+      alignSelf: 'flex-start',
+    },
+    eliminarTexto: {
+      color: "#FFFFFF",
+      fontSize: 16,
+      fontWeight: "bold",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    finalizarButton: {
+      backgroundColor: '#00FFAE',
+      padding: 8,
+      borderRadius: 5,
+      alignSelf: 'flex-end',
+    },
+    valorarTexto: {
+      color: "#FFFFFF",
+      fontSize: 16,
+      fontWeight: "bold",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    finalizarTexto: {
+      color: "#FFFFFF",
+      fontSize: 16,
+      fontWeight: "bold",
+      flexDirection: "row",
+      alignItems: "center",
     },
     containerReserva: {
       flex: 1,
@@ -692,7 +811,7 @@ const styles = StyleSheet.create({
     },
 });
 
-function MyTabs() {
+function MyTabs({rol}) {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -707,6 +826,10 @@ function MyTabs() {
             iconName = focused ? 'weight-lifter' : 'weight-lifter';
           } else if (route.name === 'Mis Reservas') {
             iconName = focused ? 'clipboard-check' : 'clipboard-check-outline';
+          }  else if (route.name === 'Reservas con Cliente') {
+            iconName = focused ? 'clipboard-check' : 'clipboard-check-outline';
+          }  else if (route.name === 'Reservas sistema') {
+            iconName = focused ? 'clipboard-check' : 'clipboard-check-outline';
           } else if (route.name === 'Destacadas') {
             iconName = focused ? 'star' : 'star-outline';
           } else if (route.name === 'Favoritas') {
@@ -718,17 +841,36 @@ function MyTabs() {
       })}
     >
       <Tab.Screen name="Rutinas" component={RutinasScreen} options={{ headerShown: false }} />
+      {rol == 'monitor' && (
+      <Tab.Screen name="Reservas con Cliente" component={MisReservasScreen} options={{ headerShown: false }}/>
+      )}
+      {rol == 'cliente' && (
       <Tab.Screen name="Mis Reservas" component={MisReservasScreen} options={{ headerShown: false }}/>
+      )}
+      {rol == 'admin' && (
+      <Tab.Screen name="Reservas sistema" component={MisReservasScreen} options={{ headerShown: false }}/>
+      )}
       <Tab.Screen name="Destacadas" component={Destacadas} options={{ headerShown: false }}/>
+      {rol == 'cliente' && (
       <Tab.Screen name="Favoritas" component={Favoritas} options={{ headerShown: false }}/>
+      )}
     </Tab.Navigator>
   );
 }
 
 export default function Ejercicios({ navigation }) {
+  const [rol, setRol] = useState('');
+  useEffect(() => {
+    async function fetchRol() {
+      const storedData = await AsyncStorage.getItem('userData');
+      const userData = JSON.parse(storedData);
+      setRol(userData.tipoUser);
+    }
+    fetchRol();
+  }, []);
     return (
       <View style={{ flex: 1,backgroundColor:'#F8E3AF'}}>
-        <MyTabs />
+        <MyTabs rol={rol}/>
       </View>
     );
-  }
+}

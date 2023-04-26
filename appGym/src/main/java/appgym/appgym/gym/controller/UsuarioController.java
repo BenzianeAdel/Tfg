@@ -232,6 +232,14 @@ public class UsuarioController {
         model.addAttribute("users",users);
         return "ranking";
     }
+    @GetMapping("/rankingUsersMovil")
+    @ResponseBody
+    public List<Usuario> rankingMovil(Model model){
+        List<Usuario>users = usuarioService.findAllTip(User.cliente,null);
+        Collections.sort(users, Comparator.comparing(Usuario::getPuntos).reversed());
+        model.addAttribute("users",users);
+        return users;
+    }
     @GetMapping("/amigos")
     public String amigos(Model model,@Param("busca")String busca){
         if(!comprobarLogueado()){

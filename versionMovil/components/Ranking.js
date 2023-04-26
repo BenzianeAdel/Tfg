@@ -12,22 +12,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import IP from '../config';
 const Tab = createBottomTabNavigator();
 
-function BuscarAmigosScreen() {
+function BuscarAmigosScreen({navigation}) {
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState('');
 
+  const cargarUsuarios = () => {
+    fetch(`http://${IP}/usuarios`)
+      .then(respuesta => respuesta.json())
+      .then(data => setUsuarios(data))
+      .catch(error => console.error(error));
+  };
+
   useEffect(() => {
-    async function obtenerUsuarios() {
-      try {
-        const respuesta = await fetch(`http://${IP}/usuarios`);
-        const datos = await respuesta.json();
-        setUsuarios(datos);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    obtenerUsuarios();
-  }, [usuarios]);
+    cargarUsuarios();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarUsuarios();
+    });
+    return unsubscribe;
+  }, []);
   function getRandomColor() {
     const colors = ['#e57373', '#f06292', '#ba68c8', '#9575cd', '#7986cb', '#64b5f6', '#4fc3f7', '#4db6ac', '#81c784', '#aed581', '#ff8a65', '#d4e157', '#ffee58', '#ffb74d', '#a1887f', '#90a4ae'];
     const randomIndex = Math.floor(Math.random() * colors.length);
@@ -42,6 +44,7 @@ function BuscarAmigosScreen() {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarUsuarios();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -228,22 +231,24 @@ const styles = StyleSheet.create({
 });
 
 
-function MisAmigosScreen() {
+function MisAmigosScreen({navigation}) {
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState('');
 
+  const cargarUsuarios = () => {
+    fetch(`http://${IP}/misamigos`)
+      .then(respuesta => respuesta.json())
+      .then(data => setUsuarios(data))
+      .catch(error => console.error(error));
+  };
+
   useEffect(() => {
-    async function obtenerAmigos() {
-      try {
-        const respuesta = await fetch(`http://${IP}/misamigos`);
-        const datos = await respuesta.json();
-        setUsuarios(datos);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    obtenerAmigos();
-  }, [usuarios]);
+    cargarUsuarios();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarUsuarios();
+    });
+    return unsubscribe;
+  }, []);
   function getRandomColor() {
     const colors = ['#e57373', '#f06292', '#ba68c8', '#9575cd', '#7986cb', '#64b5f6', '#4fc3f7', '#4db6ac', '#81c784', '#aed581', '#ff8a65', '#d4e157', '#ffee58', '#ffb74d', '#a1887f', '#90a4ae'];
     const randomIndex = Math.floor(Math.random() * colors.length);
@@ -258,6 +263,7 @@ function MisAmigosScreen() {
         // Puedes agregar aquí el token de autenticación si es necesario
       });
       if (respuesta.ok) {
+        cargarUsuarios();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }
@@ -302,16 +308,28 @@ function MisAmigosScreen() {
   );
 }
 
-function RankingScreen() {
+function RankingScreen({navigation}) {
   const [usuarios, setUsuarios] = useState([]);
   const [id,setId] = useState(0);
 
+  const cargarUsuarios = () => {
+    fetch(`http://${IP}/rankingAmigos`)
+      .then(respuesta => respuesta.json())
+      .then(data => setUsuarios(data))
+      .catch(error => console.error(error));
+  };
+
   useEffect(() => {
-    async function obtenerUsuarios() {
-      try {
-        const respuesta = await fetch(`http://${IP}/rankingAmigos`);
-        const datos = await respuesta.json();
-        setUsuarios(datos);     
+    cargarUsuarios();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarUsuarios();
+    });
+    return unsubscribe;
+  }, []);
+  
+  useEffect(() => {
+    async function obtenerLogueado() {
+      try {     
         const storedData = await AsyncStorage.getItem('userData');
         const userData = JSON.parse(storedData);
         setId(userData.id);
@@ -319,8 +337,8 @@ function RankingScreen() {
         console.error(error);
       }
     }
-    obtenerUsuarios();
-  }, [usuarios]);
+    obtenerLogueado();
+  }, []);
 
   return (
     <ScrollView style={styles.containerR}>
@@ -336,6 +354,42 @@ function RankingScreen() {
                ) : (
               <Text style={styles.nombreR}>{usuario.nombre}</Text>
               )}
+            <Text style={styles.emailR}>{usuario.email}</Text>
+          </View>
+          <View style={styles.iconoContainerR}>
+            <FontAwesome name="trophy" size={30} color={index === 0 ? '#fdd835' : '#999'} />
+          </View>
+        </Animatable.View>
+      ))}
+    </ScrollView>
+  );
+}
+function RankingUsersScreen() {
+  const [usuarios, setUsuarios] = useState([]);
+
+  useEffect(() => {
+    async function obtenerUsuarios() {
+      try {
+        const respuesta = await fetch(`http://${IP}/rankingUsersMovil`);
+        const datos = await respuesta.json();
+        setUsuarios(datos);     
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    obtenerUsuarios();
+  }, []);
+
+  return (
+    <ScrollView style={styles.containerR}>
+      {usuarios.map((usuario, index) => (
+        <Animatable.View key={usuario.id} style={[styles.usuarioContainerR, index % 2 !== 0 && styles.usuarioContainerAltR]} animation="fadeInUp" delay={index * 100}>
+          <View style={styles.avatarContainerR}>
+            <FontAwesome name="user-circle" size={40} color="#333" />
+            <Text style={styles.puntosR}>{usuario.puntos} pts.</Text>
+          </View>
+          <View style={styles.infoContainerR}>
+            <Text style={styles.nombreR}>{usuario.nombre}</Text>
             <Text style={styles.emailR}>{usuario.email}</Text>
           </View>
           <View style={styles.iconoContainerR}>
@@ -379,9 +433,28 @@ function MyTabs() {
 
 
 export default function Ranking() {
-  return (
-    <View style={{ flex: 1,backgroundColor:'#F3E218'}}>
-      <MyTabs />
-    </View>
-  );
+  const [rol, setRol] = useState('');
+
+  useEffect(() => {
+    async function fetchRol() {
+      const storedData = await AsyncStorage.getItem('userData');
+      const userData = JSON.parse(storedData);
+      setRol(userData.tipoUser);
+    }
+    fetchRol();
+  }, []);
+  if(rol == 'cliente'){
+    return (
+      <View style={{ flex: 1,backgroundColor:'#F3E218'}}>
+        <MyTabs />
+      </View>
+    );
+  }else{
+    return (
+      <View style={{ flex: 1,backgroundColor:'#F3E218'}}>
+        <RankingUsersScreen />
+      </View>
+    );
+  }
+  
 }

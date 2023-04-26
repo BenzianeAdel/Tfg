@@ -13,7 +13,7 @@ const ChatScreen = ({navigation,route}) => {
   const [id,setId] = useState(0);
   const { userName } = route.params;
   const { iduserName} = route.params;
-  const scrollViewRef = useRef();
+  const scrollViewRef = useRef(null);
   
 
   React.useLayoutEffect(() => {
@@ -49,7 +49,7 @@ const ChatScreen = ({navigation,route}) => {
         body: JSON.stringify(requestData)
       });
       setNewMessage('');
-      scrollViewRef.current.scrollToEnd({ animated: true });
+      scrollViewRef.current?.scrollToEnd({ animated: true });
     } catch (error) {
       console.error(error);
     }
@@ -60,7 +60,6 @@ const ChatScreen = ({navigation,route}) => {
       {messages.length > 0 &&
       <FlatList
         style={styles.messageList}
-        ref={scrollViewRef}
         data={messages}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
@@ -73,7 +72,8 @@ const ChatScreen = ({navigation,route}) => {
           </View>
         )}
         initialNumToRender={messages.length}
-        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: false })}
+        ref={scrollViewRef}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: false })}
       />
       }
       <View style={styles.inputContainer}>

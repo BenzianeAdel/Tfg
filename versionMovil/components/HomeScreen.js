@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   StyleSheet,
   View,
@@ -13,6 +14,8 @@ import { Ionicons } from '@expo/vector-icons';
 const HomeScreen = ({ navigation }) => {
   const buttonOpacity = React.useRef(new Animated.Value(0)).current;
   const buttonScale = React.useRef(new Animated.Value(0)).current;
+  const [rol, setRol] = useState('');
+  
   React.useEffect(() => {
     Animated.parallel([
       Animated.timing(buttonOpacity, {
@@ -28,13 +31,64 @@ const HomeScreen = ({ navigation }) => {
     ]).start();
   }, []);
 
+  useEffect(() => {
+    async function fetchRol() {
+      const storedData = await AsyncStorage.getItem('userData');
+      const userData = JSON.parse(storedData);
+      setRol(userData.tipoUser);
+    }
+    fetchRol();
+  }, []);
+
+  const renderWelcomeMessage = () => {
+    let message = '';
+    let icon = '';
+    let backgroundColor = '';
+
+    if (rol === 'cliente') {
+      message = '¡Bienvenido! cliente';
+      icon = 'person-outline';
+      backgroundColor = '#6B3654';
+    } else if (rol === 'monitor') {
+      message = '¡Hola! monitor';
+      icon = 'ios-cog-outline';
+      backgroundColor = '#F2BB05';
+    } else if (rol === 'admin') {
+      message = '¡Hola! administrador';
+      icon = 'medkit-outline';
+      backgroundColor = '#1C7F57';
+    }
+
+    return (
+      <View style={styles.welcomeMessageContainer}>
+        <Ionicons name={icon} size={32} color="black" />
+        <Text style={styles.welcomeMessageText}>{message}</Text>
+      </View>
+    );
+  };
+
   return (
     
     <ImageBackground
       source={require('../assets/logo01.png')}
       style={styles.background}>
       <View style={styles.container}>
+      {renderWelcomeMessage()}
         <View style={styles.buttons}>
+          {rol == 'monitor' &&(
+          <Animated.View
+            style={{
+              opacity: buttonOpacity,
+              transform: [{ scale: buttonScale }],
+            }}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Gestion Ejercicios')}>
+              <Ionicons name="settings" size={24} color="white" />
+              <Text style={styles.buttonText}>Ejercicios</Text>
+            </TouchableOpacity>
+          </Animated.View>
+          )}
           <Animated.View
             style={{
               opacity: buttonOpacity,
@@ -43,7 +97,7 @@ const HomeScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => navigation.navigate('Ejercicios')}>
-              <Ionicons name="fitness-outline" size={24} color="white" />
+              <Ionicons name="fitness" size={24} color="white" />
               <Text style={styles.buttonText}>Ver ejercicios</Text>
             </TouchableOpacity>
           </Animated.View>
@@ -71,6 +125,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Ver Servicios</Text>
             </TouchableOpacity>
           </Animated.View>
+          {(rol == 'cliente' || rol == 'monitor') && (
           <Animated.View
             style={{
               opacity: buttonOpacity,
@@ -83,6 +138,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Enviar Mensaje</Text>
             </TouchableOpacity>
           </Animated.View>
+          )}
           <Animated.View
             style={{
               opacity: buttonOpacity,
@@ -95,6 +151,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Ver Ranking</Text>
             </TouchableOpacity>
           </Animated.View>
+          {rol == 'cliente' && (
           <Animated.View
             style={{
               opacity: buttonOpacity,
@@ -107,6 +164,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Enfermedades</Text>
             </TouchableOpacity>
           </Animated.View>
+          )}
         </View>
       </View>
     </ImageBackground>
@@ -147,6 +205,22 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: 'white',
+    fontWeight: 'bold',
+  },
+  welcomeMessageContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFE7E7',
+    borderWidth: 1,
+    borderColor: '#FF6F6F',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 20,
+  },
+  welcomeMessageText: {
+    color: '#FF6F6F',
+    fontSize: 14,
     fontWeight: 'bold',
   },
 });

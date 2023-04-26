@@ -147,13 +147,14 @@ function VerEjerciciosScreen() {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                    {item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
-                    <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
-                    ) : item.multimedia[0].nombre.endsWith('.mp4') || item.multimedia[0].nombre.endsWith('.mov') ? (
-                    <Video style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
-                    ) : (
+                  {item.multimedia && item.multimedia[0] ? (item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
+                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />) : item.multimedia[0].nombre.endsWith('.mp4') ||
+                  item.multimedia[0].nombre.endsWith('.mov') ? (
+                  <Video style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                  ) : (
                     <Text>No se pudo reconocer el formato del archivo multimedia</Text>
-                    )}
+                  )
+                  ) : <Text>No existe imagen</Text>}
                   <Text style={styles.maquinaNombre}>{item.nombre} {tienePeligro && (
                   <TouchableOpacity style={styles.dangerButton} onPress={()=> alert('Este ejercicio presenta riesgos para la salud')}>
                     <FontAwesome name="exclamation-triangle" size={16} color="red" />
@@ -195,18 +196,19 @@ function VerEjerciciosScreen() {
       )}
       <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
             <View style={styles.modalContainer}>
-            {selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.png') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpeg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.gif') ? (
-                    <Image style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }} />
-                    ) : selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mp4') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mov') ? (
-                    <Video style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }} useNativeControls={true}
-                    isLooping={true}/>
-                    ) : (
-                    <Text>No se pudo reconocer el formato del archivo multimedia</Text>
-                    )}
-            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex - 1)} disabled={currentImageIndex === 0} style={{display: currentImageIndex === 0 ? "none" : "flex"}}>
+            {selectedEjercicio?.multimedia && selectedEjercicio?.multimedia[currentImageIndex] ? (selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.png') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpeg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.gif') ? (
+                <Image style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }} />) : selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mp4') ||
+                selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mov') ? (
+                <Video style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }}  useNativeControls={true}
+                isLooping={true}/>
+                ) : (
+                  <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                )
+                ) : <Text>No existe imagen</Text>}
+            <TouchableOpacity onPress={() => {setCurrentImageIndex(currentImageIndex - 1)}} disabled={currentImageIndex === 0 || selectedEjercicio?.multimedia.length==0} style={{display: currentImageIndex === 0 || selectedEjercicio?.multimedia.length==0 ? "none" : "flex"}}>
               <FontAwesome name="arrow-left" size={24} color="#000" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex + 1)} disabled={currentImageIndex === selectedEjercicio?.multimedia.length - 1} style={{display: currentImageIndex === selectedEjercicio?.multimedia.length - 1 ? "none" : "flex"}}>
+            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex + 1)} disabled={currentImageIndex === selectedEjercicio?.multimedia.length - 1 || selectedEjercicio?.multimedia.length === 0} style={{display: currentImageIndex === selectedEjercicio?.multimedia.length - 1 || selectedEjercicio?.multimedia.length==0 ? "none" : "flex"}}>
               <FontAwesome name="arrow-right" size={24} color="#000" />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>

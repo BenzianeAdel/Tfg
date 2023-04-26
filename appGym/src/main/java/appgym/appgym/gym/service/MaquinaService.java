@@ -8,6 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -42,6 +48,19 @@ public class MaquinaService {
             if(actividades.get(i).getMaquina()==a){
                 actividades.get(i).setMaquina(null);
                 actividadRepository.save(actividades.get(i));
+            }
+        }
+        String carpetaImagenes = "src/main/resources/static/img/maquinas/" + a.getId();
+        Path pathCarpeta = Paths.get(carpetaImagenes);
+        File carpeta = new File(carpetaImagenes);
+        if(carpeta.exists() && carpeta.isDirectory()){
+            try {
+                Files.walk(pathCarpeta)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         maquinaRepository.delete(a);

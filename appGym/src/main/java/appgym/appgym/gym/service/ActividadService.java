@@ -5,9 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -73,6 +79,9 @@ public class ActividadService {
     public List<Reservation> findActividades(Usuario u) {
         List<Reservation> reservas = findAllReservas();
         List<Reservation> reser = new ArrayList<>();
+        if(u.getTipoUser() == User.admin){
+            return reservas;
+        }
         for (int i = 0; i < reservas.size(); i++) {
                 if (u.getTipoUser()==User.cliente) {
                     if(reservas.get(i).getCliente().getId() == u.getId()){
@@ -96,6 +105,11 @@ public class ActividadService {
         return r;
     }
     @Transactional(readOnly = false)
+    public void eliminarReserva(Long idR){
+        Reservation r = findReservaById(idR);
+        reservationRepository.delete(r);
+    }
+    @Transactional(readOnly = false)
     public List<Reservation>findFranjas(Usuario monitor, Calendar f){
         List<Reservation>reservas=new ArrayList<>();
         for(int i=0;i<findAllReservas().size();i++){
@@ -108,9 +122,9 @@ public class ActividadService {
         return reservas;
     }
     @Transactional(readOnly = false)
-    public void valorar(Long ida,int p,Long idR){
-        Rutina a = findRutinaById(ida);
+    public void valorar(int p,Long idR){
         Reservation r = findReservaById(idR);
+        Rutina a = r.getRutina();
         r.setValorada(true);
         reservationRepository.save(r);
         a.setPuntos(a.getPuntos()+p);
@@ -118,10 +132,35 @@ public class ActividadService {
     }
     @Transactional(readOnly = false)
     public void eliminarActividad(Actividad a){
+        for(int i=0;i<findAllRutinas().size();i++){
+            for(int j=0;j<findAllRutinas().get(i).getActividades().size();j++){
+                if(findAllRutinas().get(i).getActividades().get(j) == a){
+                    findAllRutinas().get(i).getActividades().remove(a);
+                }
+            }
+        }
+        String carpetaImagenes = "src/main/resources/static/img/actividades/" + a.getId();
+        Path pathCarpeta = Paths.get(carpetaImagenes);
+        File carpeta = new File(carpetaImagenes);
+        if(carpeta.exists() && carpeta.isDirectory()){
+            try {
+                Files.walk(pathCarpeta)
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         actividadRepository.delete(a);
     }
     @Transactional(readOnly = false)
     public void eliminarRutina(Rutina r){
+        for(int i=0;i<findAllReservas().size();i++){
+            if(findAllReservas().get(i).getRutina()==r){
+                findAllReservas().get(i).setRutina(null);
+            }
+        }
         rutinaRepository.delete(r);
     }
 

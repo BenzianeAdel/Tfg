@@ -6,7 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 @Getter@Setter
 @Entity
@@ -26,5 +28,5 @@ public class Rutina {
             joinColumns = { @JoinColumn(name = "fk_rutina") },
             inverseJoinColumns = {@JoinColumn(name = "fk_actividad")}
     )
-    Set<Actividad> actividades = new HashSet<>();
+    List<Actividad> actividades = new ArrayList<>();
 }

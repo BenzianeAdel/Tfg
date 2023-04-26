@@ -3,13 +3,11 @@ package appgym.appgym.gym.controller;
 import appgym.appgym.gym.model.Actividad;
 
 import java.util.List;
-import java.util.Set;
 
-public class RutinaData {
-
+public class RutinaBody {
     private Long id;
     private String nombre;
-    private List<Actividad> actividades;
+    private List<Long> actividades;
 
     public Long getId(){return id;}
     public void setId(Long i){this.id=i;}
@@ -20,11 +18,11 @@ public class RutinaData {
         return nombre;
     }
 
-    public List<Actividad> getActividades(){
+    public List<Long> getActividades(){
         return actividades;
     }
 
-    public void setActividades(List<Actividad> actividades) {
+    public void setActividades(List<Long> actividades) {
         this.actividades = actividades;
     }
 }

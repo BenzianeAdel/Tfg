@@ -169,6 +169,31 @@ public class ActividadController {
 
         return "redirect:/actividades";
     }
+    @PostMapping("/crearActividadMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void crearActividadMovil(@RequestBody ActividadData actividadData){
+        Actividad a = new Actividad();
+        a.setNombre(actividadData.getNombre());
+        a.setSeries(actividadData.getSeries());
+        a.setRepeticiones(actividadData.getRepeticiones());
+        if(actividadData.getMaquina()==null){
+            a.setMaquina(null);
+        }else{
+            a.setMaquina(actividadData.getMaquina());
+        }
+        a.setZonaCuerpo(actividadData.getZonaCuerpo());
+        a.setMultimedia(new ArrayList<>());
+        actividadService.registrar(a);
+        try {
+            Path rutaCarpeta = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/");
+            // Verifica si la carpeta existe y si no la crea
+            if (!Files.exists(rutaCarpeta)) {
+                Files.createDirectories(rutaCarpeta);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @PostMapping("/rutinas")
     public String nuevaRutina(RutinaData rutinaData, BindingResult result){
         if (result.hasErrors()) {
@@ -179,6 +204,28 @@ public class ActividadController {
         r.setActividades(rutinaData.getActividades());
         actividadService.registrar(r);
         return "redirect:/actividades";
+    }
+    @PostMapping("/crearRutinaMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void nuevaRutinaMovil(@RequestBody RutinaBody rutinaBody){
+        List<Actividad> listaActividades = new ArrayList<>();
+        Rutina r = new Rutina();
+
+        for(int i=0;i<rutinaBody.getActividades().size();i++){
+            Actividad a = actividadService.findById(rutinaBody.getActividades().get(i));
+            listaActividades.add(a);
+        }
+        r.setNombre(rutinaBody.getNombre());
+        r.setActividades(listaActividades);
+        actividadService.registrar(r);
+    }
+    @PostMapping("/rutinasMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void nuevaRutinaMovil(RutinaData rutinaData){
+        Rutina r = new Rutina();
+        r.setNombre(rutinaData.getNombre());
+        r.setActividades(rutinaData.getActividades());
+        actividadService.registrar(r);
     }
     @PostMapping("/reservar")
     public String reservar(@Valid ReservaData reservaData){
@@ -225,15 +272,31 @@ public class ActividadController {
         usuarioService.subirPuntos(r);
         return "redirect:/actividades";
     }
-    @PostMapping("/valorar/{idR}/{idA}")
-    public String valorar(@Valid ValorarData valorarData,@PathVariable(value="idR") Long idReserva,@PathVariable(value="idA") Long idRutina){
-        actividadService.valorar(idRutina,valorarData.getPuntos(),idReserva);
+    @PostMapping("/reservar/eliminar/{id}")
+    public String eliminar(@PathVariable(value="id") Long idReserva){
+        actividadService.eliminarReserva(idReserva);
         return "redirect:/actividades";
     }
-    @PostMapping("/valorarMovil/{idR}/{idA}")
+    @PostMapping("/reservarMovil/eliminar/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminarReservaMovil(@PathVariable(value="id") Long idReserva){
+        actividadService.eliminarReserva(idReserva);
+    }
+    @PostMapping("/reservarMovil/finalizar/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void finalizarMovil(@PathVariable(value="id") Long idReserva){
+        Reservation r = actividadService.finalizarReserva(idReserva);
+        usuarioService.subirPuntos(r);
+    }
+    @PostMapping("/valorar/{idR}")
+    public String valorar(@Valid ValorarData valorarData,@PathVariable(value="idR") Long idReserva){
+        actividadService.valorar(valorarData.getPuntos(),idReserva);
+        return "redirect:/actividades";
+    }
+    @PostMapping("/valorarMovil/{idR}")
     @ResponseBody
-    public ResponseEntity<Object> valorarMovil(@Valid@RequestBody ValorarData valorarData,@PathVariable(value="idR") Long idReserva,@PathVariable(value="idA") Long idRutina){
-        actividadService.valorar(idRutina,valorarData.getPuntos(),idReserva);
+    public ResponseEntity<Object> valorarMovil(@Valid@RequestBody ValorarData valorarData,@PathVariable(value="idR") Long idReserva){
+        actividadService.valorar(valorarData.getPuntos(),idReserva);
         return ResponseEntity.ok().body("OK");
     }
     @GetMapping("/reservas")
@@ -286,6 +349,7 @@ public class ActividadController {
                     e.printStackTrace();
                 }
             }
+            flash.addFlashAttribute("correcto","Se ha eliminado correctamente la Actividad");
         } catch(Exception e){
             flash.addFlashAttribute("errorActividad","No se ha podido borrar porque esta asociada a una rutina");
         }
@@ -296,10 +360,23 @@ public class ActividadController {
         Rutina r = actividadService.findRutinaById(rutinaData.getId());
         try{
             actividadService.eliminarRutina(r);
+            flash.addFlashAttribute("correcto","Se ha eliminado correctamente la Rutina");
         } catch(Exception e){
             flash.addFlashAttribute("errorActividad","No se ha podido borrar porque hay una reserva Asociada");
         }
         return "redirect:/actividades";
+    }
+    @PostMapping("/rutinasMovil/eliminar/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void EliminarRutina(@PathVariable("id")Long IdR){
+        Rutina r = actividadService.findRutinaById(IdR);
+        actividadService.eliminarRutina(r);
+    }
+    @PostMapping("/actividadesMovil/eliminar/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void EliminarActividad(@PathVariable("id")Long idA){
+        Actividad a = actividadService.findById(idA);
+        actividadService.eliminarActividad(a);
     }
     @PostMapping("/eliminarDeFavoritos/{idR}")
     public String eliminarDeFavoritos(@PathVariable(value ="idR") Long id) {

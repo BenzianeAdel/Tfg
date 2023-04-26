@@ -11,17 +11,19 @@ function BuscarContactosScreen({navigation}){
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState('');
 
+  const cargarUsuarios = () => {
+    fetch(`http://${IP}/mensajesMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setUsuarios(data))
+      .catch(error => console.error(error));
+  };
+
   useEffect(() => {
-    async function obtenerUsuarios() {
-      try {
-        const respuesta = await fetch(`http://${IP}/mensajesMovil`);
-        const datos = await respuesta.json();
-        setUsuarios(datos);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    obtenerUsuarios();
+    cargarUsuarios();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarUsuarios();
+    });
+    return unsubscribe;
   }, []);
 
   const usuariosFiltrados = usuarios.filter(usuario => {
@@ -69,18 +71,20 @@ function MensajesRecientesScreen({navigation}){
   const [usuarios, setUsuarios] = useState([]);
   const [busqueda, setBusqueda] = useState('');
 
+  const cargarUsuarios = () => {
+    fetch(`http://${IP}/mensajesRecientesMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setUsuarios(data))
+      .catch(error => console.error(error));
+  };
+
   useEffect(() => {
-    async function obtenerUsuarios() {
-      try {
-        const respuesta = await fetch(`http://${IP}/mensajesRecientesMovil`);
-        const datos = await respuesta.json();
-        setUsuarios(datos);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    obtenerUsuarios();
-  }, [usuarios]);
+    cargarUsuarios();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarUsuarios();
+    });
+    return unsubscribe;
+  }, []);
 
   const usuariosFiltrados = usuarios.filter(usuario => {
     return usuario.nombre.toLowerCase().includes(busqueda.toLowerCase());

@@ -19,6 +19,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChatScreen from './components/ChatScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
 import EnfermedadesScreen from './components/EnfermedadesScreen';
+import GestionScreenMonitor from './components/GestionScreenMonitor';
+import NewRutina from './components/NewRutina';
+import NewActividad from './components/NewActividad';
 
 const Stack = createStackNavigator();
 const removeUserInfo = async () => {
@@ -62,6 +65,9 @@ export default function App() {
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="Restablecer Contraseña" component={ForgotPasswordScreen} />
       <Stack.Screen name="Listado de Enfermedades" component={EnfermedadesScreen} />
+      <Stack.Screen name="Gestion Ejercicios" component={GestionScreenMonitor} />
+      <Stack.Screen name="Nueva Rutina" component={NewRutina} />
+      <Stack.Screen name="Nueva Actividad" component={NewActividad} />
     </Stack.Navigator>
    </NavigationContainer>
   );

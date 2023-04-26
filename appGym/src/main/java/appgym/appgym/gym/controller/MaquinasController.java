@@ -96,19 +96,6 @@ public class MaquinasController {
     public String EliminarMaquina(MaquinaData maquinaData, RedirectAttributes flash){
         Maquina a = maquinaService.findById(maquinaData.getId());
         maquinaService.eliminarMaquina(a);
-        String carpetaImagenes = "src/main/resources/static/img/maquinas/" + maquinaData.getId();
-        Path pathCarpeta = Paths.get(carpetaImagenes);
-        File carpeta = new File(carpetaImagenes);
-        if(carpeta.exists() && carpeta.isDirectory()){
-            try {
-                Files.walk(pathCarpeta)
-                        .sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .forEach(File::delete);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         flash.addFlashAttribute("correcto","Se ha eliminado correctamente la Maquina");
         return "redirect:/maquinas";
     }

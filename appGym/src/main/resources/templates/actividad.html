@@ -96,6 +96,16 @@
             </div>
         </div>
     </div>
+    <div class="row mt-2">
+        <div class="col">
+            <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${!#strings.isEmpty(correcto)}">
+                <span th:text="${correcto}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="tab-content">
         <div class="tab-pane active" id="actividades">
             <button th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaActividadModal">Nueva Actividad</button>
@@ -376,22 +386,29 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${reserva.title}"></h5>
-                            <p class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p th:if="${reserva.rutina != null}" class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p th:if="${reserva.rutina == null}" class="card-text">Nombre Rutina: NO DISPONIBLE</p>
                             <p class="card-text">Nombre Monitor: [[${reserva.monitor.nombre}]]</p>
                             <p class="card-text">Correo Monitor: [[${reserva.monitor.email}]]</p>
                             <p class="card-text">Fecha: [[${#dates.format(reserva.start, 'dd/MM/yyyy HH:mm')}]]</p>
                             <p class="card-text">Estado: [[${reserva.estado}]]</p>
                             <p>
-                            <form th:if="${reserva.estado == estado && reserva.valorada== false}" th:action="@{/valorar/{idR}/{idA}(idA=${reserva.rutina.id},idR=${reserva.id})}" method="post" th:object="${valorarData}">
-                                <select class="form-control" th:field="*{puntos}" name="valoracion">
-                                    <option value="1">1 puntos</option>
-                                    <option value="2">2 puntos</option>
-                                    <option value="3">3 puntos</option>
-                                    <option value="4">4 puntos</option>
-                                    <option value="5">5 puntos</option>
-                                </select>
-                                <button class="btn-success" type="submit">Valorar</button>
+                            <form th:if="${reserva.rutina != null && reserva.estado == estado && reserva.valorada == false}" th:action="@{/valorar/{idR}(idR=${reserva.id})}" method="post" th:object="${valorarData}">
+                                <div class="rating">
+                                    <input type="radio" id="star1" name="valoracion" value="1" class="rating-input"  th:field="*{puntos}" required>
+                                    <label for="star1" title="1 Estrella"><span class="fa fa-star">1</span></label>
+                                    <input type="radio" id="star2" name="valoracion" value="2" class="rating-input"  th:field="*{puntos}">
+                                    <label for="star2" title="2 Estrellas"><span class="fa fa-star">2</span></label>
+                                    <input type="radio" id="star3" name="valoracion" value="3" class="rating-input"  th:field="*{puntos}">
+                                    <label for="star3" title="3 Estrellas"><span class="fa fa-star">3</span></label>
+                                    <input type="radio" id="star4" name="valoracion" value="4" class="rating-input"  th:field="*{puntos}">
+                                    <label for="star4" title="4 Estrellas"><span class="fa fa-star">4</span></label>
+                                    <input type="radio" id="star5" name="valoracion" value="5" class="rating-input"  th:field="*{puntos}">
+                                    <label for="star5" title="5 Estrellas"><span class="fa fa-star">5</span></label>
+                                    <button class="btn btn-info" title="Valorar" type="submit"><i class="fas fa-thumbs-up"></i></button>
+                                </div>
                             </form>
+                            <button class="btn btn-danger" type="button" th:onclick="'eliminar(\'/reservar/eliminar/'+${reserva.id}+'\')'"><i class="fas fa-trash"> Eliminar</i></button>
                             </p>
                         </div>
                     </div>
@@ -407,13 +424,15 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${reserva.title}"></h5>
-                            <p class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p th:if="${reserva.rutina != null}" class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p th:if="${reserva.rutina == null}" class="card-text">Nombre Rutina: NO DISPONIBLE</p>
                             <p class="card-text">Nombre Cliente: [[${reserva.cliente.nombre}]]</p>
                             <p class="card-text">Correo Cliente: [[${reserva.cliente.email}]]</p>
                             <p class="card-text">Fecha: [[${#dates.format(reserva.start, 'dd/MM/yyyy HH:mm')}]]</p>
                             <p class="card-text">Estado: [[${reserva.estado}]]</p>
                             <p>
-                                <button th:if="${reserva.estado != estado}" class="btn btn-info" type="button" th:onclick="'finalizarla(\'/reservar/finalizar/'+${reserva.id}+'\')'">Finalizar</button>
+                                <button th:if="${reserva.estado != estado}" class="btn btn-info" type="button" th:onclick="'finalizarla(\'/reservar/finalizar/'+${reserva.id}+'\')'"><i class="fas fa-check"> Finalizar</i></button>
+                                <button class="btn btn-danger" type="button" th:onclick="'eliminar(\'/reservar/eliminar/'+${reserva.id}+'\')'"><i class="fas fa-trash"> Eliminar</i></button>
                             </p>
                         </div>
                     </div>
@@ -429,7 +448,8 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title" th:text="${reserva.title}"></h5>
-                            <p class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p th:if="${reserva.rutina != null}" class="card-text">Nombre Rutina: [[${reserva.rutina.nombre}]]</p>
+                            <p th:if="${reserva.rutina == null}" class="card-text">Nombre Rutina: NO DISPONIBLE</p>
                             <p class="card-text">Nombre Cliente: [[${reserva.cliente.nombre}]]</p>
                             <p class="card-text">Correo Cliente: [[${reserva.cliente.email}]]</p>
                             <p class="card-text">Nombre Monitor: [[${reserva.monitor.nombre}]]</p>
@@ -819,6 +839,11 @@
         $('#rutinaId').val(rutinaId);
     });
     function finalizarla(url) {
+        fetch(url, {
+            method: 'POST'
+        }).then((res) => location.reload());
+    }
+    function eliminar(url) {
         fetch(url, {
             method: 'POST'
         }).then((res) => location.reload());
