@@ -93,10 +93,10 @@
                 <div th:id="carouselExampleControlsMaquinaPrincipal" class="carousel slide" data-ride="carousel">
                     <div class="carousel-inner">
                         <div th:each="maquina, iterStat : ${maquinas}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
-                            <div th:if="${maquina.imagen.endsWith('.mp4') or maquina.imagen.endsWith('.avi') or maquina.imagen.endsWith('.mov') or maquina.imagen.endsWith('.wmv')}">
+                            <div th:if="${maquina.imagen!= null && (maquina.imagen.endsWith('.mp4') or maquina.imagen.endsWith('.avi') or maquina.imagen.endsWith('.mov') or maquina.imagen.endsWith('.wmv'))}">
                                 <video class="card-img-top mx-auto d-block" style="height: 450px;width: 450px" th:src="@{/img/maquinas/__${maquina.id}__/__${maquina.imagen}__}" controls></video>
                             </div>
-                            <div th:if="${!maquina.imagen.endsWith('.mp4') and !maquina.imagen.endsWith('.avi') and !maquina.imagen.endsWith('.mov') and !maquina.imagen.endsWith('.wmv')}">
+                            <div th:if="${maquina.imagen!= null && (!maquina.imagen.endsWith('.mp4') and !maquina.imagen.endsWith('.avi') and !maquina.imagen.endsWith('.mov') and !maquina.imagen.endsWith('.wmv'))}">
                                 <img class="card-img-top mx-auto d-block" style="height: 450px;width: 450px" th:src="@{/img/maquinas/__${maquina.id}__/__${maquina.imagen}__}" alt="Imagen de la maquina">
                             </div>
                         </div>

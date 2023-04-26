@@ -54,7 +54,6 @@ const NewActividad = ({navigation}) => {
             series: series,
             zonaCuerpo: selectedZona
           };
-          console.log(requestData);
           const respuesta = await fetch(`http://${IP}/crearActividadMovil`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

@@ -92,6 +92,16 @@
             <a class="nav-link" href="#monitores" data-toggle="tab">Monitores</a>
         </li>
     </ul>
+    <div class="row mt-2">
+        <div class="col">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${!#strings.isEmpty(error)}">
+                <span th:text="${error}"></span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- Eliminar usuario Modal -->
     <div class="modal fade" id="eliminarAdminModal" tabindex="-1" role="dialog" aria-labelledby="eliminarAdminModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -314,18 +324,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
-<div class="row mt-3 justify-content-center">
-    <div class="col-9">
-        <div th:object="${usuarioData}">
-            <ul th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-        </div>
-        <ul th:if="${error != null}" class="alert alert-danger">
-            <li th:text="${error}"></li>
-        </ul>
     </div>
 </div>
 <script type="text/javascript">

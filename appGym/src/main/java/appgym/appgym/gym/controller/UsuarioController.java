@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -145,7 +146,7 @@ public class UsuarioController {
         return u;
     }
     @PostMapping("/update")
-    public String EditarUsuario(@Valid UsuarioData usuarioData){
+    public String EditarUsuario(@Valid UsuarioData usuarioData, RedirectAttributes flash){
         Usuario u = usuarioService.findById(usuarioData.getId());
         u.setAcceso(usuarioData.getAcceso());
         u.setNombre(usuarioData.getNombre());
@@ -153,11 +154,41 @@ public class UsuarioController {
         u.setEmail(usuarioData.geteMail());
         u.setFechaNacimiento(usuarioData.getFechaNacimiento());
         u.setPassword(usuarioData.getPassword());
-        usuarioService.editarUsuario(u);
+        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuario == null){
+            usuarioService.editarUsuario(u);
+        } else if (usuario != null && usuario.getId() == usuarioData.getId()) {
+            usuarioService.editarUsuario(u);
+        } else{
+            flash.addFlashAttribute("error", "El usuario " + usuarioData.geteMail() + " ya existe");
+        }
         return "redirect:/users";
     }
+    @PostMapping("/usuarioEditarMovil")
+    @ResponseBody
+    public ResponseEntity<Object> editarPerfilUsuario(@RequestBody UsuarioData usuarioData){
+        Usuario u = usuarioService.findById(usuarioData.getId());
+        u.setAcceso(usuarioData.getAcceso());
+        u.setNombre(usuarioData.getNombre());
+        u.setApellidos(usuarioData.getApellidos());
+        u.setEmail(usuarioData.geteMail());
+        u.setPassword(usuarioData.getPassword());
+        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuario == null){
+            usuarioService.editarUsuario(u);
+            ApiResponse response = new ApiResponse("El cambio se ha realizado correctamente");
+            return ResponseEntity.ok().body(response);
+        } else if (usuario != null && usuario.getId() == usuarioData.getId()) {
+            usuarioService.editarUsuario(u);
+            ApiResponse response = new ApiResponse("El cambio se ha realizado correctamente");
+            return ResponseEntity.ok().body(response);
+        } else{
+            ApiResponse response = new ApiResponse("El usuario " + usuarioData.geteMail() + " ya existe");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
     @PostMapping("/perfil/editar")
-    public String EditarPerfil(@Valid UsuarioData usuarioData){
+    public String EditarPerfil(@Valid UsuarioData usuarioData,RedirectAttributes flash){
         Usuario u = usuarioService.findById(usuarioData.getId());
         u.setAcceso(usuarioData.getAcceso());
         u.setNombre(usuarioData.getNombre());
@@ -165,19 +196,35 @@ public class UsuarioController {
         u.setEmail(usuarioData.geteMail());
         u.setFechaNacimiento(usuarioData.getFechaNacimiento());
         u.setPassword(usuarioData.getPassword());
-        usuarioService.editarUsuario(u);
+        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuario == null){
+            usuarioService.editarUsuario(u);
+        } else if (usuario != null && usuario.getId() == usuarioData.getId()) {
+            usuarioService.editarUsuario(u);
+        } else{
+            flash.addFlashAttribute("error", "El usuario " + usuarioData.geteMail() + " ya existe");
+        }
         return "redirect:/perfil";
     }
     @PostMapping(  value="/perfil/editar",consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Usuario editarPerfilMovil(@Valid@RequestBody UsuarioData usuarioData){
+    public ResponseEntity<Object> editarPerfilMovil(@RequestBody UsuarioData usuarioData){
         Usuario u = usuarioService.findById(usuarioData.getId());
         u.setEmail(usuarioData.geteMail());
         u.setNombre(usuarioData.getNombre());
         u.setApellidos(usuarioData.getApellidos());
         u.setPassword(usuarioData.getPassword());
-        usuarioService.editarUsuario(u);
-        return u;
+        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuario == null){
+            usuarioService.editarUsuario(u);
+            return ResponseEntity.ok().body(u);
+        } else if (usuario != null && usuario.getId() == usuarioData.getId()) {
+            usuarioService.editarUsuario(u);
+            return ResponseEntity.ok().body(u);
+        } else{
+            ApiResponse response = new ApiResponse("El usuario " + usuarioData.geteMail() + " ya existe");
+            return ResponseEntity.badRequest().body(response);
+        }
     }
     @PostMapping("/eliminar")
     public String EliminarUsuario(UsuarioData usuarioData){
@@ -217,6 +264,15 @@ public class UsuarioController {
         model.addAttribute("birthdate", LocalDate.now().minusYears(18));
         return "users";
     }
+    @GetMapping("/usuariosMovil")
+    @ResponseBody
+    public List<Usuario> usuariosMovil(){
+        List<Usuario> usuarios = usuarioService.findAll();
+        Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
+        usuarios.remove(u);
+        return usuarios;
+    }
+
     @GetMapping("/ranking")
     public String ranking(Model model){
         if(!comprobarLogueado()){

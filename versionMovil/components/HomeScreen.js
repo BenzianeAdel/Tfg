@@ -101,6 +101,20 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Ver ejercicios</Text>
             </TouchableOpacity>
           </Animated.View>
+          {rol == 'admin' &&(
+          <Animated.View
+            style={{
+              opacity: buttonOpacity,
+              transform: [{ scale: buttonScale }],
+            }}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Gestion Usuarios')}>
+              <Ionicons name="people" size={24} color="white" />
+              <Text style={styles.buttonText}>Usuarios</Text>
+            </TouchableOpacity>
+          </Animated.View>
+          )}
           <Animated.View
             style={{
               opacity: buttonOpacity,
@@ -113,6 +127,20 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.buttonText}>Mi perfil</Text>
             </TouchableOpacity>
           </Animated.View>
+          {rol == 'admin' &&(
+          <Animated.View
+            style={{
+              opacity: buttonOpacity,
+              transform: [{ scale: buttonScale }],
+            }}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => navigation.navigate('Gestion Maquinas')}>
+              <Ionicons name="settings" size={24} color="white" />
+              <Text style={styles.buttonText}>Maquinas</Text>
+            </TouchableOpacity>
+          </Animated.View>
+          )}
           <Animated.View
             style={{
               opacity: buttonOpacity,

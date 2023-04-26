@@ -114,6 +114,9 @@
                 <div class="col-md-6" th:each="actividad : ${actividades}">
                     <div class="card">
                         <div th:id="carouselExampleControlsActividad + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                            <div th:if="${actividad.multimedia.isEmpty()}">
+                                <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" alt="Imagen de la actividad">
+                            </div>
                             <div class="carousel-inner">
                                 <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
                                     <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
@@ -244,6 +247,9 @@
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
                                 <div th:id="carouselExampleControlsRutina + ${rutina.id} + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <div th:if="${actividad.multimedia.isEmpty()}">
+                                        <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" alt="Imagen de la actvidad">
+                                    </div>
                                     <div class="carousel-inner">
                                         <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
                                             <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
@@ -333,6 +339,9 @@
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
                                 <div th:id="carouselExampleControlsDestacadas + ${rutina.id} + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <div th:if="${actividad.multimedia.isEmpty()}">
+                                        <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" alt="Imagen de la actividad">
+                                    </div>
                                     <div class="carousel-inner">
                                         <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
                                             <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">
@@ -503,6 +512,9 @@
                         <div class="col-md-4" th:each="actividad : ${rutina.actividades}">
                             <div class="card">
                                 <div th:id="carouselExampleControlsFavoritas + ${rutina.id} + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
+                                    <div th:if="${actividad.multimedia.isEmpty()}">
+                                        <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" alt="Imagen de la actividad">
+                                    </div>
                                     <div class="carousel-inner">
                                         <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
                                             <div th:if="${imagen.nombre.endsWith('.mp4') or imagen.nombre.endsWith('.avi') or imagen.nombre.endsWith('.mov') or imagen.nombre.endsWith('.wmv')}">

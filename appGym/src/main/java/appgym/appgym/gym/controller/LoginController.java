@@ -163,15 +163,14 @@ public class LoginController {
         }
     }
     @PostMapping("/newUser")
-    public String registroNewSubmit(@Valid UsuarioData usuarioData, BindingResult result, Model model, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
+    public String registroNewSubmit(@Valid UsuarioData usuarioData, BindingResult result, RedirectAttributes flash, HttpServletRequest req) throws MessagingException, UnsupportedEncodingException {
 
         if (result.hasErrors()) {
             return "redirect:/users";
         }
 
         if (usuarioService.findByEmail(usuarioData.geteMail()) != null) {
-            model.addAttribute("usuarioData", usuarioData);
-            model.addAttribute("error", "El usuario " + usuarioData.geteMail() + " ya existe");
+            flash.addFlashAttribute("error", "El usuario " + usuarioData.geteMail() + " ya existe");
             return "redirect:/users";
         }
         Usuario usuario = new Usuario();

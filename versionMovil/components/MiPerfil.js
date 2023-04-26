@@ -135,7 +135,6 @@ const MiPerfil = () => {
                 keyboardType="email-address"
                 onChangeText={setEmail}
                 value={email}
-                editable={false}
               />
             ) : (
               <Text style={styles.value}>{email}</Text>

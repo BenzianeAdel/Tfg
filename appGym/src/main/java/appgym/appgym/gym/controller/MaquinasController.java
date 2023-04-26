@@ -8,13 +8,11 @@ import appgym.appgym.gym.model.Usuario;
 import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -92,11 +90,34 @@ public class MaquinasController {
         }
         return "redirect:/maquinas";
     }
+    @PostMapping("/maquinasMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void nuevaMaquinas(@RequestBody MaquinaData maquinaData){
+        Maquina m = new Maquina();
+        m.setImagen("");
+        m.setNombre(maquinaData.getNombre());
+        m.setRegistro(maquinaData.getRegistro());
+        maquinaService.registrar(m);
+            try {
+                Path rutaCarpeta = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/");
+                if (!Files.exists(rutaCarpeta)) {
+                    Files.createDirectories(rutaCarpeta);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
     @PostMapping("/maquinas/eliminar")
     public String EliminarMaquina(MaquinaData maquinaData, RedirectAttributes flash){
         Maquina a = maquinaService.findById(maquinaData.getId());
         maquinaService.eliminarMaquina(a);
         flash.addFlashAttribute("correcto","Se ha eliminado correctamente la Maquina");
         return "redirect:/maquinas";
+    }
+    @PostMapping("/maquinasMovil/eliminar/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void EliminarMaquinaMovil(@PathVariable("id")Long idM){
+        Maquina a = maquinaService.findById(idM);
+        maquinaService.eliminarMaquina(a);
     }
 }

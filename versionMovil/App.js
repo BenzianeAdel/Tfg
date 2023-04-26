@@ -22,6 +22,9 @@ import EnfermedadesScreen from './components/EnfermedadesScreen';
 import GestionScreenMonitor from './components/GestionScreenMonitor';
 import NewRutina from './components/NewRutina';
 import NewActividad from './components/NewActividad';
+import GestionScreenAdmin from './components/GestionScreenAdmin';
+import GestionUsers from './components/GestionUsers';
+import NewMaquina from './components/NewMaquina';
 
 const Stack = createStackNavigator();
 const removeUserInfo = async () => {
@@ -66,7 +69,10 @@ export default function App() {
       <Stack.Screen name="Restablecer Contraseña" component={ForgotPasswordScreen} />
       <Stack.Screen name="Listado de Enfermedades" component={EnfermedadesScreen} />
       <Stack.Screen name="Gestion Ejercicios" component={GestionScreenMonitor} />
+      <Stack.Screen name="Gestion Maquinas" component={GestionScreenAdmin} />
+      <Stack.Screen name="Gestion Usuarios" component={GestionUsers} />
       <Stack.Screen name="Nueva Rutina" component={NewRutina} />
+      <Stack.Screen name="Nueva Maquina" component={NewMaquina} />
       <Stack.Screen name="Nueva Actividad" component={NewActividad} />
     </Stack.Navigator>
    </NavigationContainer>

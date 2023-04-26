@@ -63,7 +63,11 @@ function VerMaquinasScreen() {
             >
               <Card containerStyle={styles.maquinaContainer}>
                 <View style={styles.maquinaCard}>
-                  <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/maquinas/${item.id}/${item.imagen}` }} />
+                {item.imagen!="" ? (
+                      <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/maquinas/${item.id}/${item.imagen}` }} />
+                  ):(
+                    <Text>No existe Imagen</Text>
+                  )}
                   <Text style={styles.maquinaNombre}>{item.nombre}</Text>
                 </View>
               </Card>
@@ -74,7 +78,11 @@ function VerMaquinasScreen() {
       )}
       <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/maquinas/${selectedMaquina?.id}/${selectedMaquina?.imagen}` }} style={styles.imagenModal} />
+            {selectedMaquina?.imagen!="" ? (
+                    <Image source={{ uri: `http://${IP}/img/maquinas/${selectedMaquina?.id}/${selectedMaquina?.imagen}` }} style={styles.imagenModal} />
+            ):(
+                    <Text>No existe Imagen</Text>
+            )}
             <Text style={styles.modalTitle}>{selectedMaquina?.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedMaquina?.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
