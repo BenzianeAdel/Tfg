@@ -154,7 +154,11 @@ function GestionActividades({navigation}){
       {selectedEjercicio?.maquina && (
       <Modal isVisible={isModalVisibleMaquina} onBackdropPress={toggleModalMaquina} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/maquinas/${selectedEjercicio?.maquina.id}/${selectedEjercicio?.maquina.imagen}` }} style={styles.imagenModal} />
+            {selectedEjercicio?.maquina.imagen!="" ? (
+                    <Image source={{ uri: `http://${IP}/img/maquinas/${selectedEjercicio?.maquina.id}/${selectedEjercicio?.maquina.imagen}` }} style={styles.imagenModal} />
+            ):(
+                    <Text>No existe Imagen</Text>
+            )}  
             <Text style={styles.modalTitle}>{selectedEjercicio?.maquina.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedEjercicio?.maquina.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModalMaquina}>

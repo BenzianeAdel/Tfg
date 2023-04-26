@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, Image, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Image, FlatList, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Avatar, ListItem } from 'react-native-elements';
 import { CheckBox } from 'react-native-elements';
 import { Icon } from 'react-native-elements';
@@ -18,6 +18,7 @@ const GestionUsers = ({navigation}) => {
     const [apellidos,setApellidos] = useState('');
     const [password,setPassword] = useState('');
     const [email,setEmail] = useState('');
+    const [id,setId] = useState(0);
     const [activo,setActivo] = useState(false);
     const [busqueda, setBusqueda] = useState('');
 
@@ -48,7 +49,47 @@ const GestionUsers = ({navigation}) => {
   };
   const editarUsuario = (usuario) => {
     setSelectedUsuario(usuario);
+    setApellidos(usuario.apellidos);
+    setNombre(usuario.nombre);
+    setEmail(usuario.email);
+    setActivo(usuario.acceso);
+    setPassword(usuario.password);
+    setId(usuario.id);
     toggleModal();
+  };
+  async function eliminarUsuario (usuario) {
+    Alert.alert(
+      'Confirmar Eliminación',
+      '¿Estás seguro de que deseas eliminar este usuario?',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => {
+          },
+          style: 'cancel',
+        },
+        {
+          text: 'Aceptar',
+          onPress: async () => {
+            try {
+              const respuesta = await fetch(`http://${IP}/usuarioMovil/eliminar/${usuario.id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Puedes agregar aquí el token de autenticación si es necesario
+              });
+              if (respuesta.ok) {
+                cargarUsuarios();
+              } else {
+                console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
   async function guardarCambios() {
     if (!nombre || !apellidos || !password || !email) {
@@ -71,7 +112,7 @@ const GestionUsers = ({navigation}) => {
       });
       if (respuesta.ok) {
         cargarUsuarios();
-        closeModal(); // Cerrar el modal después de guardar la enfermedad
+        toggleModal(); // Cerrar el modal después de guardar la enfermedad
       } else {
         alert('Por favor, el correo introducido ya existe en el sistema, introduce otro');
       }
@@ -104,9 +145,16 @@ const GestionUsers = ({navigation}) => {
             <Text style={styles.nombreUsuario}>{usuario.nombre} ({usuario.tipoUser})</Text>
             <Text style={styles.emailUsuario}>{usuario.email}</Text>
           </View>
+          <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.enviarButton} onPress={() => editarUsuario(usuario)}>
             <Icon name='edit' type='font-awesome-5' color='black' size={16} />
           </TouchableOpacity>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.enviarButton} onPress={() => eliminarUsuario(usuario)}>
+              <Icon name='trash' type='font-awesome-5' color='black' size={16} />
+            </TouchableOpacity>
+          </View>
         </View>
         </TouchableOpacity>
       ))}
@@ -117,29 +165,29 @@ const GestionUsers = ({navigation}) => {
                 style={styles.input}
                 onChangeText={setEmail}
                 placeholder="Correo Electrónico"
-                value={selectedUsuario?.email}
+                value={email}
             />
             <TextInput
                 style={styles.input}
                 onChangeText={setApellidos}
                 placeholder="Apellidos"
-                value={selectedUsuario?.apellidos}
+                value={apellidos}
             />
             <TextInput
                 style={styles.input}
                 onChangeText={setNombre}
                 placeholder="Nombre"
-                value={selectedUsuario?.nombre}
+                value={nombre}
             />
             <TextInput
                 style={styles.input}
                 onChangeText={setPassword}
                 placeholder="Contraseña"
-                value={selectedUsuario?.password}
+                value={password}
             />
             <CheckBox
                 title='Permitir acceso'
-                checked={selectedUsuario?.acceso}
+                checked={activo}
                 onPress={handleCheck}
             />
             <TouchableOpacity style={styles.botonGuardar} onPress={guardarCambios}>
@@ -256,6 +304,9 @@ const styles = StyleSheet.create({
     textoBotonCancelar: {
         color: 'white',
         fontWeight: 'bold',
+    },
+    buttonContainer: {
+      marginHorizontal: 8,
     },
   });
   export default GestionUsers;

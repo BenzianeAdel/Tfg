@@ -32,8 +32,7 @@ const RegistroScreen = () => {
       setErrorMessage('Por favor ingrese un correo electrónico válido.');
       return;
     }
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
-    if (!passwordRegex.test(password)) {
+    if (password.length < 8 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
       setErrorMessage('La contraseña debe tener al menos 8 caracteres, incluyendo al menos un número, una letra mayúscula y una letra minúscula.');
       return;
     }

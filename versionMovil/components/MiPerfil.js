@@ -1,11 +1,11 @@
 import React, { useState, useEffect} from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, ScrollView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ImageBackground, Alert, ScrollView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import IP from '../config';
 
-const MiPerfil = () => {
+const MiPerfil = ({navigation}) => {
   const [userData, setUserData] = useState(null);
   const [nombre, setNombre] = useState('');
   const [apellidos, setApellidos] = useState('');
@@ -31,6 +31,40 @@ const MiPerfil = () => {
     loadUserData();
   }, []);
 
+  const eliminarUsuario = () => {
+    Alert.alert(
+      'Confirmar Eliminación',
+      '¿Estás seguro de que deseas eliminar tu perfil?',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => {
+          },
+          style: 'cancel',
+        },
+        {
+          text: 'Aceptar',
+          onPress: async () => {
+            try {
+              const respuesta = await fetch(`http://${IP}/perfilMovil/eliminar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+              });
+              if (respuesta.ok) {
+                navigation.navigate('Inicio Sesion');
+              } else {
+                console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const handleEdit = () => {
     setEditing(true);
   };
@@ -44,8 +78,7 @@ const MiPerfil = () => {
       setErrorMessage('Por favor ingrese un correo electrónico válido.');
       return;
     }
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
-    if (!passwordRegex.test(password)) {
+    if (password.length < 8 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
       setErrorMessage('La contraseña debe tener al menos 8 caracteres, incluyendo al menos un número, una letra mayúscula y una letra minúscula.');
       return;
     }
@@ -67,11 +100,16 @@ const MiPerfil = () => {
       if (response.ok) {
         const data = await response.json();
         await AsyncStorage.setItem('userData',JSON.stringify(data));
+        const userDataString = await AsyncStorage.getItem('userData');
+        const newUserDataResponse = JSON.parse(userDataString);
+        setUserData(newUserDataResponse);
+        setErrorMessage('');
+        setEditing(false);
       }
-      const userDataString = await AsyncStorage.getItem('userData');
-      const newUserDataResponse = JSON.parse(userDataString);
-      setUserData(newUserDataResponse);
-      setEditing(false);
+      else{
+        const errorData = await response.json();
+        alert(errorData.message);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -85,9 +123,14 @@ const MiPerfil = () => {
               <FontAwesome name="check-circle" size={24} color="white" />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-              <FontAwesome name="edit" size={24} color="white" />
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+                <FontAwesome name="edit" size={24} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.eliminarButton} onPress={() => eliminarUsuario()}>
+                <FontAwesome name='trash' color='white' size={24} />
+              </TouchableOpacity>
+            </View>
           )}
         </View>
         <View style={styles.error}>
@@ -189,6 +232,13 @@ const styles = StyleSheet.create({
       borderRadius: 5,
       marginBottom: 10,
     },
+    eliminarButton: {
+      marginLeft: 10,
+      backgroundColor: '#FF2A2A',
+      padding: 10,
+      borderRadius: 5,
+      marginBottom: 10,
+    },
     content: {
       backgroundColor: '#fff',
       paddingHorizontal: 20,
@@ -243,6 +293,9 @@ const styles = StyleSheet.create({
       color: '#FF6F6F',
       fontSize: 16,
       fontWeight: 'bold',
+    },
+    buttonContainer: {
+      marginHorizontal: 8,
     },
   });
   export default MiPerfil;

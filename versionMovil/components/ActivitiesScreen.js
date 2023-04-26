@@ -90,7 +90,11 @@ const ActivitiesScreen = ({ route }) => {
       {selectedMaquina && (
         <Modal visible={true} animationType="slide">
             <View style={styles.modalContainer}>
-            <Image source={{ uri: `http://${IP}/img/maquinas/${selectedMaquina.id}/${selectedMaquina.imagen}` }} style={styles.imagenModal} />
+            {selectedMaquina?.imagen!="" ? (
+                 <Image source={{ uri: `http://${IP}/img/maquinas/${selectedMaquina.id}/${selectedMaquina.imagen}` }} style={styles.imagenModal} />
+            ):(
+                <Text>No existe Imagen</Text>
+            )}
             <Text style={styles.modalTitle}>{selectedMaquina.nombre}</Text>
             <Text style={styles.modalSubtitle}>Fecha de registro: {selectedMaquina.registro}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={handleModalMaquinaClose}>
