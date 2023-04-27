@@ -3,13 +3,12 @@ import { StyleSheet, View, FlatList, Image, Text, TextInput, TouchableOpacity, I
 import { ScrollView } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
 import { Avatar, Icon } from 'react-native-elements';
-import * as ImagePicker from 'expo-image-picker';
 import {Alert} from 'react-native'
 import  { map , size, filter } from 'lodash';
 import IP from '../config';
 import { loadImageFromGallery } from './util';
 
-function UploadImage({toastRef,imagesSelected,setImagesSelected}){
+function UploadImage({imagesSelected,setImagesSelected}){
   const imageSelect = async()=>{
     const response = await loadImageFromGallery([4,3])
     if(!response.status){
@@ -72,7 +71,7 @@ function UploadImage({toastRef,imagesSelected,setImagesSelected}){
     </ScrollView>
   )
 }
-const NewActividad = ({navigation,toastRef}) => {
+const NewActividad = ({navigation}) => {
     const [nombre,setNombre] = useState('');
     const [repeticiones,setRepeticiones] = useState(1);
     const [series,setSeries] = useState(1);
@@ -201,7 +200,6 @@ const NewActividad = ({navigation,toastRef}) => {
               </Picker>
             </View>
             <UploadImage
-              toastRef={toastRef}
               imagesSelected={imagesSelected}
               setImagesSelected={setImagesSelected}
             />

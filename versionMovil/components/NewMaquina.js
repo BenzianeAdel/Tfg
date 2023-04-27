@@ -1,18 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, Image, Text, Button, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePicker  from '@react-native-community/datetimepicker';
-import { Icon } from 'react-native-elements';
-import * as ImagePicker from 'expo-image-picker';
-import { MultipleSelectList } from 'react-native-dropdown-select-list';
+import { Avatar, Icon } from 'react-native-elements';
 import IP from '../config';
+import  { filter } from 'lodash';
+import { loadImageFromGallery } from './util';
+import {Alert} from 'react-native'
 
+function UploadImage({imageSelected,setImageSelected}){
+  const imageSelect = async()=>{
+    const response = await loadImageFromGallery([4,3])
+    if(!response.status){
+      return
+    }
+    setImageSelected(response.image)
+  }
+  const removeImage = (image) =>{
+    Alert.alert(
+      "Eliminar Imagen",
+      "¿Estas seguro que quieres eliminar la imagen?",
+      [
+        {
+          text: "No",
+          style:"cancel"
+        },
+        {
+          text: "Si",
+          onPress: ()=>{
+            setImageSelected(null)
+          }
+        }
+      ],
+      {
+        canelable:true
+      }
+    )
+  }
+  return (
+    <ScrollView
+     horizontal
+     style={styles.viewImage}
+    >
+      {
+        imageSelected==null && (
+          <Icon
+          type="material-comunity"
+          name="image"
+          color="#000000"
+          size={70}
+          containerStyle={styles.containerIcon}
+          onPress={imageSelect}
+        ></Icon> 
+        )    
+      }
+      {
+        imageSelected != null && (
+          <Avatar
+              style={styles.miniaturesStyle}
+              source={{uri: imageSelected[0].uri}}
+              onPress={()=> removeImage(imageSelected)}
+         />
+        )
+      }
+      
+    </ScrollView>
+  )
+}
 const NewMaquina = ({navigation}) => {
     const [nombre,setNombre] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
     const [showPicker, setShowPicker] = useState(false);
     const [registro, setRegistro] = useState(new Date());
+    const [imageSelected, setImageSelected] = useState(null);
 
 
     const handleDateChange = (event, selectedDate) => {
@@ -30,14 +90,24 @@ const NewMaquina = ({navigation}) => {
           return;
         }
         try {
+          const formData = new FormData();
           const requestData = {
             nombre: nombre,
             registro: registro
           };
+          formData.append('data', JSON.stringify(requestData));
+          const image = imageSelected[0];
+          formData.append('imagen', {
+                  uri: image.uri,
+                  name: 'image'+'.jpg',
+                  type: 'image/jpeg'
+          });
           const respuesta = await fetch(`http://${IP}/maquinasMovil`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)
+            headers: {
+                  'Content-Type': 'multipart/form-data'
+            },
+            body: formData
           });
           if (respuesta.ok) {
             navigation.navigate('Gestion Maquinas');
@@ -78,6 +148,10 @@ const NewMaquina = ({navigation}) => {
                 onChange={handleDateChange}
             />
             )}
+            <UploadImage
+              imageSelected={imageSelected}
+              setImageSelected={setImageSelected}
+            />
             </View>
               <TouchableOpacity style={styles.crearButton} onPress={() => crearMaquina()}>
                 <Text style={styles.buttonText}><Icon name='plus' type='font-awesome-5' color='#fff' size={16} /> Crear Maquina</Text>
@@ -186,6 +260,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  viewImage: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginTop: 30,
+  },
+  containerIcon:{
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    height: 70,
+    width:70,
+    backgroundColor: "#e3e3e3",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  miniaturesStyle: {
+    width: 70,
+    height: 70,
+    marginRight: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  }
 });
 
 export default NewMaquina;

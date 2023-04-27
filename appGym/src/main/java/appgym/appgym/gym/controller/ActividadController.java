@@ -172,31 +172,6 @@ public class ActividadController {
 
         return "redirect:/actividades";
     }
-    /*@PostMapping("/crearActividadMovil")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void crearActividadMovil(@RequestBody ActividadData actividadData){
-        Actividad a = new Actividad();
-        a.setNombre(actividadData.getNombre());
-        a.setSeries(actividadData.getSeries());
-        a.setRepeticiones(actividadData.getRepeticiones());
-        if(actividadData.getMaquina()==null){
-            a.setMaquina(null);
-        }else{
-            a.setMaquina(actividadData.getMaquina());
-        }
-        a.setZonaCuerpo(actividadData.getZonaCuerpo());
-        a.setMultimedia(new ArrayList<>());
-        actividadService.registrar(a);
-        try {
-            Path rutaCarpeta = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/");
-            // Verifica si la carpeta existe y si no la crea
-            if (!Files.exists(rutaCarpeta)) {
-                Files.createDirectories(rutaCarpeta);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }*/
     @PostMapping("/crearActividadMovil")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void crearActividadMovil(@RequestParam("data")String datos,@RequestPart("images") List<MultipartFile> images) throws IOException {

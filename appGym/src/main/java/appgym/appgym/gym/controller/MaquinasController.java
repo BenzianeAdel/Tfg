@@ -7,6 +7,8 @@ import appgym.appgym.gym.model.User;
 import appgym.appgym.gym.model.Usuario;
 import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -92,20 +94,34 @@ public class MaquinasController {
     }
     @PostMapping("/maquinasMovil")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void nuevaMaquinas(@RequestBody MaquinaData maquinaData){
+    public void nuevaMaquinas(@RequestParam("data")String datos,@RequestPart("imagen") MultipartFile imagen){
+        ObjectMapper objectMapper = new ObjectMapper();
+        MaquinaData maquinaData = null;
+        try {
+            maquinaData = objectMapper.readValue(datos, MaquinaData.class);
+        } catch (JsonProcessingException e) {
+        }
         Maquina m = new Maquina();
-        m.setImagen("");
+        m.setImagen(imagen.getOriginalFilename());
         m.setNombre(maquinaData.getNombre());
         m.setRegistro(maquinaData.getRegistro());
         maquinaService.registrar(m);
+        if (!imagen.isEmpty()) {
             try {
+                byte[] bytesImagen = imagen.getBytes();
                 Path rutaCarpeta = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/");
+                Path rutaImagen = Paths.get(rutaCarpeta.toString() + imagen.getOriginalFilename());
+                // Verifica si la carpeta existe y si no la crea
                 if (!Files.exists(rutaCarpeta)) {
                     Files.createDirectories(rutaCarpeta);
                 }
+                Path rutaFinal = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/"+imagen.getOriginalFilename());
+                Files.write(rutaFinal, bytesImagen);
+                maquinaData.setImagen(imagen);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
     }
     @PostMapping("/maquinas/eliminar")
     public String EliminarMaquina(MaquinaData maquinaData, RedirectAttributes flash){
