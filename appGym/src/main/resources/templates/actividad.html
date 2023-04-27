@@ -513,7 +513,7 @@
                             <div class="card">
                                 <div th:id="carouselExampleControlsFavoritas + ${rutina.id} + ${actividad.id}" class="carousel slide" data-ride="carousel" data-interval="false">
                                     <div th:if="${actividad.multimedia.isEmpty()}">
-                                        <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" alt="Imagen de la actividad">
+                                        <img class="card-img-top mx-auto d-block" style="height: 500px;width: 500px" alt="No existe imagenes">
                                     </div>
                                     <div class="carousel-inner">
                                         <div th:each="imagen, iterStat : ${actividad.multimedia}" class="carousel-item" th:classappend="${iterStat.first} ? 'active'">
@@ -605,7 +605,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="card">
-                        <img id="modal-image" style="height: 400px;width: 400px" src="" />
+                        <img id="modal-image" style="height: 400px;width: 400px" src="" alt=" Lo sentimos No existe imagenes"/>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -41,13 +41,11 @@ const EnfermedadesScreen = () => {
     setModalVisible(true);
   }
 
-  // Función para eliminar una enfermedad
   async function eliminarEnfermedad(id){
     try {
         const respuesta = await fetch(`http://${IP}/enfermedadesMovil/${id}/borrar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Puedes agregar aquí el token de autenticación si es necesario
         });
         if (respuesta.ok) {
             setEstadoActualizado(!estadoActualizado);
@@ -60,7 +58,6 @@ const EnfermedadesScreen = () => {
     setEnfermedades(enfermedades.filter(enfermedad => enfermedad.id !== id));
   }
   async function guardarEnfermedad() {
-    // Validar que se hayan ingresado los datos necesarios (lesión y zona)
     if (lesion === '' || !selectedZona) {
       alert('Por favor, complete todos los campos');
       return;
@@ -78,7 +75,7 @@ const EnfermedadesScreen = () => {
       });
       if (respuesta.ok) {
         setEstadoActualizado(!estadoActualizado);
-        closeModal(); // Cerrar el modal después de guardar la enfermedad
+        closeModal();
       } else {
         console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
       }

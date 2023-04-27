@@ -5,6 +5,8 @@ import appgym.appgym.gym.model.*;
 import appgym.appgym.gym.service.ActividadService;
 import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.annotation.MultipartConfig;
@@ -169,7 +172,7 @@ public class ActividadController {
 
         return "redirect:/actividades";
     }
-    @PostMapping("/crearActividadMovil")
+    /*@PostMapping("/crearActividadMovil")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void crearActividadMovil(@RequestBody ActividadData actividadData){
         Actividad a = new Actividad();
@@ -192,6 +195,51 @@ public class ActividadController {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }*/
+    @PostMapping("/crearActividadMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void crearActividadMovil(@RequestParam("data")String datos,@RequestPart("images") List<MultipartFile> images) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ActividadData actividadData = null;
+        try {
+            actividadData = objectMapper.readValue(datos, ActividadData.class);
+        } catch (JsonProcessingException e) {
+        }
+        actividadData.setArchivos(images);
+        Actividad a = new Actividad();
+        a.setNombre(actividadData.getNombre());
+        a.setSeries(actividadData.getSeries());
+        a.setRepeticiones(actividadData.getRepeticiones());
+        if(actividadData.getMaquina()==null){
+            a.setMaquina(null);
+        }else{
+            a.setMaquina(actividadData.getMaquina());
+        }
+        a.setZonaCuerpo(actividadData.getZonaCuerpo());
+        actividadService.registrar(a);
+        for(int i=0;i<actividadData.getArchivos().size();i++){
+            Multimedia m = new Multimedia();
+            m.setActividad(a);
+            m.setNombre(actividadData.getArchivos().get(i).getOriginalFilename());
+            actividadService.registrar(m);
+        }
+        for (MultipartFile archivo : images) {
+            if (!archivo.isEmpty()) {
+                try {
+                    byte[] bytesImagen = archivo.getBytes();
+                    Path rutaCarpeta = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/");
+                    Path rutaImagen = Paths.get(rutaCarpeta.toString() + archivo.getOriginalFilename());
+                    // Verifica si la carpeta existe y si no la crea
+                    if (!Files.exists(rutaCarpeta)) {
+                        Files.createDirectories(rutaCarpeta);
+                    }
+                    Path rutaFinal = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/"+archivo.getOriginalFilename());
+                    Files.write(rutaFinal, bytesImagen);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     @PostMapping("/rutinas")

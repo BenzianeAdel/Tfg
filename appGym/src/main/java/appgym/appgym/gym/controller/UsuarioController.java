@@ -134,6 +134,11 @@ public class UsuarioController {
         Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
         return u.getEnfermedades();
     }
+    @GetMapping("/tipoUsuariosMovil")
+    @ResponseBody
+    public User[] getTipoUsuarios(){
+        return User.values();
+    }
     @GetMapping("/zonasCuerpoMovil")
     @ResponseBody
     public ZonaCuerpo[] zonas(){
@@ -242,6 +247,11 @@ public class UsuarioController {
     public void EliminarperfilMovil(){
         eliminarPerfil(managerUserSession.usuarioLogeado());
         managerUserSession.logout();
+    }
+    @PostMapping("/usuarioMovil/eliminar/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminarUsuarioPerfilMovil(@PathVariable("id")Long idU){
+        eliminarPerfil(idU);
     }
     @GetMapping("/users")
     public String users(Model model){

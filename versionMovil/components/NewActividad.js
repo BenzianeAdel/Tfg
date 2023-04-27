@@ -2,11 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, FlatList, Image, Text, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
-import { Icon } from 'react-native-elements';
+import { Avatar, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
+import {Alert} from 'react-native'
+import  { map , size, filter } from 'lodash';
 import IP from '../config';
+import { loadImageFromGallery } from './util';
 
-const NewActividad = ({navigation}) => {
+function UploadImage({toastRef,imagesSelected,setImagesSelected}){
+  const imageSelect = async()=>{
+    const response = await loadImageFromGallery([4,3])
+    if(!response.status){
+      return
+    }
+    setImagesSelected([...imagesSelected,response.image])
+  }
+  const removeImage = (image) =>{
+    Alert.alert(
+      "Eliminar Imagen",
+      "¿Estas seguro que quieres eliminar la imagen?",
+      [
+        {
+          text: "No",
+          style:"cancel"
+        },
+        {
+          text: "Si",
+          onPress: ()=>{
+            setImagesSelected(
+              filter(imagesSelected,(imageUrl)=> imageUrl !==image)
+            )
+          }
+        }
+      ],
+      {
+        canelable:true
+      }
+    )
+  }
+  return (
+    <ScrollView
+     horizontal
+     style={styles.viewImages}
+    >
+      {
+        size(imagesSelected)<10 && (
+          <Icon
+          type="material-comunity"
+          name="image"
+          color="#000000"
+          size={70}
+          containerStyle={styles.containerIcon}
+          onPress={imageSelect}
+        ></Icon> 
+        )    
+      }
+      {
+        map(imagesSelected, (imageActividad,index) => {
+          return (
+            <Avatar
+              key={index}
+              style={styles.miniaturesStyle}
+              source={{uri: imageActividad[0].uri}}
+              onPress={()=> removeImage(imageActividad)}
+            />
+          );
+        })
+      }
+    </ScrollView>
+  )
+}
+const NewActividad = ({navigation,toastRef}) => {
     const [nombre,setNombre] = useState('');
     const [repeticiones,setRepeticiones] = useState(1);
     const [series,setSeries] = useState(1);
@@ -15,6 +81,7 @@ const NewActividad = ({navigation}) => {
     const [zonas,setZonas] = useState([]);
     const [selectedZona, setSelectedZona] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
+    const [imagesSelected, setImagesSelected]= useState([]);
 
     useEffect(() => {
         fetch(`http://${IP}/maquinasSala`)
@@ -47,23 +114,35 @@ const NewActividad = ({navigation}) => {
         return;
         }
         try {
+          const formData = new FormData();
           const requestData = {
             nombre: nombre,
             maquina: selectedMaquina,
             repeticiones: repeticiones,
             series: series,
             zonaCuerpo: selectedZona
-          };
-          const respuesta = await fetch(`http://${IP}/crearActividadMovil`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)
+          }
+          formData.append('data', JSON.stringify(requestData));
+          for (let i = 0; i < imagesSelected.length; i++) {
+              const image = imagesSelected[i][0];
+              formData.append('images', {
+                  uri: image.uri,
+                  name: 'image'+i+'.jpg',
+                  type: 'image/jpeg'
+              });
+          }
+          const response = await fetch(`http://${IP}/crearActividadMovil`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              },
+              body: formData
           });
-          if (respuesta.ok) {
+          if (response.ok) {
             navigation.navigate('Gestion Ejercicios');
             alert("La actividad se ha creado correctamente");
           } else {
-            console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+            console.error(`Error ${response.status}: ${response.statusText}`);
           }
         } catch (error) {
           console.error(error);
@@ -121,6 +200,11 @@ const NewActividad = ({navigation}) => {
                 ))}
               </Picker>
             </View>
+            <UploadImage
+              toastRef={toastRef}
+              imagesSelected={imagesSelected}
+              setImagesSelected={setImagesSelected}
+            />
               <TouchableOpacity style={styles.crearButton} onPress={() => crearActividad()}>
                 <Text style={styles.buttonText}><Icon name='plus' type='font-awesome-5' color='#fff' size={16} /> Crear Actividad</Text>
               </TouchableOpacity>
@@ -228,6 +312,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  viewImages: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginTop: 30,
+  },
+  containerIcon:{
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    height: 70,
+    width:70,
+    backgroundColor: "#e3e3e3",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  miniaturesStyle: {
+    width: 70,
+    height: 70,
+    marginRight: 10,
+    borderRadius: 10,
+  }
 });
 
 export default NewActividad;

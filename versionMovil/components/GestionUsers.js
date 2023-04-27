@@ -111,15 +111,21 @@ const GestionUsers = ({navigation}) => {
         body: JSON.stringify(requestData),
       });
       if (respuesta.ok) {
+        const data = await response.json();
+        alert(data.message);
         cargarUsuarios();
         toggleModal(); // Cerrar el modal después de guardar la enfermedad
       } else {
-        alert('Por favor, el correo introducido ya existe en el sistema, introduce otro');
+        const errorData = await response.json();
+        alert(errorData.message);
       }
     } catch (error) {
       console.error(error);
     }
   }
+  const anyadirUsuario = () => {
+    navigation.navigate('Nuevo Usuario');
+  };
 
   return (
     
@@ -132,6 +138,9 @@ const GestionUsers = ({navigation}) => {
           onChangeText={texto => setBusqueda(texto)}
         />
       </View>
+      <TouchableOpacity style={styles.botonCrear} onPress={() => anyadirUsuario()}>
+        <Text style={styles.textoBotonCrear}><Icon name='plus' type='font-awesome-5' color='#FFDC00' size={20} /> Nuevo Usuario</Text>
+      </TouchableOpacity>
       {usuariosFiltrados.map(usuario => (
         <TouchableOpacity key={usuario.id.toString()} onPress={() => editarUsuario(usuario)}>
         <View key={usuario.id} style={styles.usuarioContainerR}>
@@ -307,6 +316,18 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
       marginHorizontal: 8,
+    },
+    botonCrear: {
+      padding: 10,
+      backgroundColor: 'blue',
+      borderRadius: 5,
+      alignSelf: 'center',
+      marginBottom: 10,
+    },
+    textoBotonCrear: {
+      color: 'white',
+      fontSize: 18,
+      fontWeight: "bold",
     },
   });
   export default GestionUsers;

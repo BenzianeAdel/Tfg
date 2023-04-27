@@ -205,10 +205,10 @@
                             <input type="password" th:field="*{password}" class="form-control" id="contrasena" name="contrasena" required/>
                         </div>
                         <div class="form-group">
-                            <label for="birthdate">Fecha de Nacimiento:</label>
-                            <div class="input-group date" id="birthdatePicker" data-target-input="nearest">
-                                <input type="text"  class="form-control datetimepicker-input" id="birthdate" name="birthdate" data-target="#birthdatePicker" th:field="*{fechaNacimiento}" required />
-                                <div class="input-group-append" data-target="#birthdatePicker" data-toggle="datetimepicker">
+                            <label for="birthdateNew">Fecha de Nacimiento:</label>
+                            <div class="input-group date" id="birthdatePickerNew" data-target-input="nearest">
+                                <input type="text"  class="form-control datetimepicker-input" id="birthdateNew" name="birthdateNew" data-target="#birthdatePickerNew" th:field="*{fechaNacimiento}" required />
+                                <div class="input-group-append" data-target="#birthdatePickerNew" data-toggle="datetimepicker">
                                     <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                 </div>
                             </div>
@@ -336,6 +336,17 @@
 
         $('#birthdatePicker').on('change.datetimepicker', function(e) {
             $('#birthdate').val(e.date.format('L'));
+        });
+    });
+    $(document).ready(function() {
+        $('#birthdatePickerNew').datetimepicker({
+            format: 'L',
+            defaultDate: moment().subtract(18, 'years'),
+            maxDate: moment().subtract(18, 'years')
+        });
+
+        $('#birthdatePickerNew').on('change.datetimepickernew', function(e) {
+            $('#birthdateNew').val(e.date.format('L'));
         });
     });
     $('#editarUsuarioModal').on('show.bs.modal', function (event) {

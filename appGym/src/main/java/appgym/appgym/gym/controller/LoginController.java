@@ -186,6 +186,29 @@ public class LoginController {
         return "redirect:/users";
     }
 
+    @PostMapping("/newUserMovil")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Object> registroNewSubmitMovil(@RequestBody UsuarioData usuarioData) {
+        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuario == null){
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setPassword(usuarioData.getPassword());
+            nuevoUsuario.setFechaNacimiento(usuarioData.getFechaNacimiento());
+            nuevoUsuario.setNombre(usuarioData.getNombre());
+            nuevoUsuario.setEmail(usuarioData.geteMail());
+            nuevoUsuario.setApellidos(usuarioData.getApellidos());
+            nuevoUsuario.setAcceso(true);
+            nuevoUsuario.setEnabled(true);
+            nuevoUsuario.setTipoUser(usuarioData.getUser());
+            usuarioService.registrar(nuevoUsuario);
+            ApiResponse response = new ApiResponse("El Usuario se ha creado correctamente");
+            return ResponseEntity.ok().body(response);
+        }else{
+            ApiResponse response = new ApiResponse("El usuario " + usuarioData.geteMail() + " ya existe");
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @GetMapping("/olvidar")
     public String olvidarForm(Model model) {
         model.addAttribute("resetData", new UsuarioData());
