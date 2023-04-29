@@ -91,6 +91,7 @@ const LoginScreen = ({ navigation }) => {
             style={styles.input}
             autoCapitalize="none"
             placeholder="Correo electrónico"
+            keyboardType="email-address"
             onChangeText={(text) => setUsername(text)}
             value={username}
           />
