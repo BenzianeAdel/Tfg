@@ -110,6 +110,16 @@
   </div>
 </nav>
 <h1>Ranking de usuarios</h1>
+<div style="display:flex; justify-content:center;">
+  <div class="col-md-6">
+    <form method="GET" action="/ranking">
+      <div style="display:flex;">
+        <input class="form-control" type="text" name="busca" id="busca" th:value="${busca}" placeholder="Buscar usuario cliente">
+        <button class="btn btn-info" type="submit" style="margin-left:10px;">Buscar</button>
+      </div>
+    </form>
+  </div>
+</div>
 <table>
   <thead>
   <tr>

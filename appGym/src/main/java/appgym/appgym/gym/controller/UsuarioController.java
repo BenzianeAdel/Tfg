@@ -48,6 +48,8 @@ public class UsuarioController {
         else{
             if (u.getTipoUser()==User.monitor){
                 usuarioService.eliminarRelacionesMonitor(u);
+                actividadService.eliminarCreadorActividad(u);
+                actividadService.eliminarCreadorRutina(u);
             }
         }
         usuarioService.eliminarUsuario(u);
@@ -69,9 +71,9 @@ public class UsuarioController {
         model.addAttribute("esAdmin",User.admin);
         model.addAttribute("esCliente",User.cliente);
         model.addAttribute("usuario",u);
-        model.addAttribute("monitores",usuarioService.findAllTip(User.monitor,null).size());
-        model.addAttribute("admins",usuarioService.findAllTip(User.admin,null).size());
-        model.addAttribute("clientes",usuarioService.findAllTip(User.cliente,null).size());
+        model.addAttribute("monitores",usuarioService.findAllTip(null,User.monitor,null).size());
+        model.addAttribute("admins",usuarioService.findAllTip(null,User.admin,null).size());
+        model.addAttribute("clientes",usuarioService.findAllTip(null,User.cliente,null).size());
         model.addAttribute("actividades",actividadService.findAll().size());
         model.addAttribute("reservacion",actividadService.findAllReservas().size());
         model.addAttribute("rutinas",actividadService.findAllRutinas().size());
@@ -254,13 +256,13 @@ public class UsuarioController {
         eliminarPerfil(idU);
     }
     @GetMapping("/users")
-    public String users(Model model){
+    public String users(Model model,@Param("busca")String busca){
         if(!comprobarLogueado()){
             return "redirect:/login";
         }
-        List<Usuario> cl = usuarioService.findAllTip(User.cliente,null);
-        List<Usuario> admins = usuarioService.findAllTip(User.admin,null);
-        List<Usuario> mon = usuarioService.findAllTip(User.monitor,null);
+        List<Usuario> cl = usuarioService.findAllTip(busca,User.cliente,null);
+        List<Usuario> admins = usuarioService.findAllTip(busca,User.admin,null);
+        List<Usuario> mon = usuarioService.findAllTip(busca,User.monitor,null);
         Long idu = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(idu);
         model.addAttribute("esAdmin",User.admin);
@@ -284,7 +286,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/ranking")
-    public String ranking(Model model){
+    public String ranking(Model model,@Param("busca")String busca){
         if(!comprobarLogueado()){
             return "redirect:/login";
         }
@@ -293,7 +295,7 @@ public class UsuarioController {
         model.addAttribute("esAdmin",User.admin);
         model.addAttribute("esCliente",User.cliente);
         model.addAttribute("usuario",u);
-        List<Usuario>users = usuarioService.findAllTip(User.cliente,null);
+        List<Usuario>users = usuarioService.findAllTip(busca,User.cliente,null);
         Collections.sort(users, Comparator.comparing(Usuario::getPuntos).reversed());
         model.addAttribute("users",users);
         return "ranking";
@@ -301,7 +303,7 @@ public class UsuarioController {
     @GetMapping("/rankingUsersMovil")
     @ResponseBody
     public List<Usuario> rankingMovil(Model model){
-        List<Usuario>users = usuarioService.findAllTip(User.cliente,null);
+        List<Usuario>users = usuarioService.findAllTip(null,User.cliente,null);
         Collections.sort(users, Comparator.comparing(Usuario::getPuntos).reversed());
         model.addAttribute("users",users);
         return users;
@@ -332,7 +334,7 @@ public class UsuarioController {
     public List<Usuario> usuarios(){
         Long id = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(id);
-        List<Usuario> cl = usuarioService.findAllTip(User.cliente,id);
+        List<Usuario> cl = usuarioService.findAllTip(null,User.cliente,id);
         List<Usuario>noamigos = usuarioService.noamigos(cl,id);
         return noamigos;
     }
@@ -341,7 +343,7 @@ public class UsuarioController {
     public List<Usuario> misamigos(){
         Long id = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(id);
-        List<Usuario> cl = usuarioService.findAllTip(User.cliente,id);
+        List<Usuario> cl = usuarioService.findAllTip(null,User.cliente,id);
         List<Usuario>amigos = usuarioService.misamigos(cl,id);
         return amigos;
     }
@@ -350,7 +352,7 @@ public class UsuarioController {
     public List<Usuario> rankingAmigos(){
         Long id = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(id);
-        List<Usuario> cl = usuarioService.findAllTip(User.cliente,id);
+        List<Usuario> cl = usuarioService.findAllTip(null,User.cliente,id);
         List<Usuario>amigos = usuarioService.misamigos(cl,id);
         List<Usuario> usersRankings = new ArrayList<>(amigos);
         usersRankings.add(u);

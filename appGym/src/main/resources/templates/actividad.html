@@ -63,6 +63,18 @@
     </div>
 </nav>
 <div class="container">
+    &nbsp;
+    <div style="display:flex; justify-content:center;">
+        <div class="col-md-6">
+            <form method="GET" action="/actividades">
+                <div style="display:flex;">
+                    <input class="form-control" type="text" name="busca" id="busca" placeholder="Buscar actividad o rutina o reserva">
+                    <button class="btn btn-info" type="submit" style="margin-left:10px;">Buscar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    &nbsp;
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link" href="#actividades" data-toggle="tab">Actividades</a>
@@ -110,6 +122,10 @@
         <div class="tab-pane active" id="actividades">
             <button th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaActividadModal">Nueva Actividad</button>
             <button th:if="${tipo == false && usuario.getTipoUser() != esAdmin}" type="button" class="btn btn-info" data-toggle="modal" data-target="#nuevaRutinaModal">Nueva Rutina</button>
+            &nbsp;
+            <li class="list-group-item" th:if="${actividades.isEmpty()}">
+                <span>No se encontraron actividades</span>
+            </li>
             <div class="row">
                 <div class="col-md-6" th:each="actividad : ${actividades}">
                     <div class="card">
@@ -151,7 +167,7 @@
                             <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.id + '/' + actividad.maquina.imagen}">
                                 [[${actividad.maquina.nombre}]]
                             </button>
-                                <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarActividadModal" th:data-id="${actividad.id}">
+                                <a th:if="${actividad.creador != null && usuario.id == actividad.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarActividadModal" th:data-id="${actividad.id}">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </p>
@@ -225,7 +241,7 @@
                     <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
                         Reservar
                     </button>
-                    <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                    <a th:if="${usuario.id == rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
                         <i class="fas fa-trash"></i>
                     </a>
                     <!-- Agregamos un evento 'click' al elemento de la rutina -->
@@ -317,7 +333,7 @@
                     <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
                         Reservar
                     </button>
-                    <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                    <a th:if="${usuario.id==rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
                         <i class="fas fa-trash"></i>
                     </a>
                     <!-- Agregamos un evento 'click' al elemento de la rutina -->
@@ -490,7 +506,7 @@
                     <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
                         Reservar
                     </button>
-                    <a th:if="${usuario.getTipoUser()!=esAdmin && usuario.getTipoUser()!=esCliente}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                    <a th:if="${usuario.id==rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
                         <i class="fas fa-trash"></i>
                     </a>
                     <!-- Agregamos un evento 'click' al elemento de la rutina -->
@@ -575,7 +591,7 @@
                             <label for="monitor-select">Selecciona un monitor:</label>
                             <select th:field="*{idMonitor}" class="form-control" id="monitor-select" required>
                                 <option value="">-- Seleccionar --</option>
-                                <option th:each="monitor : ${monitores}"  th:value="${monitor.id}" th:text="${monitor.nombre}"></option>
+                                <option th:each="monitor : ${monitores}"  th:value="${monitor.id}" th:text="${'('+ monitor.nombre+') '+ monitor.email}"></option>
                             </select>
                         </div>
                         <input type="hidden" th:field="*{idRutina}" name="rutinaId" id="rutinaId"/>
@@ -684,7 +700,9 @@
                         <div class="form-group">
                             <label for="ejerciciosrutina">Ejercicios</label>
                             <select th:field="*{actividades}" id ="ejerciciosrutina" multiple="multiple" required>
-                                <option th:each="option : ${ejercicios}" th:value="${option.id}" th:text="${option.nombre}"></option>
+                                <option th:each="option : ${ejercicios}" th:value="${option.id}"
+                                        th:text="${option.nombre + ' (by ' + (option.creador != null ? option.creador.email : 'Unknown') + ')'}">
+                                </option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Crear</button>

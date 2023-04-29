@@ -76,13 +76,23 @@ public class ActividadService {
         return rutinaRepository.save(r);
     }
     @Transactional(readOnly = true)
-    public List<Reservation> findActividades(Usuario u) {
+    public List<Reservation> findActividades(Usuario u,String busca) {
         List<Reservation> reservas = findAllReservas();
         List<Reservation> reser = new ArrayList<>();
-        if(u.getTipoUser() == User.admin){
-            return reservas;
+
+        if(busca != null && u.getTipoUser()!= User.admin && busca != ""){
+            if(u.getTipoUser() == User.cliente){
+                reser = reservationRepository.busquedaReservaByUserCliente(busca,u.getId());
+            }
+            else{
+                reser = reservationRepository.busquedaReservaByUserMonitor(busca,u.getId());
+            }
         }
-        for (int i = 0; i < reservas.size(); i++) {
+        else{
+            if(u.getTipoUser() == User.admin){
+                return reservas;
+            }
+            for (int i = 0; i < reservas.size(); i++) {
                 if (u.getTipoUser()==User.cliente) {
                     if(reservas.get(i).getCliente().getId() == u.getId()){
                         reser.add(reservas.get(i));
@@ -94,6 +104,7 @@ public class ActividadService {
                         }
                     }
                 }
+            }
         }
         return reser;
     }
@@ -163,6 +174,22 @@ public class ActividadService {
         }
         rutinaRepository.delete(r);
     }
+    @Transactional(readOnly = false)
+    public void eliminarCreadorRutina(Usuario u){
+        for(int i=0;i<findAllRutinas().size();i++){
+            if(findAllRutinas().get(i).getCreador()==u){
+                findAllRutinas().get(i).setCreador(null);
+            }
+        }
+    }
+    @Transactional(readOnly = false)
+    public void eliminarCreadorActividad(Usuario u){
+        for(int i=0;i<findAll().size();i++){
+            if(findAll().get(i).getCreador()==u){
+                findAll().get(i).setCreador(null);
+            }
+        }
+    }
 
     @Transactional(readOnly = false)
     public void anadirFavoritos(Long idR,Usuario u){
@@ -213,5 +240,48 @@ public class ActividadService {
             f = new Favoritos();
         }
         return f;
+    }
+    @Transactional(readOnly = true)
+    public List<Rutina> findAllRutinasByCreated(Usuario u){
+        List<Rutina> rutinas = new ArrayList<>();
+
+        for(int i = 0;i<findAllRutinas().size();i++){
+            if(findAllRutinas().get(i).getCreador() == u){
+                rutinas.add(findAllRutinas().get(i));
+            }
+        }
+        return rutinas;
+    }
+    @Transactional(readOnly = true)
+    public List<Actividad> findAllActividadesByCreated(Usuario u){
+        List<Actividad> actividades = new ArrayList<>();
+
+        for(int i = 0;i<findAll().size();i++){
+            if(findAll().get(i).getCreador() == u){
+                actividades.add(findAll().get(i));
+            }
+        }
+        return actividades;
+    }
+    @Transactional(readOnly = true)
+    public List<Actividad> busquedaActividad(String busca) {
+        if(busca != null && busca != ""){
+            return actividadRepository.busquedaActividad(busca);
+        }
+        return findAll();
+    }
+    @Transactional(readOnly = true)
+    public List<Rutina> busquedaRutina(String busca) {
+        if(busca != null && busca != ""){
+            return rutinaRepository.busquedaRutina(busca);
+        }
+        return findAllRutinas();
+    }
+    @Transactional(readOnly = true)
+    public List<Reservation> busquedaReserva(String busca) {
+        if(busca != null && busca != ""){
+            return reservationRepository.busquedaReserva(busca);
+        }
+        return findAllReservas();
     }
 }

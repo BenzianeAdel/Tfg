@@ -128,13 +128,13 @@
       </a>
     </div>
   </div>
-  <div th:if="${usuario.getTipoUser()== esCliente}" class="container mt-5">
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaEnfermedadModal">Nueva Enfermedad</button>
-    <h2>Listado de Enfermedades</h2>
+  <div th:if="${usuario.getTipoUser()== esCliente}" class="container mt-5" style="background-color: #FFFFE7;">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaEnfermedadModal">Nueva Lesion</button>
+    <h2 style="color:black;font-weight: bold">Listado de Lesiones</h2>
     <table class="table table-hover">
       <!-- Encabezados de la tabla -->
       <thead>
-      <tr style="color:white;">
+      <tr style="color:black;font-weight: bold">
         <th>#</th>
         <th>Lesion</th>
         <th>Zona a Evitar</th>
@@ -143,9 +143,7 @@
       </thead>
       <!-- Datos de la tabla -->
       <tbody>
-      <!-- Iteración sobre la lista de enfermedades -->
-      <!-- Cambiar "enfermedades" por el nombre de la lista de enfermedades en tu aplicación -->
-      <tr style="color:white;" th:each="enfermedad, status : ${enfermedades}">
+      <tr style="color:black;font-weight: bold" th:each="enfermedad, status : ${enfermedades}">
         <td th:text="${status.index + 1}"></td>
         <td th:text="${enfermedad.lesion}"></td>
         <td th:text="${enfermedad.zonaEvitar}"></td>
@@ -232,7 +230,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="nuevaEnfermedadModalLabel">Nueva Enfermedad</h5>
+        <h5 class="modal-title" id="nuevaEnfermedadModalLabel">Nueva Lesion</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

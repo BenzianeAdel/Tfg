@@ -11,4 +11,9 @@ public interface MaquinaRepository extends CrudRepository<Maquina, Long>{
     @Query("DELETE FROM Actividad er WHERE er.maquina = :maquina")
     void eliminarEntidadRelacionadaActividadPorMaquina(@Param("maquina") Maquina maquina);
     List<Maquina> findAllByOrderByIdDesc();
+
+    @Query("select e from Maquina e where" +
+            " CONCAT(e.id,e.nombre) "
+            + "like %?1%")
+    public List<Maquina> busquedaMaquina(String busca);
 }

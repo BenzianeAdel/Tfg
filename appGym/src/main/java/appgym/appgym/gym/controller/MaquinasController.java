@@ -9,7 +9,12 @@ import appgym.appgym.gym.service.MaquinaService;
 import appgym.appgym.gym.service.UsuarioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -42,11 +47,11 @@ public class MaquinasController {
         return true;
     }
     @GetMapping("/maquinas")
-    public String maquinas(Model model){
+    public String maquinas(Model model,@Param("busca")String busca){
         if(!comprobarLogueado()){
             return "redirect:/login";
         }
-        List<Maquina> maquinas = maquinaService.findAll();
+        List<Maquina> maquinas = maquinaService.busquedaMaquina(busca);
         model.addAttribute("maquinas",maquinas);
         Long idu = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(idu);

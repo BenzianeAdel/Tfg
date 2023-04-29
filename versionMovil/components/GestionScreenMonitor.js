@@ -5,12 +5,188 @@ import { Icon } from 'react-native-elements';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card } from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Modal from 'react-native-modal';
 import { FontAwesome } from '@expo/vector-icons';
 import IP from '../config';
 const Tab = createBottomTabNavigator();
 
 function GestionActividades({navigation}){
+  const [ejercicios, setEjercicios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedEjercicio, setSelectedEjercicio] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisibleMaquina, setModalVisibleMaquina] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [busqueda, setBusqueda] = useState('');
+  const [id,setId] = useState(0);
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+    setCurrentImageIndex(0);
+  };
+  const toggleModalMaquina = () => {
+    setModalVisibleMaquina(!isModalVisibleMaquina);
+  };
+
+  const cargarEjercicios = () => {
+    fetch(`http://${IP}/actividadesMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setEjercicios(data))
+      .catch(error => console.error(error));
+  };
+
+  useEffect(() => {
+    cargarEjercicios();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarEjercicios();
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    async function obtenerLogueado() {
+      try {     
+        const storedData = await AsyncStorage.getItem('userData');
+        const userData = JSON.parse(storedData);
+        setId(userData.id);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    obtenerLogueado();
+  }, []);
+
+  async function eliminarActividad(id){
+    try {
+        const respuesta = await fetch(`http://${IP}/actividadesMovil/eliminar/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (respuesta.ok) {
+            cargarEjercicios();
+        } else {
+          console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+  }
+  const ejerciciosInfiltrados = ejercicios.filter(ejercicio => {
+    const textoBusqueda = ejercicio.nombre.toLowerCase() + ejercicio.creador?.nombre.toLowerCase() + ejercicio.creador?.email.toLowerCase();
+    return textoBusqueda.includes(busqueda.toLowerCase());
+  });
+  const anyadirActividad = () => {
+    navigation.navigate('Nueva Actividad');
+  };
+
+
+  const renderEjercicios = ({item})=>{
+    return(
+      <TouchableOpacity
+              onPress={() => {
+                setSelectedEjercicio(item);
+                toggleModal();
+              }}
+            >
+              <Card containerStyle={styles.maquinaContainer}>
+                <View style={styles.maquinaCard}>
+                {item.multimedia && item.multimedia[0] ? (item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
+                <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />) : item.multimedia[0].nombre.endsWith('.mp4') ||
+                item.multimedia[0].nombre.endsWith('.mov') ? (
+                <Video style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />
+                ) : (
+                  <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                )
+                ) : <Text>No existe imagen</Text>}
+                  <Text style={styles.maquinaNombre}>{item.nombre} {(item.creador != null && id == item.creador.id) && (<TouchableOpacity
+                    style={styles.botonEliminar}
+                    onPress={() => eliminarActividad(item.id)}
+                    >
+                    <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={12} /></Text>
+                    </TouchableOpacity>)}</Text>
+                  {item.maquina !== null && (
+                  <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
+                  <Text style={styles.maquinaDetalles}>
+                    <FontAwesome name="cog" style={styles.activityButtonIcon} /> Maquina
+                  </Text>
+                </TouchableOpacity> 
+                  )}
+                </View>
+              </Card>
+        </TouchableOpacity>
+    );
+  };
+  return (
+    <View style={styles.container}>
+      <View style={styles.busquedaContainer}>
+        <TextInput
+          style={styles.busquedaInput}
+          placeholder="Buscar ejercicio"
+          value={busqueda}
+          onChangeText={texto => setBusqueda(texto)}
+        />
+      </View>
+      <TouchableOpacity style={styles.botonCrear} onPress={() => anyadirActividad()}>
+        <Text style={styles.textoBotonCrear}>Añadir Actividad</Text>
+      </TouchableOpacity>
+      {loading ? (
+        <Text style={styles.loadingText}>Cargando...</Text>
+      ) : (
+        <FlatList
+          data={ejerciciosInfiltrados}
+          renderItem={renderEjercicios}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
+      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} animationType="slide">
+            <View style={styles.modalContainer}>
+            {selectedEjercicio?.multimedia && selectedEjercicio?.multimedia[currentImageIndex] ? (selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.png') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.jpeg') || selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.gif') ? (
+                <Image style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }} />) : selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mp4') ||
+                selectedEjercicio?.multimedia[currentImageIndex].nombre.endsWith('.mov') ? (
+                <Video style={styles.imagenModal} source={{ uri: `http://${IP}/img/actividades/${selectedEjercicio?.id}/${selectedEjercicio?.multimedia[currentImageIndex].nombre}` }}  useNativeControls={true}
+                isLooping={true}/>
+                ) : (
+                  <Text>No se pudo reconocer el formato del archivo multimedia</Text>
+                )
+                ) : <Text>No existe imagen</Text>}
+            <TouchableOpacity onPress={() => {setCurrentImageIndex(currentImageIndex - 1)}} disabled={currentImageIndex === 0 || selectedEjercicio?.multimedia.length==0} style={{display: currentImageIndex === 0 || selectedEjercicio?.multimedia.length==0 ? "none" : "flex"}}>
+              <FontAwesome name="arrow-left" size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setCurrentImageIndex(currentImageIndex + 1)} disabled={currentImageIndex === selectedEjercicio?.multimedia.length - 1 || selectedEjercicio?.multimedia.length === 0} style={{display: currentImageIndex === selectedEjercicio?.multimedia.length - 1 || selectedEjercicio?.multimedia.length==0 ? "none" : "flex"}}>
+              <FontAwesome name="arrow-right" size={24} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Series: {selectedEjercicio?.series}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.series}</Text>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
+                <FontAwesome name="close" style={styles.modalCloseIcon} />
+            </TouchableOpacity>
+            {/* contenido adicional de la modal */}
+            </View>
+      </Modal>
+      {selectedEjercicio?.maquina && (
+      <Modal isVisible={isModalVisibleMaquina} onBackdropPress={toggleModalMaquina} animationType="slide">
+            <View style={styles.modalContainer}>
+            {selectedEjercicio?.maquina.imagen!="" ? (
+                    <Image source={{ uri: `http://${IP}/img/maquinas/${selectedEjercicio?.maquina.id}/${selectedEjercicio?.maquina.imagen}` }} style={styles.imagenModal} />
+            ):(
+                    <Text>No existe Imagen</Text>
+            )}  
+            <Text style={styles.modalTitle}>{selectedEjercicio?.maquina.nombre}</Text>
+            <Text style={styles.modalSubtitle}>Fecha de registro: {selectedEjercicio?.maquina.registro}</Text>
+            <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModalMaquina}>
+                <FontAwesome name="close" style={styles.modalCloseIcon} />
+            </TouchableOpacity>
+            {/* contenido adicional de la modal */}
+            </View>
+        </Modal>
+     )}
+    </View>
+  );
+}
+function GestionMisActividades({navigation}){
   const [ejercicios, setEjercicios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEjercicio, setSelectedEjercicio] = useState(null);
@@ -28,7 +204,7 @@ function GestionActividades({navigation}){
   };
 
   const cargarEjercicios = () => {
-    fetch(`http://${IP}/actividadesMovil`)
+    fetch(`http://${IP}/misactividadesMovil`)
       .then(respuesta => respuesta.json())
       .then(data => setEjercicios(data))
       .catch(error => console.error(error));
@@ -176,9 +352,122 @@ function GestionRutinas({navigation}){
   const [loading, setLoading] = useState(true);
   const [favoritasRutinas, setFavoritasRutinas] = useState([]);
   const [busqueda, setBusqueda] = useState('');
+  const [id,setId] = useState(0);
 
   const cargarRutinas = () => {
     fetch(`http://${IP}/rutinasMovil`)
+      .then(respuesta => respuesta.json())
+      .then(data => setRutinas(data))
+      .catch(error => console.error(error));
+  };
+
+  useEffect(() => {
+    cargarRutinas();
+    const unsubscribe = navigation.addListener('focus', () => {
+      cargarRutinas();
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+  useEffect(() => {
+    async function obtenerLogueado() {
+      try {     
+        const storedData = await AsyncStorage.getItem('userData');
+        const userData = JSON.parse(storedData);
+        setId(userData.id);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    obtenerLogueado();
+  }, []);
+
+  async function eliminarRutina(id){
+    try {
+        const respuesta = await fetch(`http://${IP}/rutinasMovil/eliminar/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (respuesta.ok) {
+          cargarRutinas();
+        } else {
+          console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+  }
+
+  const handleDetallePress = (actividad) => {
+    navigation.navigate('Lista Actividades', { activities: actividad });
+  };
+  const rutinasInfiltradas = rutinas.filter(rutina => {
+    const textoBusqueda = rutina.nombre.toLowerCase() + rutina.creador?.nombre.toLowerCase() + rutina.creador?.email.toLowerCase();
+    return textoBusqueda.includes(busqueda.toLowerCase());
+  });
+
+  const anyadirRutina = () => {
+    navigation.navigate('Nueva Rutina');
+  };
+
+  const renderRutina = ({ item }) => {
+    return (
+      <Card containerStyle={styles.rutinaContainer}>
+        <View style={styles.rutinaCard}>
+          <Text style={styles.rutinaNombre}>{item.nombre}</Text>
+          <View style={styles.rutinaInfo}>
+            <Text style={styles.rutinaPuntos}><FontAwesome name="star" size={16} color="#FDB813" /> {item.puntos}</Text>
+            <Text style={styles.rutinaActividades}>Actividades: {item.actividades.length}</Text>
+          </View>
+          <View style={styles.rutinaBotones}>
+            <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
+              <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
+            </TouchableOpacity>
+            {(item.creador != null && id == item.creador.id) && (<TouchableOpacity
+              style={styles.botonEliminar}
+              onPress={() => eliminarRutina(item.id)}
+            >
+              <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={20} /> Eliminar</Text>
+            </TouchableOpacity>)}
+          </View>
+        </View>
+      </Card>
+    );
+ };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.busquedaContainer}>
+        <TextInput
+          style={styles.busquedaInput}
+          placeholder="Buscar rutina"
+          value={busqueda}
+          onChangeText={texto => setBusqueda(texto)}
+        />
+      </View>
+      <TouchableOpacity style={styles.botonCrear} onPress={() => anyadirRutina()}>
+        <Text style={styles.textoBotonCrear}>Añadir Rutina</Text>
+      </TouchableOpacity>
+      {loading ? (
+        <Text style={styles.loadingText}>Cargando...</Text>
+      ) : (
+        <FlatList
+          data={rutinasInfiltradas}
+          renderItem={renderRutina}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
+    </View>
+  );  
+}
+function GestionMisRutinas({navigation}){
+  const [rutinas, setRutinas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [favoritasRutinas, setFavoritasRutinas] = useState([]);
+  const [busqueda, setBusqueda] = useState('');
+
+  const cargarRutinas = () => {
+    fetch(`http://${IP}/misrutinasMovil`)
       .then(respuesta => respuesta.json())
       .then(data => setRutinas(data))
       .catch(error => console.error(error));
@@ -535,14 +824,20 @@ function MyTabs() {
 
           if (route.name === 'Actividades') {
             iconName = focused ? 'dumbbell' : 'dumbbell';
+          } if (route.name === 'Mis Actividades') {
+            iconName = focused ? 'weight-lifter' : 'weight-lifter';
           } else if (route.name === 'Rutinas') {
             iconName = focused ? 'format-list-bulleted' : 'format-list-bulleted';
+          } else if (route.name === 'Mis Rutinas') {
+            iconName = focused ? 'playlist-plus' : 'playlist-plus';
           }
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
       })}
     >
+      <Tab.Screen name="Mis Actividades" component={GestionMisActividades} options={{ headerShown: false }} />
       <Tab.Screen name="Actividades" component={GestionActividades} options={{ headerShown: false }} />
+      <Tab.Screen name="Mis Rutinas" component={GestionMisRutinas} options={{ headerShown: false }}/>
       <Tab.Screen name="Rutinas" component={GestionRutinas} options={{ headerShown: false }}/>
     </Tab.Navigator>
   );

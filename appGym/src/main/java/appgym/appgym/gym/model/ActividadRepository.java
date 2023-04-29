@@ -12,4 +12,9 @@ public interface ActividadRepository extends CrudRepository<Actividad, Long> {
     @Query("DELETE FROM Reservation er WHERE er.rutina = :rutina")
     void eliminarEntidadRelacionadaReservaPorActividad(@Param("rutina") Rutina rutina);
     List<Actividad> findAllByOrderByIdDesc();
+
+    @Query("select e from Actividad e where" +
+            " CONCAT(e.id,e.nombre,e.creador.nombre,e.creador.email) "
+            + "like %?1%")
+    public List<Actividad> busquedaActividad(String busca);
 }

@@ -14,16 +14,16 @@ const NewRutina = ({navigation}) => {
     const [selectedEjercicios, setSelectedEjercicios] = useState([]);
 
     useEffect(() => {
-        fetch(`http://${IP}/actividadesMovil`)
-          .then(response => response.json())
-          .then(data => {
-            const mappedData = data.map(item => ({
-              value: item.nombre,
-              key: item.id
-            }));
-            setEjercicios(mappedData);
-          })
-          .catch(error => console.error(error));
+      fetch(`http://${IP}/actividadesMovil`)
+        .then(response => response.json())
+        .then(data => {
+          const mappedData = data.map(item => ({
+            value: item.creador != null ? item.nombre + " (by " + item.creador.email + ")" : item.nombre + ' (by Unknown)',
+            key: item.id
+          }));
+          setEjercicios(mappedData);
+        })
+        .catch(error => console.error(error));
     }, []);
 
     async function crearRutina() {

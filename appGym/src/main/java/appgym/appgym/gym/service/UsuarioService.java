@@ -95,24 +95,29 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<Usuario> findAll() {
-        return (List<Usuario>) usuarioRepository.findAll();
+        return (List<Usuario>) usuarioRepository.findAllByOrderByIdDesc();
     }
     @Transactional(readOnly = true)
     public List<Seguir> findAllSeguir() {
         return (List<Seguir>) seguirRepository.findAll();
     }
     @Transactional(readOnly = true)
-    public List<Usuario> findAllTip(User usuario,Long idY) {
+    public List<Usuario> findAllTip(String busca,User usuario,Long idY) {
         List<Usuario> usuarios = findAll();
         List<Usuario> users = new ArrayList<>();
-        for (int i = 0; i < usuarios.size(); i++) {
-            if(idY == null){
-                if (usuarios.get(i).getTipoUser() == usuario) {
-                    users.add(usuarios.get(i));
-                }
-            }else{
-                if (usuarios.get(i).getTipoUser() == usuario && usuarios.get(i).getId()!=idY) {
-                    users.add(usuarios.get(i));
+        if(busca != null && busca != ""){
+                users = usuarioRepository.busquedaUsuario(busca, usuario);
+        }
+        else{
+            for (int i = 0; i < usuarios.size(); i++) {
+                if(idY == null){
+                    if (usuarios.get(i).getTipoUser() == usuario) {
+                        users.add(usuarios.get(i));
+                    }
+                }else{
+                    if (usuarios.get(i).getTipoUser() == usuario && usuarios.get(i).getId()!=idY) {
+                        users.add(usuarios.get(i));
+                    }
                 }
             }
         }
@@ -167,7 +172,7 @@ public class UsuarioService {
         if(busca != null){
             return usuarioRepository.busqueda(busca,idY);
         }
-        return findAllTip(tipo,idY);
+        return findAllTip(null,tipo,idY);
     }
     @Transactional(readOnly = true)
     public List<Usuario> misamigos(List<Usuario>usuarios,Long idY){

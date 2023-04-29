@@ -143,7 +143,7 @@ export default function Reserva({ navigation, route }) {
           >
             <Picker.Item label="Selecciona un monitor" value={null} />
             {monitores.map(monitor => (
-              <Picker.Item label={monitor.nombre} value={monitor.id} key={monitor.id} />
+              <Picker.Item label={"("+ monitor.nombre + ") "+monitor.email} value={monitor.id} key={monitor.id} />
             ))}
           </Picker>
         </View>

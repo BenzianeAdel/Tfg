@@ -33,7 +33,11 @@ public class Actividad {
     @JoinColumn(name = "maquina_id")
     private Maquina maquina;
 
-    @OneToMany(mappedBy = "actividad", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToOne
+    @JoinColumn(name = "creador_id")
+    private Usuario creador;
+
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     List<Multimedia> multimedia = new ArrayList<>();
 
 }

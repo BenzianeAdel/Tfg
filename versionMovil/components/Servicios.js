@@ -140,7 +140,8 @@ function VerEjerciciosScreen() {
   }, []);
 
   const ejerciciosInfiltrados = ejercicios.filter(ejercicio => {
-    return ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const textoBusqueda = ejercicio.nombre.toLowerCase() + ejercicio.creador?.nombre.toLowerCase() + ejercicio.creador?.email.toLowerCase();
+    return textoBusqueda.includes(busqueda.toLowerCase());
   });
 
 
@@ -188,7 +189,7 @@ function VerEjerciciosScreen() {
       <View style={styles.busquedaContainer}>
         <TextInput
           style={styles.busquedaInput}
-          placeholder="Buscar por nombre ejercicio"
+          placeholder="Buscar ejercicio"
           value={busqueda}
           onChangeText={texto => setBusqueda(texto)}
         />

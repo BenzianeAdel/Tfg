@@ -23,6 +23,10 @@ public class Rutina {
     private String nombre;
 
     private int puntos;
+
+    @OneToOne
+    @JoinColumn(name = "creador_id")
+    private Usuario creador;
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "rutina_actividad",
             joinColumns = { @JoinColumn(name = "fk_rutina") },

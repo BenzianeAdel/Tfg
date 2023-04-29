@@ -90,6 +90,18 @@
     </div>
   </div>
   <button th:if="${usuario.getTipoUser() == esAdmin}" type="button" class="btn btn-primary" data-toggle="modal" data-target="#nuevaMaquinaModal">Nueva Maquina</button>
+  &nbsp;
+  <div style="display:flex; justify-content:center;">
+    <div class="col-md-6">
+      <form method="GET" action="/maquinas">
+        <div style="display:flex;">
+          <input class="form-control" type="text" name="busca" id="busca" placeholder="Buscar maquina">
+          <button class="btn btn-info" type="submit" style="margin-left:10px;">Buscar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  &nbsp;
   <div class="row">
     <div class="col-md-6" th:each="maquina : ${maquinas}">
       <div class="card">

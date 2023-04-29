@@ -8,6 +8,7 @@ import appgym.appgym.gym.service.UsuarioService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -49,7 +50,7 @@ public class ActividadController {
         return true;
     }
     @GetMapping("/actividades")
-    public String actividades(Model model){
+    public String actividades(Model model,@Param("busca")String busca){
         if(!comprobarLogueado()){
             return "redirect:/login";
         }
@@ -58,12 +59,12 @@ public class ActividadController {
         if(u.getTipoUser()==User.cliente){
             tipoC = true;
         }
-        List<Actividad> actividades = actividadService.findAll();
+        List<Actividad> actividades = actividadService.busquedaActividad(busca);
         List<Maquina> maquinas = maquinaService.findAll();
-        List<Usuario> monitores = usuarioService.findAllTip(User.monitor,null);
-        List<Rutina> rutinas = actividadService.findAllRutinas();
-        List<Reservation>reservas = actividadService.findActividades(u);
-        List<Reservation>reservasPA= actividadService.findAllReservas();
+        List<Usuario> monitores = usuarioService.findAllTip(null,User.monitor,null);
+        List<Rutina> rutinas = actividadService.busquedaRutina(busca);
+        List<Reservation>reservas = actividadService.findActividades(u,busca);
+        List<Reservation>reservasPA= actividadService.busquedaReserva(busca);
         Favoritos f = actividadService.getFavoritosUser(managerUserSession.usuarioLogeado());
         model.addAttribute("reservas",reservas);
         model.addAttribute("adminR",reservasPA);
@@ -93,18 +94,30 @@ public class ActividadController {
     public List<Reservation> misactividades(Model model){
         Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
         List<Actividad> actividades = actividadService.findAll();
-        List<Reservation>reservas = actividadService.findActividades(u);
+        List<Reservation>reservas = actividadService.findActividades(u,null);
         return reservas;
     }
     @GetMapping("/actividadesMovil")
     @ResponseBody
-    public List<Actividad> actividadesMovil(Model model){
+    public List<Actividad> actividadesMovil(){
         List<Actividad> actividades = actividadService.findAll();
         return actividades;
     }
+    @GetMapping("/misactividadesMovil")
+    @ResponseBody
+    public List<Actividad> misactividadesMovil(){
+        List<Actividad> actividades = actividadService.findAllActividadesByCreated(usuarioService.findById(managerUserSession.usuarioLogeado()));
+        return actividades;
+    }
+    @GetMapping("/misrutinasMovil")
+    @ResponseBody
+    public List<Rutina> misrutinasMovil(){
+        List<Rutina> rutinas = actividadService.findAllRutinasByCreated(usuarioService.findById(managerUserSession.usuarioLogeado()));
+        return rutinas;
+    }
     @GetMapping("/rutinasMovil")
     @ResponseBody
-    public List<Rutina> rutinasMovil(Model model){
+    public List<Rutina> rutinasMovil(){
         List<Rutina> rutinas = actividadService.findAllRutinas();
         return rutinas;
     }
@@ -126,7 +139,7 @@ public class ActividadController {
     @GetMapping("/monitores")
     @ResponseBody
     public List<Usuario> monitores(){
-        List<Usuario> monitores = usuarioService.findAllTip(User.monitor,null);
+        List<Usuario> monitores = usuarioService.findAllTip(null,User.monitor,null);
         return monitores;
     }
     @PostMapping("/actividades")
@@ -144,6 +157,7 @@ public class ActividadController {
         }else{
             a.setMaquina(actividadData.getMaquina());
         }
+        a.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         a.setZonaCuerpo(actividadData.getZonaCuerpo());
         actividadService.registrar(a);
         for(int i=0;i<actividadData.getArchivos().size();i++){
@@ -192,6 +206,7 @@ public class ActividadController {
             a.setMaquina(actividadData.getMaquina());
         }
         a.setZonaCuerpo(actividadData.getZonaCuerpo());
+        a.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         actividadService.registrar(a);
         for(int i=0;i<actividadData.getArchivos().size();i++){
             Multimedia m = new Multimedia();
@@ -225,6 +240,7 @@ public class ActividadController {
         Rutina r = new Rutina();
         r.setNombre(rutinaData.getNombre());
         r.setActividades(rutinaData.getActividades());
+        r.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         actividadService.registrar(r);
         return "redirect:/actividades";
     }
@@ -240,6 +256,7 @@ public class ActividadController {
         }
         r.setNombre(rutinaBody.getNombre());
         r.setActividades(listaActividades);
+        r.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         actividadService.registrar(r);
     }
     @PostMapping("/rutinasMovil")
@@ -248,6 +265,7 @@ public class ActividadController {
         Rutina r = new Rutina();
         r.setNombre(rutinaData.getNombre());
         r.setActividades(rutinaData.getActividades());
+        r.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         actividadService.registrar(r);
     }
     @PostMapping("/reservar")
@@ -326,7 +344,7 @@ public class ActividadController {
     @ResponseBody
     public List<Reservation>reservas(){
         Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
-        List<Reservation>reservas = actividadService.findActividades(u);
+        List<Reservation>reservas = actividadService.findActividades(u,null);
         return reservas;
     }
     @GetMapping("/monitores/{iDmonitor}/{fecha}/reservas")
@@ -351,7 +369,7 @@ public class ActividadController {
     @ResponseBody
     public List<Reservation>reservas(@PathVariable(value="idMonitor") Long idMonitor){
         Usuario u = usuarioService.findById(idMonitor);
-        List<Reservation>reservas = actividadService.findActividades(u);
+        List<Reservation>reservas = actividadService.findActividades(u,null);
         return reservas;
     }
     @PostMapping("/actividades/eliminar")

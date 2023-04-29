@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
 import Modal from 'react-native-modal';
 
-const EnfermedadesScreen = () => {
+const LesionesScreen = () => {
   const [enfermedades, setEnfermedades] = useState([]);
   const [estadoActualizado, setEstadoActualizado] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -87,7 +87,7 @@ const EnfermedadesScreen = () => {
   return (
     <View style={styles.container}>
         <TouchableOpacity style={styles.botonCrear} onPress={() => anyadirEnfermedad()}>
-        <Text style={styles.textoBotonCrear}>Añadir Enfermedad</Text>
+        <Text style={styles.textoBotonCrear}>Añadir Lesion</Text>
       </TouchableOpacity>
       <FlatList
         data={enfermedades}
@@ -242,4 +242,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EnfermedadesScreen;
+export default LesionesScreen;

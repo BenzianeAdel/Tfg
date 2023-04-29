@@ -65,5 +65,11 @@ public class MaquinaService {
         }
         maquinaRepository.delete(a);
     }
-
+    @Transactional(readOnly = true)
+    public List<Maquina> busquedaMaquina(String busca) {
+        if(busca != null){
+            return maquinaRepository.busquedaMaquina(busca);
+        }
+        return findAll();
+    }
 }

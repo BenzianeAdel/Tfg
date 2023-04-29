@@ -112,7 +112,8 @@ function MisReservasScreen({navigation}){
   }
 
   const reservasInfiltradas = reservas.filter(reserva => {
-    return reserva.title.toLowerCase().includes(busqueda.toLowerCase());
+    const textoBusqueda = reserva.title.toLowerCase() + reserva.monitor.nombre.toLowerCase() + reserva.rutina.nombre.toLowerCase() + reserva.cliente.nombre.toLowerCase()+ reserva.start.toLowerCase();
+    return textoBusqueda.includes(busqueda.toLowerCase());
   });
 
   const renderItem = ({ item }) => (
@@ -171,7 +172,7 @@ function MisReservasScreen({navigation}){
       <View style={styles.busquedaContainer}>
         <TextInput
           style={styles.busquedaInput}
-          placeholder="Buscar por nombre reserva"
+          placeholder="Buscar la reserva"
           value={busqueda}
           onChangeText={texto => setBusqueda(texto)}
         />
@@ -295,8 +296,10 @@ function RutinasScreen({navigation}){
     }
   }
   const rutinasInfiltradas = rutinas.filter(rutina => {
-    return rutina.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const textoBusqueda = rutina.nombre.toLowerCase() + rutina.creador?.nombre.toLowerCase() + rutina.creador?.email.toLowerCase();
+    return textoBusqueda.includes(busqueda.toLowerCase());
   });
+  
 
   const renderRutina = ({ item }) => {
     const enFavoritos = favoritasRutinas.some((favorito) => favorito.id === item.id);
@@ -339,7 +342,7 @@ function RutinasScreen({navigation}){
       <View style={styles.busquedaContainer}>
         <TextInput
           style={styles.busquedaInput}
-          placeholder="Buscar por nombre rutina"
+          placeholder="Buscar rutina"
           value={busqueda}
           onChangeText={texto => setBusqueda(texto)}
         />
@@ -439,7 +442,8 @@ function Destacadas({ navigation }) {
     }
   }
   const rutinasInfiltradas = rutinas.filter(rutina => {
-    return rutina.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const textoBusqueda = rutina.nombre.toLowerCase() + rutina.creador?.nombre.toLowerCase() + rutina.creador?.email.toLowerCase();
+    return textoBusqueda.includes(busqueda.toLowerCase());
   });
 
   const renderRutina = ({ item }) => {
@@ -484,7 +488,7 @@ function Destacadas({ navigation }) {
       <View style={styles.busquedaContainer}>
         <TextInput
           style={styles.busquedaInput}
-          placeholder="Buscar por nombre rutina"
+          placeholder="Buscar rutina"
           value={busqueda}
           onChangeText={texto => setBusqueda(texto)}
         />
