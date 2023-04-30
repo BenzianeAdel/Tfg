@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         WebMvcConfigurer.super.addResourceHandlers(registry);
-        registry.addResourceHandler("/img/**") // nueva entrada para la carpeta de imágenes
+        registry.addResourceHandler("/img/**")
                 .addResourceLocations("file:/C:/Users/adelb/OneDrive/Escritorio/Carrera/TFG/appGym/src/main/resources/static/img/");;
     }
 }
