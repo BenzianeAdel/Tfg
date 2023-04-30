@@ -840,7 +840,6 @@
 
         $('#monitor-select').change(function() {
             var monitorId = $(this).val();
-            console.log(monitorId);
             calendar.fullCalendar('removeEvents');
             var eventos = [];
             if (monitorId) {

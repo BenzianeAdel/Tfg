@@ -199,7 +199,7 @@ insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id,
 insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(8,0,'2023-06-12 13:00:00','Reserva para piernas',false,13,4,3);
 insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(9,0,'2023-06-12 13:30:00','Reserva para pectoral',false,10,4,1);
 insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(10,0,'2023-06-16 11:00:00','Reserva para pectoral superior',false,13,5,5);
-insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(11,0,'2023-06-16 11:00:00','Reserva para triceps',false,13,6,6);
+insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(11,0,'2023-06-16 11:30:00','Reserva para triceps',false,13,6,6);
 insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(12,0,'2023-06-20 11:00:00','Reserva para trapecio',false,13,7,7);
 insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(13,0,'2023-06-20 10:00:00','Reserva para cuerpo entero',false,13,4,8);
 insert into reservas(id, estado, start, title, valorada, cliente_id, monitor_id, rutina_id) values(14,0,'2023-06-20 11:30:00','Reserva para pectoral y triceps',false,13,4,9);

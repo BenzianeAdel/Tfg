@@ -105,48 +105,44 @@
 <script type="text/javascript">
   $(document).ready(function() {
     var calendario = document.getElementById("calendar");
+    var globalEvents = [];
+
     if (calendario) {
       var user = calendario.getAttribute("data-id");
-      var events = [];
-      var calendar = $('#calendar').fullCalendar({
-        locale: 'es',
-        editable: false,
-        slotDuration: '00:30:00',
-        header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-        },
-        selectable: false,
-        selectHelper: false,
-        selectConstraint: 'businessHours',
-        eventConstraint: 'businessHours',
-        businessHours: {
-          dow: [1, 2, 3, 4, 5],
-          start: '08:00',
-          end: '18:00'
-        },
-        events: function(start, end, timezone, callback) {
-          if (user) {
-            fetch('/reservas/' + user)
-                    .then(response => response.json())
-                    .then(data => {
-                      for (var i = 0; i < data.length; i++) {
-                        var reserva = data[i];
-                        events.push({
-                          title: reserva.title,
-                          start: moment(reserva.start).format('YYYY-MM-DDTHH:mm:ss'),
-                          end: moment(reserva.start).add(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss'),
-                          editable: false
-                        });
-                      }
-                      callback(events);
-                    })
-                    .catch(error => console.error('Error:', error));
-          }
-        }
-      });
-      calendar.fullCalendar('addEventSource', events);
+      fetch('/reservas/' + user)
+              .then(response => response.json())
+              .then(data => {
+                for (var i = 0; i < data.length; i++) {
+                  var reserva = data[i];
+                  globalEvents.push({
+                    title: reserva.title,
+                    start: moment(reserva.start).format('YYYY-MM-DDTHH:mm:ss'),
+                    end: moment(reserva.start).add(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss'),
+                    editable: false
+                  });
+                }
+                var calendar = $('#calendar').fullCalendar({
+                  locale: 'es',
+                  editable: false,
+                  slotDuration: '00:30:00',
+                  header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                  },
+                  selectable: false,
+                  selectHelper: false,
+                  selectConstraint: 'businessHours',
+                  eventConstraint: 'businessHours',
+                  businessHours: {
+                    dow: [1, 2, 3, 4, 5],
+                    start: '08:00',
+                    end: '18:00'
+                  },
+                  events: globalEvents // cargar los eventos desde la variable global
+                });
+              })
+              .catch(error => console.error('Error:', error));
     }else{
       var admins = [[${admins}]];
       var monitores = [[${monitores}]];
