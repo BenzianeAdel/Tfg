@@ -1,6 +1,7 @@
 package appgym.appgym.gym.service;
 
 
+import appgym.appgym.gym.controller.ContactoData;
 import appgym.appgym.gym.model.*;
 import appgym.appgym.gym.service.exception.UsuarioServiceException;
 import org.slf4j.Logger;
@@ -325,5 +326,22 @@ public class UsuarioService {
         } else {
             throw new UsuarioServiceException("Usuario erroneo, no se puede modificar...");
         }
+    }
+    @Transactional(readOnly = true)
+    public void sendContacto(ContactoData contactoData) throws MessagingException, UnsupportedEncodingException {
+        String fromAddress = contactoData.getEmail();
+        String toAddress = "adelbenziane17@gmail.com";
+        String senderName = contactoData.getNombre() + " con email: " + contactoData.getEmail();
+        String subject = contactoData.getAsunto();
+        String content = contactoData.getMensaje();
+
+        MimeMessage message = correo.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(fromAddress, senderName);
+        helper.setTo(toAddress);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+        correo.send(message);
     }
 }
