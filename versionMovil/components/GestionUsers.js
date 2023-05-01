@@ -53,7 +53,6 @@ const GestionUsers = ({navigation}) => {
     setNombre(usuario.nombre);
     setEmail(usuario.email);
     setActivo(usuario.acceso);
-    setPassword(usuario.password);
     setId(usuario.id);
     toggleModal();
   };
@@ -92,8 +91,17 @@ const GestionUsers = ({navigation}) => {
     );
   };
   async function guardarCambios() {
-    if (!nombre || !apellidos || !password || !email) {
+    if (!nombre || !apellidos || !email) {
       alert('Por favor, complete todos los campos');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Por favor ingrese un correo electrónico válido.');
+      return;
+    }
+    if (password && (password.length < 8 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password))) {
+      alert('La contraseña debe tener al menos 8 caracteres, incluyendo al menos un número, una letra mayúscula y una letra minúscula.');
       return;
     }
     try {
@@ -111,12 +119,13 @@ const GestionUsers = ({navigation}) => {
         body: JSON.stringify(requestData),
       });
       if (respuesta.ok) {
-        const data = await response.json();
+        const data = await respuesta.json();
         alert(data.message);
         cargarUsuarios();
-        toggleModal(); // Cerrar el modal después de guardar la enfermedad
+        toggleModal();
+        setPassword('');
       } else {
-        const errorData = await response.json();
+        const errorData = await respuesta.json();
         alert(errorData.message);
       }
     } catch (error) {
@@ -191,7 +200,7 @@ const GestionUsers = ({navigation}) => {
             <TextInput
                 style={styles.input}
                 onChangeText={setPassword}
-                placeholder="Contraseña"
+                placeholder="Cambiar Contraseña"
                 value={password}
             />
             <CheckBox

@@ -50,8 +50,6 @@ public class LoginController {
 
     @PostMapping(  value="/login",consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public String loginSubmit(@ModelAttribute LoginData loginData, Model model, HttpSession session) {
-
-        // Llamada al servicio para comprobar si el login es correcto
         LoginStatus loginStatus = usuarioService.login(loginData.geteMail(), loginData.getPassword());
         if(loginStatus == LoginStatus.USER_NOT_FOUND){
             model.addAttribute("errorLogin", "No existe usuario");

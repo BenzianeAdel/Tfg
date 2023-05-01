@@ -114,10 +114,6 @@
         <label>Fecha de nacimiento:</label>
         <span th:text="${usuario.fechaNacimiento}"></span>
       </div>
-      <div class="form-group">
-        <label>Password:</label>
-        <span th:text="${usuario.password}"></span>
-      </div>
     </div>
     <div class="actions">
       <a href="#" th:title="Editar" class="edit-icon" data-toggle="modal" data-target="#editarUsuarioModal" th:data-id="${usuario.id}">
@@ -192,19 +188,19 @@
           <input type="hidden" th:field="*{id}" name="usuarioId" id="usuarioId"/>
           <div class="form-group">
             <label for="nombreEditar" class="col-form-label">Nombre:</label>
-            <input type="text" th:field="*{nombre}" class="form-control" id="nombreEditar" required>
+            <input type="text" th:field="*{nombre}" class="form-control" id="nombreEditar" placeholder="Introduce Nombre" required>
           </div>
           <div class="form-group">
             <label for="apellidosEditar" class="col-form-label">Apellidos:</label>
-            <input type="text" th:field="*{apellidos}" class="form-control" id="apellidosEditar" required>
+            <input type="text" th:field="*{apellidos}" class="form-control" id="apellidosEditar" placeholder="Introduce Apellidos" required>
           </div>
           <div class="form-group">
             <label for="emailEditar" class="col-form-label">Email:</label>
-            <input type="email" th:field="*{eMail}" class="form-control" id="emailEditar" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="La dirreccion del correo electronico debe tener unos ciertos caracteres por ejemplo @" required>
+            <input type="email" th:field="*{eMail}" class="form-control" id="emailEditar" placeholder="Introduce Email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="La dirreccion del correo electronico debe tener unos ciertos caracteres por ejemplo @" required>
           </div>
           <div class="form-group">
             <label for="passwordEditar">Contraseña:</label>
-            <input type="text" th:field="*{password}" class="form-control" id="passwordEditar" name="passwordEditar" required
+            <input type="password" th:field="*{password}" class="form-control" id="passwordEditar" name="passwordEditar" placeholder="Cambiar Contraseña"
                    pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\$%\^&\*]).{8,}"
                    title="La contraseña debe contener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial"/>
           </div>
@@ -278,7 +274,6 @@
         $('#nombreEditar').val(usuario.nombre);
         $('#apellidosEditar').val(usuario.apellidos);
         $('#emailEditar').val(usuario.email);
-        $('#passwordEditar').val(usuario.password);
         var fechaNacimiento = moment(usuario.fechaNacimiento).format('MM/DD/YYYY');
         $('#editarFechaNacimiento').val(fechaNacimiento);
       },

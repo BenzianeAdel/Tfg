@@ -35,11 +35,20 @@ public class MensajesController {
         }
         return true;
     }
+    private boolean isAdministrador(){
+        if(usuarioService.findById(managerUserSession.usuarioLogeado()).getTipoUser()!=User.admin){
+            return false;
+        }
+        return true;
+    }
 
     @GetMapping("/mensajes")
     public String mensajes(Model model,@Param("buscarContacto")String busca){
         if(!comprobarLogueado()){
             return "redirect:/login";
+        }
+        if(isAdministrador()){
+            return "redirect:/";
         }
         Usuario u = usuarioService.findById(managerUserSession.usuarioLogeado());
         List<Usuario> usuarios = usuarioService.findContactos(managerUserSession.usuarioLogeado(),busca);

@@ -23,7 +23,6 @@ const MiPerfil = ({navigation}) => {
          setEmail(userData.email);
          setNombre(userData.nombre);
          setApellidos(userData.apellidos);
-         setPassword(userData.password);
       } catch (error) {
         console.log(error);
       }
@@ -69,7 +68,7 @@ const MiPerfil = ({navigation}) => {
     setEditing(true);
   };
   const handleSave = async () => {
-    if (!email || !password || !nombre || !apellidos) {
+    if (!email || !nombre || !apellidos) {
       setErrorMessage('Por favor ingrese un correo electrónico, nombre, apellidos y contraseña.');
       return;
     }
@@ -78,7 +77,7 @@ const MiPerfil = ({navigation}) => {
       setErrorMessage('Por favor ingrese un correo electrónico válido.');
       return;
     }
-    if (password.length < 8 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password)) {
+    if (password && (password.length < 8 || !/\d/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password))) {
       setErrorMessage('La contraseña debe tener al menos 8 caracteres, incluyendo al menos un número, una letra mayúscula y una letra minúscula.');
       return;
     }
@@ -104,6 +103,7 @@ const MiPerfil = ({navigation}) => {
         const newUserDataResponse = JSON.parse(userDataString);
         setUserData(newUserDataResponse);
         setErrorMessage('');
+        setPassword('');
         setEditing(false);
       }
       else{
@@ -191,10 +191,11 @@ const MiPerfil = ({navigation}) => {
                 autoCapitalize="words"
                 onChangeText={setPassword}
                 secureTextEntry={true}
+                placeholder="Cambiar Contraseña"
                 value={password}
               />
             ) : (
-              <Text style={styles.value}>{password}</Text>
+              <Text style={styles.value}>**********</Text>
             )}
           </View>
         </View>

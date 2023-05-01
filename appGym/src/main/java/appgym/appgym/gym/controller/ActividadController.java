@@ -126,8 +126,7 @@ public class ActividadController {
     public List<Rutina> rutinasDestacadasMovil(Model model){
         List<Rutina> rutinas = actividadService.findAllRutinas();
         Collections.sort(rutinas, Comparator.comparing(Rutina::getPuntos).reversed());
-        model.addAttribute("mejores",rutinas.stream().limit(5).collect(Collectors.toList()));
-        return rutinas;
+        return rutinas.stream().limit(5).collect(Collectors.toList());
     }
     @GetMapping("/actividades/destacadas")
     @ResponseBody

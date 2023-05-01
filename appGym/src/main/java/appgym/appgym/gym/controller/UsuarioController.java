@@ -1,5 +1,6 @@
 package appgym.appgym.gym.controller;
 
+import appgym.appgym.gym.authentication.HashUtils;
 import appgym.appgym.gym.authentication.ManagerUserSession;
 import appgym.appgym.gym.model.*;
 import appgym.appgym.gym.service.ActividadService;
@@ -36,6 +37,18 @@ public class UsuarioController {
 
     private boolean comprobarLogueado(){
         if(managerUserSession.usuarioLogeado() == null){
+            return false;
+        }
+        return true;
+    }
+    private boolean isAdministrador(){
+        if(usuarioService.findById(managerUserSession.usuarioLogeado()).getTipoUser()!=User.admin){
+            return false;
+        }
+        return true;
+    }
+    private boolean isMonitor(){
+        if(usuarioService.findById(managerUserSession.usuarioLogeado()).getTipoUser()!=User.monitor){
             return false;
         }
         return true;
@@ -160,8 +173,9 @@ public class UsuarioController {
         u.setApellidos(usuarioData.getApellidos());
         u.setEmail(usuarioData.geteMail());
         u.setFechaNacimiento(usuarioData.getFechaNacimiento());
-        u.setPassword(usuarioData.getPassword());
-        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuarioData.getPassword()!=""){
+            u.setPassword(HashUtils.hashPassword(usuarioData.getPassword()));
+        }        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
         if(usuario == null){
             usuarioService.editarUsuario(u);
         } else if (usuario != null && usuario.getId() == usuarioData.getId()) {
@@ -179,8 +193,9 @@ public class UsuarioController {
         u.setNombre(usuarioData.getNombre());
         u.setApellidos(usuarioData.getApellidos());
         u.setEmail(usuarioData.geteMail());
-        u.setPassword(usuarioData.getPassword());
-        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
+        if(usuarioData.getPassword()!=""){
+            u.setPassword(HashUtils.hashPassword(usuarioData.getPassword()));
+        }        Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
         if(usuario == null){
             usuarioService.editarUsuario(u);
             ApiResponse response = new ApiResponse("El cambio se ha realizado correctamente");
@@ -202,7 +217,9 @@ public class UsuarioController {
         u.setApellidos(usuarioData.getApellidos());
         u.setEmail(usuarioData.geteMail());
         u.setFechaNacimiento(usuarioData.getFechaNacimiento());
-        u.setPassword(usuarioData.getPassword());
+        if(usuarioData.getPassword()!=""){
+            u.setPassword(HashUtils.hashPassword(usuarioData.getPassword()));
+        }
         Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
         if(usuario == null){
             usuarioService.editarUsuario(u);
@@ -220,7 +237,9 @@ public class UsuarioController {
         u.setEmail(usuarioData.geteMail());
         u.setNombre(usuarioData.getNombre());
         u.setApellidos(usuarioData.getApellidos());
-        u.setPassword(usuarioData.getPassword());
+        if(usuarioData.getPassword()!=""){
+            u.setPassword(HashUtils.hashPassword(usuarioData.getPassword()));
+        }
         Usuario usuario = usuarioService.findByEmail(usuarioData.geteMail());
         if(usuario == null){
             usuarioService.editarUsuario(u);
@@ -260,6 +279,9 @@ public class UsuarioController {
         if(!comprobarLogueado()){
             return "redirect:/login";
         }
+        if(!isAdministrador()){
+            return "redirect:/";
+        }
         List<Usuario> cl = usuarioService.findAllTip(busca,User.cliente,null);
         List<Usuario> admins = usuarioService.findAllTip(busca,User.admin,null);
         List<Usuario> mon = usuarioService.findAllTip(busca,User.monitor,null);
@@ -290,6 +312,9 @@ public class UsuarioController {
         if(!comprobarLogueado()){
             return "redirect:/login";
         }
+        if(!isAdministrador() && !isMonitor()){
+            return "redirect:/";
+        }
         Long idu = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(idu);
         model.addAttribute("esAdmin",User.admin);
@@ -312,6 +337,9 @@ public class UsuarioController {
     public String amigos(Model model,@Param("busca")String busca){
         if(!comprobarLogueado()){
             return "redirect:/login";
+        }
+        if(isAdministrador() || isMonitor()){
+            return "redirect:/";
         }
         Long id = managerUserSession.usuarioLogeado();
         Usuario u = usuarioService.findById(id);

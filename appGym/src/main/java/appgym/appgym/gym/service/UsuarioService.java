@@ -1,6 +1,7 @@
 package appgym.appgym.gym.service;
 
 
+import appgym.appgym.gym.authentication.HashUtils;
 import appgym.appgym.gym.controller.ContactoData;
 import appgym.appgym.gym.model.*;
 import appgym.appgym.gym.service.exception.UsuarioServiceException;
@@ -16,6 +17,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.*;
 
 @Service
@@ -43,7 +46,7 @@ public class UsuarioService {
         Optional<Usuario> usuario = usuarioRepository.findByEmail(eMail);
         if (!usuario.isPresent()) {
             return LoginStatus.USER_NOT_FOUND;
-        } else if (!usuario.get().getPassword().equals(password)) {
+        } else if (!usuario.get().getPassword().equals(HashUtils.hashPassword(password))) {
             return LoginStatus.ERROR_PASSWORD;
         } else if (usuario.get().isAcceso() == false) {
             return LoginStatus.ERROR_BLOQUEADO;
@@ -56,6 +59,7 @@ public class UsuarioService {
     @Transactional
     public Usuario registrar(Usuario usuario) {
         Optional<Usuario> usuarioBD = usuarioRepository.findByEmail(usuario.getEmail());
+        usuario.setPassword(HashUtils.hashPassword(usuario.getPassword()));
         if (usuarioBD.isPresent())
             throw new UsuarioServiceException("El usuario " + usuario.getEmail() + " ya está registrado");
         else if (usuario.getEmail() == null)
@@ -321,7 +325,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(iduser).orElse(null);
 
         if (usuario != null) {
-            usuario.setPassword(pass);
+            usuario.setPassword(HashUtils.hashPassword(pass));
             usuarioRepository.save(usuario);
         } else {
             throw new UsuarioServiceException("Usuario erroneo, no se puede modificar...");
