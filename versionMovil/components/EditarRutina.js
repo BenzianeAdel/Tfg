@@ -7,44 +7,52 @@ import * as ImagePicker from 'expo-image-picker';
 import { MultipleSelectList } from 'react-native-dropdown-select-list';
 import IP from '../config';
 
-const NewRutina = ({navigation}) => {
-    const [nombre,setNombre] = useState('');
+const EditarRutina = ({navigation, route}) => {
+    const { rutina } = route.params;
+    const [nombre,setNombre] = useState(rutina.nombre);
+    const [id,setId] = useState(rutina.id);
     const [errorMessage, setErrorMessage] = useState(null);
     const [ejercicios, setEjercicios] = useState([]);
     const [selectedEjercicios, setSelectedEjercicios] = useState([]);
+    const [selectedEjerciciosAntiguos, setSelectedEjerciciosAntiguos] = useState([]);
 
     useEffect(() => {
       fetch(`http://${IP}/actividadesMovil`)
-        .then(response => response.json())
-        .then(data => {
-          const mappedData = data.map(item => ({
-            value: item.creador != null ? item.nombre + " (by " + item.creador.email + ")" : item.nombre + ' (by Unknown)',
-            key: item.id
-          }));
-          setEjercicios(mappedData);
-        })
-        .catch(error => console.error(error));
-    }, []);
+          .then(response => response.json())
+          .then(data => {
+              const mappedData = data.map(item => ({
+                  value: item.creador != null ? item.nombre + " (by " + item.creador.email + ")" : item.nombre + ' (by Unknown)',
+                  key: item.id
+              }));
+              setEjercicios(mappedData);
+              setSelectedEjerciciosAntiguos(rutina.actividades.map(item => item.id));
+          })
+          .catch(error => console.error(error));
+  }, []);
 
-    async function crearRutina() {
-      console.log(selectedEjercicios);
-        if (!nombre || selectedEjercicios.length === 0) {
-          setErrorMessage('Por favor ingresa un nombre de rutina y selecciona al menos un ejercicio.');
+    async function guardarRutina() {
+        if (!nombre) {
+          setErrorMessage('Por favor ingresa un nombre de rutina.');
           return;
+        }
+        var ejercicios=selectedEjerciciosAntiguos;
+        if(selectedEjercicios.length != 0){
+          ejercicios = selectedEjercicios;
         }
         try {
           const requestData = {
+            id : id,
             nombre: nombre,
-            actividades: selectedEjercicios
+            actividades: ejercicios
           };
-          const respuesta = await fetch(`http://${IP}/crearRutinaMovil`, {
+          const respuesta = await fetch(`http://${IP}/rutinasMovil/editar`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)
           });
           if (respuesta.ok) {
             navigation.navigate('Gestion Ejercicios');
-            alert("La rutina se ha creado correctamente");
+            alert("La rutina se ha modificado correctamente");
           } else {
             console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
           }
@@ -70,7 +78,7 @@ const NewRutina = ({navigation}) => {
             />
             <View>
             <MultipleSelectList
-                  setSelected={(val)=> setSelectedEjercicios(val)}
+                  setSelected={setSelectedEjercicios} 
                   data={ejercicios}
                   label="Ejercicios"
                   searchPlaceholder='Buscar Ejercicios'
@@ -80,11 +88,13 @@ const NewRutina = ({navigation}) => {
                   dropdownStyles={{backgroundColor:'white',color:'black'}}
                   checkBoxStyles={{backgroundColor:'white'}}
                   save="key"
+                  defaultOption={{key: '1', value: 'Pectoral medio (by juangomez@gmail.com)'}}
+                  keyExtractor={(item) => item.key.toString()}
               />
             </View>
-            
-              <TouchableOpacity style={styles.crearButton} onPress={() => crearRutina()}>
-                <Text style={styles.buttonText}><Icon name='plus' type='font-awesome-5' color='#fff' size={16} /> Crear Rutina</Text>
+            <Text style={{marginTop: 10,color:'white',fontWeight:'bold'}}>* Si se selecciona ejercicios nuevos. Los antiguos serán eliminados. *</Text>
+              <TouchableOpacity style={styles.crearButton} onPress={() =>guardarRutina()}>
+                <Text style={styles.buttonText}><Icon name='edit' type='font-awesome-5' color='#fff' size={16} /> Guardar Cambios</Text>
               </TouchableOpacity>
         </ScrollView>
       );
@@ -157,7 +167,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   crearButton: {
-    backgroundColor: '#FF2A2A',
+    backgroundColor: 'blue',
     alignItems:'center',
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -192,4 +202,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewRutina;
+export default EditarRutina;

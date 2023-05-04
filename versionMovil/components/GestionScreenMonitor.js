@@ -81,6 +81,9 @@ function GestionActividades({navigation}){
     navigation.navigate('Nueva Actividad');
   };
 
+  const editarActividad = (actividad) => {
+    navigation.navigate('Editar Actividad',{ actividad: actividad });
+  };
 
   const renderEjercicios = ({item})=>{
     return(
@@ -91,6 +94,14 @@ function GestionActividades({navigation}){
               }}
             >
               <Card containerStyle={styles.maquinaContainer}>
+              {(item.creador != null && id == item.creador.id) && (<View style={{flexDirection: 'row-reverse'}}>
+                    <TouchableOpacity style={styles.botonEditar} onPress={() => editarActividad(item)}>
+                      <Text style={styles.textoBotonEditar}><Icon name='edit' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.botonEliminar} onPress={() => eliminarActividad(item.id)}>
+                      <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                  </View>)}
                 <View style={styles.maquinaCard}>
                 {item.multimedia && item.multimedia[0] ? (item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
                 <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />) : item.multimedia[0].nombre.endsWith('.mp4') ||
@@ -100,12 +111,7 @@ function GestionActividades({navigation}){
                   <Text>No se pudo reconocer el formato del archivo multimedia</Text>
                 )
                 ) : <Text>No existe imagen</Text>}
-                  <Text style={styles.maquinaNombre}>{item.nombre} {(item.creador != null && id == item.creador.id) && (<TouchableOpacity
-                    style={styles.botonEliminar}
-                    onPress={() => eliminarActividad(item.id)}
-                    >
-                    <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={12} /></Text>
-                    </TouchableOpacity>)}</Text>
+                  <Text style={styles.maquinaNombre}>{item.nombre}</Text> 
                   {item.maquina !== null && (
                   <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
                   <Text style={styles.maquinaDetalles}>
@@ -242,6 +248,10 @@ function GestionMisActividades({navigation}){
     navigation.navigate('Nueva Actividad');
   };
 
+  const editarActividad = (actividad) => {
+    navigation.navigate('Editar Actividad',{ actividad: actividad });
+  };
+
 
   const renderEjercicios = ({item})=>{
     return(
@@ -252,6 +262,14 @@ function GestionMisActividades({navigation}){
               }}
             >
               <Card containerStyle={styles.maquinaContainer}>
+                  <View style={{flexDirection: 'row-reverse'}}>
+                    <TouchableOpacity style={styles.botonEditar} onPress={() => editarActividad(item)}>
+                      <Text style={styles.textoBotonEditar}><Icon name='edit' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.botonEliminar} onPress={() => eliminarActividad(item.id)}>
+                      <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                  </View>
                 <View style={styles.maquinaCard}>
                 {item.multimedia && item.multimedia[0] ? (item.multimedia[0].nombre.endsWith('.jpg') || item.multimedia[0].nombre.endsWith('.png') || item.multimedia[0].nombre.endsWith('.jpeg') || item.multimedia[0].nombre.endsWith('.gif') ? (
                 <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/actividades/${item.id}/${item.multimedia[0].nombre}` }} />) : item.multimedia[0].nombre.endsWith('.mp4') ||
@@ -261,12 +279,7 @@ function GestionMisActividades({navigation}){
                   <Text>No se pudo reconocer el formato del archivo multimedia</Text>
                 )
                 ) : <Text>No existe imagen</Text>}
-                  <Text style={styles.maquinaNombre}>{item.nombre} <TouchableOpacity
-                    style={styles.botonEliminar}
-                    onPress={() => eliminarActividad(item.id)}
-                    >
-                    <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={12} /></Text>
-                    </TouchableOpacity></Text>
+                  <Text style={styles.maquinaNombre}>{item.nombre}</Text>
                   {item.maquina !== null && (
                   <TouchableOpacity style={styles.activityButton} onPress={() => {setSelectedEjercicio(item);toggleModalMaquina();}}>
                   <Text style={styles.maquinaDetalles}>
@@ -402,12 +415,16 @@ function GestionRutinas({navigation}){
     navigation.navigate('Lista Actividades', { activities: actividad });
   };
   const rutinasInfiltradas = rutinas.filter(rutina => {
-    const textoBusqueda = rutina.nombre.toLowerCase() + rutina.creador?.nombre.toLowerCase() + rutina.creador?.email.toLowerCase();
+    const textoBusqueda = rutina.nombre.toLowerCase() + rutina.actividades.length + rutina.creador?.nombre.toLowerCase() + rutina.creador?.email.toLowerCase();
     return textoBusqueda.includes(busqueda.toLowerCase());
   });
 
   const anyadirRutina = () => {
     navigation.navigate('Nueva Rutina');
+  };
+
+  const editarRutina = (rutina) => {
+    navigation.navigate('Editar Rutina',{ rutina: rutina });
   };
 
   const renderRutina = ({ item }) => {
@@ -423,12 +440,14 @@ function GestionRutinas({navigation}){
             <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
               <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
             </TouchableOpacity>
-            {(item.creador != null && id == item.creador.id) && (<TouchableOpacity
-              style={styles.botonEliminar}
-              onPress={() => eliminarRutina(item.id)}
-            >
-              <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={20} /> Eliminar</Text>
-            </TouchableOpacity>)}
+            {(item.creador != null && id == item.creador.id) && (<View style={{flexDirection: 'row-reverse'}}>
+                    <TouchableOpacity style={styles.botonEditar} onPress={() => editarRutina(item)}>
+                      <Text style={styles.textoBotonEditar}><Icon name='edit' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.botonEliminar} onPress={() => eliminarRutina(item.id)}>
+                      <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                  </View>)}
           </View>
         </View>
       </Card>
@@ -501,12 +520,18 @@ function GestionMisRutinas({navigation}){
   const handleDetallePress = (actividad) => {
     navigation.navigate('Lista Actividades', { activities: actividad });
   };
+
   const rutinasInfiltradas = rutinas.filter(rutina => {
-    return rutina.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const textoBusqueda = rutina.nombre.toLowerCase() + rutina.actividades.length;
+    return textoBusqueda.includes(busqueda.toLowerCase());
   });
 
   const anyadirRutina = () => {
     navigation.navigate('Nueva Rutina');
+  };
+
+  const editarRutina = (rutina) => {
+    navigation.navigate('Editar Rutina',{ rutina: rutina });
   };
 
   const renderRutina = ({ item }) => {
@@ -522,12 +547,14 @@ function GestionMisRutinas({navigation}){
             <TouchableOpacity style={styles.rutinaBotonDetalle} onPress={() => handleDetallePress(item.actividades)}>
               <Text style={styles.rutinaBotonTexto}><FontAwesome name="list" size={20} color="#FFFFFF" /> Detalle</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.botonEliminar}
-              onPress={() => eliminarRutina(item.id)}
-            >
-              <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={20} /> Eliminar</Text>
-            </TouchableOpacity>
+            <View style={{flexDirection: 'row-reverse'}}>
+                    <TouchableOpacity style={styles.botonEditar} onPress={() => editarRutina(item)}>
+                      <Text style={styles.textoBotonEditar}><Icon name='edit' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.botonEliminar} onPress={() => eliminarRutina(item.id)}>
+                      <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Card>
@@ -642,9 +669,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   maquinaContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
   },
   maquinaImagen: {
     width: 70,
@@ -809,6 +837,30 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
+  buttonContainer: {
+    marginBottom: 20,
+  },
+  botonEliminar: {
+    padding: 5,
+    backgroundColor: 'red',
+    borderRadius: 5,
+    alignSelf:'flex-end',
+  },
+  textoBotonEliminar: {
+    color: 'white',
+    fontSize: 16,
+  },
+  botonEditar: {
+    marginLeft: 10,
+    padding: 5,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+    alignSelf:'flex-end',
+  },
+  textoBotonEditar: {
+    color: 'white',
+    fontSize: 16,
+  }
 });
 
 function MyTabs() {

@@ -71,14 +71,16 @@ function UploadImage({imagesSelected,setImagesSelected}){
     </ScrollView>
   )
 }
-const NewActividad = ({navigation}) => {
-    const [nombre,setNombre] = useState('');
-    const [repeticiones,setRepeticiones] = useState(1);
+const EditarActividad = ({navigation, route}) => {
+    const { actividad } = route.params;
+    const [nombre,setNombre] = useState(actividad.nombre);
+    const [id,setId] = useState(actividad.id);
+    const [repeticiones,setRepeticiones] = useState(actividad.series);
     const [series,setSeries] = useState(1);
     const [maquinas, setMaquinas] = useState([]);
-    const [selectedMaquina, setSelectedMaquina] = useState(null);
+    const [selectedMaquina, setSelectedMaquina] = useState(actividad.maquina);
     const [zonas,setZonas] = useState([]);
-    const [selectedZona, setSelectedZona] = useState(null);
+    const [selectedZona, setSelectedZona] = useState(actividad.zonaCuerpo);
     const [errorMessage, setErrorMessage] = useState(null);
     const [imagesSelected, setImagesSelected]= useState([]);
 
@@ -96,9 +98,9 @@ const NewActividad = ({navigation}) => {
           .catch(error => console.error(error));
     }, []);
 
-    async function crearActividad() {
-        if (!nombre || !selectedZona || !series || !repeticiones || imagesSelected.length === 0) {
-          setErrorMessage('Por favor ingrese un nombre de la actividad, series, repeticiones, zona del cuerpo y al menos una imagen.');
+    async function guardarActividad() {
+        if (!nombre || !selectedZona || !series || !repeticiones) {
+          setErrorMessage('Por favor ingrese un nombre de la actividad, series, repeticiones, zona del cuerpo.');
           return;
         }
         if(repeticiones<1 || series<1){
@@ -115,22 +117,25 @@ const NewActividad = ({navigation}) => {
         try {
           const formData = new FormData();
           const requestData = {
+            id: id,
             nombre: nombre,
             maquina: selectedMaquina,
             repeticiones: repeticiones,
             series: series,
             zonaCuerpo: selectedZona
           }
+          const now = new Date();
+          const randomNumber = Math.floor(now.getTime() * Math.random());
           formData.append('data', JSON.stringify(requestData));
           for (let i = 0; i < imagesSelected.length; i++) {
               const image = imagesSelected[i][0];
               formData.append('images', {
                   uri: image.uri,
-                  name: 'image'+i+'.jpg',
+                  name: 'image'+i + randomNumber +'.jpg',
                   type: 'image/jpeg'
               });
           }
-          const response = await fetch(`http://${IP}/crearActividadMovil`, {
+          const response = await fetch(`http://${IP}/actividadesMovil/editar`, {
               method: 'POST',
               headers: {
                   'Content-Type': 'multipart/form-data'
@@ -139,13 +144,17 @@ const NewActividad = ({navigation}) => {
           });
           if (response.ok) {
             navigation.navigate('Gestion Ejercicios');
-            alert("La actividad se ha creado correctamente");
+            alert("La actividad se ha modificado correctamente");
           } else {
             console.error(`Error ${response.status}: ${response.statusText}`);
           }
         } catch (error) {
           console.error(error);
         }
+    }
+    const handleMaquinaChange = (value) => {
+      const maquinaSeleccionada = maquinas.find(maquina => maquina.id === value);
+      setSelectedMaquina(maquinaSeleccionada);
     }
 
     return (
@@ -190,21 +199,21 @@ const NewActividad = ({navigation}) => {
             </View>
             <View style={styles.selector}>
               <Picker
-                selectedValue={selectedMaquina}
-                onValueChange={(itemValue, itemIndex) => setSelectedMaquina(itemValue)}
-              >
-                <Picker.Item label="Selecciona una Maquina" value={null} />
+               selectedValue={selectedMaquina?.id}
+               onValueChange={handleMaquinaChange}>
+                <Picker.Item label="--Selecciona una Maquina--" value={null} />
                 {maquinas.map(maquina => (
-                  <Picker.Item label={maquina.nombre} value={maquina} key={maquina.id} />
-                ))}
+                    <Picker.Item label={maquina.nombre} value={maquina.id} key={maquina.id}/>
+                  ))}
               </Picker>
             </View>
             <UploadImage
               imagesSelected={imagesSelected}
               setImagesSelected={setImagesSelected}
             />
-              <TouchableOpacity style={styles.crearButton} onPress={() => crearActividad()}>
-                <Text style={styles.buttonText}><Icon name='plus' type='font-awesome-5' color='#fff' size={16} /> Crear Actividad</Text>
+            <Text style={{marginTop: 10,color:'white',fontWeight:'bold'}}>Selecciona las imagenes para actualizar. Se eliminarán las imagenes anteriores.</Text>
+              <TouchableOpacity style={styles.crearButton} onPress={() => guardarActividad()}>
+                <Text style={styles.buttonText}><Icon name='edit' type='font-awesome-5' color='#fff' size={16} /> Guardar Cambios</Text>
               </TouchableOpacity>
         </ScrollView>
       );
@@ -277,7 +286,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   crearButton: {
-    backgroundColor: '#FF2A2A',
+    backgroundColor: 'blue',
     alignItems:'center',
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -333,4 +342,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default NewActividad;
+export default EditarActividad;

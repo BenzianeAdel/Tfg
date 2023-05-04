@@ -132,7 +132,7 @@ const RegistroScreen = () => {
         <Text style={{ marginBottom: 5, fontWeight: 'bold' }}>Fecha Nacimiento</Text>
         <Button onPress={handleShowPicker} title="Seleccionar fecha de nacimiento"/>
         <Text style={{ marginLeft: 10, lineHeight: 40 , fontWeight: 'bold'}}>
-            {birthdate.toLocaleString()}
+        {`${birthdate.getDate()}/${birthdate.getMonth()+1}/${birthdate.getFullYear()}`}
           </Text>
         {showPicker && (
           <DateTimePicker

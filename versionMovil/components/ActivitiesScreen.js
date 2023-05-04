@@ -48,7 +48,7 @@ const ActivitiesScreen = ({ route }) => {
   const renderActivity = ({ item }) => {
     const tienePeligro = enfermedades.some((enfermedad) => enfermedad.zonaEvitar === item.zonaCuerpo);
     return (
-      <Card>
+      <Card containerStyle={styles.cardContainer}>
       <TouchableOpacity
         style={styles.activityContainer}
         onPress={() => handleActivityPress(item)}
@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#FFCC99',
+    marginBottom: 10,
   },
   activityImage: {
     width: 80,
@@ -205,6 +206,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
   },
+  cardContainer:{
+    marginBottom: 10,
+  }
 });
 
 export default ActivitiesScreen;

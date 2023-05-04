@@ -67,11 +67,13 @@ function UploadImage({imageSelected,setImageSelected}){
     </ScrollView>
   )
 }
-const NewMaquina = ({navigation}) => {
-    const [nombre,setNombre] = useState('');
+const EditarMaquina = ({navigation,route}) => {
+    const { maquina } = route.params;
+    const [nombre,setNombre] = useState(maquina.nombre);
+    const [id,setId] = useState(maquina.id);
     const [errorMessage, setErrorMessage] = useState(null);
     const [showPicker, setShowPicker] = useState(false);
-    const [registro, setRegistro] = useState(new Date());
+    const [registro, setRegistro] = useState(new Date(maquina.registro));
     const [imageSelected, setImageSelected] = useState(null);
 
 
@@ -84,25 +86,32 @@ const NewMaquina = ({navigation}) => {
         setShowPicker(true);
     };
 
-    async function crearMaquina() {
-        if (!nombre || !registro || !imageSelected) {
-          setErrorMessage('Por favor ingresa un nombre de maquina, fecha de registro y una imagen de la maquina.');
+    async function editarMaquina() {
+        if (!nombre || !registro) {
+          setErrorMessage('Por favor ingresa un nombre de maquina, fecha de registro.');
           return;
         }
         try {
           const formData = new FormData();
           const requestData = {
+            id: id,
             nombre: nombre,
             registro: registro
           };
+          const now = new Date();
+          const randomNumber = Math.floor(now.getTime() * Math.random());
           formData.append('data', JSON.stringify(requestData));
-          const image = imageSelected[0];
-          formData.append('imagen', {
+          if(imageSelected){
+            console.log('ggg');
+            const image = imageSelected[0];
+            formData.append('imagen', {
                   uri: image.uri,
-                  name: 'image'+'.jpg',
+                  name: 'image'+ randomNumber +'.jpg',
                   type: 'image/jpeg'
-          });
-          const respuesta = await fetch(`http://${IP}/maquinasMovil`, {
+            });
+          }
+          
+          const respuesta = await fetch(`http://${IP}/maquinasMovil/editar`, {
             method: 'POST',
             headers: {
                   'Content-Type': 'multipart/form-data'
@@ -111,7 +120,7 @@ const NewMaquina = ({navigation}) => {
           });
           if (respuesta.ok) {
             navigation.navigate('Gestion Maquinas');
-            alert("La maquina se ha creado correctamente");
+            alert("La maquina se ha modificado correctamente");
           } else {
             console.error(`Error ${respuesta.status}: ${respuesta.statusText}`);
           }
@@ -152,9 +161,10 @@ const NewMaquina = ({navigation}) => {
               imageSelected={imageSelected}
               setImageSelected={setImageSelected}
             />
+            <Text style={{marginTop: 10,color:'white',fontWeight:'bold'}}>Selecciona una imagen para actualizar la foto de la máquina. Se eliminará la imagen anterior.</Text>
             </View>
-              <TouchableOpacity style={styles.crearButton} onPress={() => crearMaquina()}>
-                <Text style={styles.buttonText}><Icon name='plus' type='font-awesome-5' color='#fff' size={16} /> Crear Maquina</Text>
+              <TouchableOpacity style={styles.crearButton} onPress={() => editarMaquina()}>
+                <Text style={styles.buttonText}><Icon name='edit' type='font-awesome-5' color='#fff' size={16} /> Guardar Cambios</Text>
               </TouchableOpacity>
         </ScrollView>
       );
@@ -257,7 +267,7 @@ const styles = StyleSheet.create({
   },
   errorMessage: {
     color: '#FF6F6F',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
   },
   viewImage: {
@@ -281,7 +291,15 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 10,
     marginBottom: 10,
+  },
+  crearButton: {
+    backgroundColor: 'blue',
+    alignItems:'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    marginBottom: 50
   }
 });
 
-export default NewMaquina;
+export default EditarMaquina;

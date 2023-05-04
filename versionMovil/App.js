@@ -26,6 +26,9 @@ import GestionScreenAdmin from './components/GestionScreenAdmin';
 import GestionUsers from './components/GestionUsers';
 import NewMaquina from './components/NewMaquina';
 import NewUser from './components/NewUser';
+import EditarActividad from './components/EditarActividad';
+import EditarMaquina from './components/EditarMaquina';
+import EditarRutina from './components/EditarRutina';
 
 const Stack = createStackNavigator();
 const removeUserInfo = async () => {
@@ -75,6 +78,9 @@ export default function App() {
       <Stack.Screen name="Nueva Rutina" component={NewRutina} />
       <Stack.Screen name="Nueva Maquina" component={NewMaquina} />
       <Stack.Screen name="Nueva Actividad" component={NewActividad} />
+      <Stack.Screen name="Editar Actividad" component={EditarActividad} />
+      <Stack.Screen name="Editar Maquina" component={EditarMaquina} />
+      <Stack.Screen name="Editar Rutina" component={EditarRutina} />
       <Stack.Screen name="Nuevo Usuario" component={NewUser} />
     </Stack.Navigator>
    </NavigationContainer>

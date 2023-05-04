@@ -69,7 +69,7 @@ const MiPerfil = ({navigation}) => {
   };
   const handleSave = async () => {
     if (!email || !nombre || !apellidos) {
-      setErrorMessage('Por favor ingrese un correo electrónico, nombre, apellidos y contraseña.');
+      setErrorMessage('Por favor ingrese un correo electrónico, nombre y apellidos.');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -58,6 +58,9 @@ const GestionScreenAdmin = ({navigation}) => {
         console.error(error);
       }
   }
+  const editarMaquina = (maquina) => {
+    navigation.navigate('Editar Maquina',{ maquina: maquina });
+  };
 
   return (
     <View style={styles.container}>
@@ -85,15 +88,21 @@ const GestionScreenAdmin = ({navigation}) => {
               }}
             >
               <Card containerStyle={styles.maquinaContainer}>
+                  <View style={{flexDirection: 'row-reverse'}}>
+                    <TouchableOpacity style={styles.botonEditar} onPress={() => editarMaquina(item)}>
+                      <Text style={styles.textoBotonEditar}><Icon name='edit' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.botonEliminar} onPress={() => eliminarMaquina(item.id)}>
+                      <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
+                    </TouchableOpacity>
+                  </View>
                 <View style={styles.maquinaCard}>
                   {item.imagen!="" ? (
                       <Image style={styles.maquinaImagen} source={{ uri: `http://${IP}/img/maquinas/${item.id}/${item.imagen}` }} />
                   ):(
                     <Text>No existe Imagen</Text>
                   )}
-                  <Text style={styles.maquinaNombre}>{item.nombre} <TouchableOpacity style={styles.botonEliminar} onPress={() => eliminarMaquina(item.id)}>
-              <Text style={styles.textoBotonEliminar}><Icon name='trash' type='font-awesome-5' color='#FFDC00' size={16} /></Text>
-            </TouchableOpacity></Text>
+                  <Text style={styles.maquinaNombre}>{item.nombre}</Text>
                 </View>
               </Card>
             </TouchableOpacity>
@@ -136,9 +145,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   maquinaContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
   },
   maquinaImagen: {
     width: 70,
@@ -232,12 +242,23 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   botonEliminar: {
-    marginLeft: 10,
     padding: 5,
     backgroundColor: 'red',
     borderRadius: 5,
+    alignSelf:'flex-end',
   },
   textoBotonEliminar: {
+    color: 'white',
+    fontSize: 16,
+  },
+  botonEditar: {
+    marginLeft: 10,
+    padding: 5,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+    alignSelf:'flex-end',
+  },
+  textoBotonEditar: {
     color: 'white',
     fontSize: 16,
   },

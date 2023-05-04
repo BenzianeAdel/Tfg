@@ -92,7 +92,7 @@ const GestionUsers = ({navigation}) => {
   };
   async function guardarCambios() {
     if (!nombre || !apellidos || !email) {
-      alert('Por favor, complete todos los campos');
+      alert('Por favor, complete los campos nombre, apellidos y email');
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
