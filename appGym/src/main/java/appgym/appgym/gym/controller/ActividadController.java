@@ -63,6 +63,7 @@ public class ActividadController {
         List<Maquina> maquinas = maquinaService.findAll();
         List<Usuario> monitores = usuarioService.findAllTip(null,User.monitor,null);
         List<Rutina> rutinas = actividadService.busquedaRutina(busca);
+        List<Rutina>mejores = new ArrayList<>(rutinas);
         List<Reservation>reservas = actividadService.findActividades(u,busca);
         List<Reservation>reservasPA= actividadService.busquedaReserva(busca);
         Favoritos f = actividadService.getFavoritosUser(managerUserSession.usuarioLogeado());
@@ -86,8 +87,8 @@ public class ActividadController {
         model.addAttribute("estado",Estado.Finalizada);
         model.addAttribute("reservaData",new ReservaData());
         model.addAttribute("valorarData",new ValorarData());
-        Collections.sort(rutinas, Comparator.comparing(Rutina::getPuntos).reversed());
-        model.addAttribute("mejores",rutinas.stream().limit(5).collect(Collectors.toList()));
+        Collections.sort(mejores, Comparator.comparing(Rutina::getPuntos).reversed());
+        model.addAttribute("mejores",mejores.stream().limit(5).collect(Collectors.toList()));
         return "actividad";
     }
     @GetMapping("/misactividades")
@@ -120,6 +121,19 @@ public class ActividadController {
     public List<Rutina> rutinasMovil(){
         List<Rutina> rutinas = actividadService.findAllRutinas();
         return rutinas;
+    }
+
+    @GetMapping("/rutinas/{id}")
+    @ResponseBody
+    public Rutina obtenerRutina(@PathVariable("id") Long id){
+        Rutina r = actividadService.findRutinaById(id);
+        return r;
+    }
+    @GetMapping("/actividades/{id}")
+    @ResponseBody
+    public Actividad obtenerActividad(@PathVariable("id") Long id){
+        Actividad a = actividadService.findById(id);
+        return a;
     }
     @GetMapping("/rutinasDestacadasMovil")
     @ResponseBody
@@ -185,9 +199,69 @@ public class ActividadController {
 
         return "redirect:/actividades";
     }
+    @PostMapping("/actividades/editar")
+    public String editarActividad(ActividadData actividadData, @RequestParam(value="archivosEditar", required=false) List<MultipartFile> archivos, BindingResult result){
+        if (result.hasErrors()) {
+            return "actividad";
+        }
+        actividadData.setArchivos(archivos);
+        Actividad a = actividadService.findById(actividadData.getId());
+        a.setNombre(actividadData.getNombre());
+        a.setSeries(actividadData.getSeries());
+        a.setRepeticiones(actividadData.getRepeticiones());
+        if(actividadData.getMaquina()==null){
+            a.setMaquina(null);
+        }else{
+            a.setMaquina(actividadData.getMaquina());
+        }
+        a.setZonaCuerpo(actividadData.getZonaCuerpo());
+        actividadService.editarActividad(a);
+        if(actividadData.getArchivos()!= null && actividadData.getArchivos().size() > 0){
+            for(int j = 0;j<a.getMultimedia().size();j++){
+                actividadService.eliminarMultimedia(a.getMultimedia().get(j));
+            }
+            String carpetaImagenes = "src/main/resources/static/img/actividades/" + actividadData.getId();
+            Path pathCarpeta = Paths.get(carpetaImagenes);
+            File carpeta = new File(carpetaImagenes);
+            if(carpeta.exists() && carpeta.isDirectory()){
+                try {
+                    Files.walk(pathCarpeta)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            for(int i=0;i<actividadData.getArchivos().size();i++){
+                Multimedia m = new Multimedia();
+                m.setActividad(a);
+                m.setNombre(actividadData.getArchivos().get(i).getOriginalFilename());
+                actividadService.registrar(m);
+            }
+            for (MultipartFile archivo : archivos) {
+                if (!archivo.isEmpty()) {
+                    try {
+                        byte[] bytesImagen = archivo.getBytes();
+                        Path rutaCarpeta = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/");
+                        Path rutaImagen = Paths.get(rutaCarpeta.toString() + archivo.getOriginalFilename());
+                        // Verifica si la carpeta existe y si no la crea
+                        if (!Files.exists(rutaCarpeta)) {
+                            Files.createDirectories(rutaCarpeta);
+                        }
+                        Path rutaFinal = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/"+archivo.getOriginalFilename());
+                        Files.write(rutaFinal, bytesImagen);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return "redirect:/actividades";
+    }
     @PostMapping("/crearActividadMovil")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void crearActividadMovil(@RequestParam("data")String datos,@RequestPart("images") List<MultipartFile> images) throws IOException {
+    public void crearActividadMovil(@RequestParam("data")String datos,@RequestPart(value="images", required=false)List<MultipartFile> images) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ActividadData actividadData = null;
         try {
@@ -231,6 +305,69 @@ public class ActividadController {
             }
         }
     }
+    @PostMapping("/actividadesMovil/editar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editarActividadMovil(@RequestParam("data")String datos, @RequestPart(value="images", required=false) List<MultipartFile> images){
+        ObjectMapper objectMapper = new ObjectMapper();
+        ActividadData actividadData = null;
+        try {
+            actividadData = objectMapper.readValue(datos, ActividadData.class);
+        } catch (JsonProcessingException e) {
+        }
+        actividadData.setArchivos(images);
+        Actividad a = actividadService.findById(actividadData.getId());
+        a.setNombre(actividadData.getNombre());
+        a.setSeries(actividadData.getSeries());
+        a.setRepeticiones(actividadData.getRepeticiones());
+        if(actividadData.getMaquina()==null){
+            a.setMaquina(null);
+        }else{
+            a.setMaquina(actividadData.getMaquina());
+        }
+        a.setZonaCuerpo(actividadData.getZonaCuerpo());
+        actividadService.editarActividad(a);
+        if(actividadData.getArchivos()!= null && actividadData.getArchivos().size() > 0){
+            for(int j = 0;j<a.getMultimedia().size();j++){
+                actividadService.eliminarMultimedia(a.getMultimedia().get(j));
+            }
+            String carpetaImagenes = "src/main/resources/static/img/actividades/" + actividadData.getId();
+            Path pathCarpeta = Paths.get(carpetaImagenes);
+            File carpeta = new File(carpetaImagenes);
+            if(carpeta.exists() && carpeta.isDirectory()){
+                try {
+                    Files.walk(pathCarpeta)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            for(int i=0;i<actividadData.getArchivos().size();i++){
+                Multimedia m = new Multimedia();
+                m.setActividad(a);
+                m.setNombre(actividadData.getArchivos().get(i).getOriginalFilename());
+                actividadService.registrar(m);
+            }
+            for (MultipartFile archivo : images) {
+                if (!archivo.isEmpty()) {
+                    try {
+                        byte[] bytesImagen = archivo.getBytes();
+                        Path rutaCarpeta = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/");
+                        Path rutaImagen = Paths.get(rutaCarpeta.toString() + archivo.getOriginalFilename());
+                        // Verifica si la carpeta existe y si no la crea
+                        if (!Files.exists(rutaCarpeta)) {
+                            Files.createDirectories(rutaCarpeta);
+                        }
+                        Path rutaFinal = Paths.get("src/main/resources/static/img/actividades/"+a.getId()+"/"+archivo.getOriginalFilename());
+                        Files.write(rutaFinal, bytesImagen);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
     @PostMapping("/rutinas")
     public String nuevaRutina(RutinaData rutinaData, BindingResult result){
         if (result.hasErrors()) {
@@ -241,6 +378,17 @@ public class ActividadController {
         r.setActividades(rutinaData.getActividades());
         r.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         actividadService.registrar(r);
+        return "redirect:/actividades";
+    }
+    @PostMapping("/rutinas/editar")
+    public String editarRutina(RutinaData rutinaData, BindingResult result){
+        if (result.hasErrors()) {
+            return "actividad";
+        }
+        Rutina r = actividadService.findRutinaById(rutinaData.getId());
+        r.setNombre(rutinaData.getNombre());
+        r.setActividades(rutinaData.getActividades());
+        actividadService.editarRutina(r);
         return "redirect:/actividades";
     }
     @PostMapping("/crearRutinaMovil")
@@ -257,6 +405,19 @@ public class ActividadController {
         r.setActividades(listaActividades);
         r.setCreador(usuarioService.findById(managerUserSession.usuarioLogeado()));
         actividadService.registrar(r);
+    }
+    @PostMapping("/rutinasMovil/editar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editarRutinaMovil(@RequestBody RutinaBody rutinaBody){
+        Rutina r = actividadService.findRutinaById(rutinaBody.getId());
+        List<Actividad> listaActividades = new ArrayList<>();
+        for(int i=0;i<rutinaBody.getActividades().size();i++){
+            Actividad a = actividadService.findById(rutinaBody.getActividades().get(i));
+            listaActividades.add(a);
+        }
+        r.setNombre(rutinaBody.getNombre());
+        r.setActividades(listaActividades);
+        actividadService.editarRutina(r);
     }
     @PostMapping("/rutinasMovil")
     @ResponseStatus(HttpStatus.NO_CONTENT)

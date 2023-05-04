@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Maquinas Gym</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   <link rel="stylesheet" th:href="@{/css/maquinas.css}" />
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js'></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 </head>
 <body style="background-color: #FFFFE7;">
@@ -109,6 +112,9 @@
         <div class="card-body">
           <h5 class="card-title" th:text="${maquina.nombre}"></h5>
           <p class="card-text" th:text="${maquina.registro}"></p>
+          <a href="#" th:title="Editar" class="edit-icon" data-toggle="modal" data-target="#editarMaquinaModal" th:data-id="${maquina.id}">
+            <i class="fas fa-edit"></i>
+          </a>
           <a th:if="${usuario.getTipoUser()==esAdmin}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarMaquinaModal" th:data-id="${maquina.id}">
             <i class="fas fa-trash"></i>
           </a>
@@ -121,7 +127,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="nuevaActividadModalLabel">Nueva Maquina</h5>
+        <h5 class="modal-title" id="nuevaMaquinaModalLabel">Nueva Maquina</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -146,12 +152,61 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="editarMaquinaModal" tabindex="-1" role="dialog" aria-labelledby="editarMaquinaModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editarMaquinaModalLabel">Nueva Maquina</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form th:action="@{/maquinas/editar}" method="post" th:object="${maquinaData}" enctype="multipart/form-data">
+          <input type="hidden" th:field="*{id}" name="maquinaId" id="maquinaId"/>
+          <div class="form-group">
+            <label for="imagen">Imagen (si desea cambiar la imagen)</label>
+            <input type="file" name="imagen" class="form-control-file" id="imagen">
+          </div>
+          <div class="form-group">
+            <label for="nombreEditar">Nombre</label>
+            <input type="text" th:field="*{nombre}" class="form-control" id="nombreEditar" name="nombreEditar" required/>
+          </div>
+          <div class="form-group">
+            <label for="registroEditar">Fecha Registro</label>
+            <input type="date" th:field="*{registro}" class="form-control" id="registroEditar" name="registroEditar" required/>
+          </div>
+          <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   $('#eliminarMaquinaModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget); // Botón que abrió el modal
     var maquinaId = button.data('id'); // Extraer información de atributos de datos
     var modal = $(this);
     modal.find('.modal-body #maquinaIdEliminar').val(maquinaId); // Establecer el valor del campo oculto
+  });
+  $('#editarMaquinaModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var maquinaID = button.data('id');
+    $.ajax({
+      url: '/maquinas/' + maquinaID,
+      type: 'GET',
+      dataType: 'json',
+      success: function(maquina) {
+        $('#maquinaId').val(maquina.id);
+        $('#nombreEditar').val(maquina.nombre);
+        var fechaRegistro = moment(maquina.registro).format('YYYY-MM-DD');
+        console.log(fechaRegistro);
+        $('#registroEditar').val(fechaRegistro);
+      },
+      error: function() {
+        alert('Error al obtener los detalles de la maquina.');
+      }
+    });
   });
 </script>
 </body>

@@ -167,6 +167,7 @@
                             <p><button th:if="${actividad.maquina != null}" type="button" class="btn btn-info" data-toggle="modal" data-target="#myMaquina" th:data-maquina="${actividad.maquina.id + '/' + actividad.maquina.imagen}">
                                 [[${actividad.maquina.nombre}]]
                             </button>
+                                <button th:if="${actividad.creador != null && usuario.id == actividad.creador.id}" th:title="Editar" type="button" class="btn btn-primary" data-toggle="modal" data-target="#editarActividadModal" th:data-id="${actividad.id}"> <i class="fas fa-edit"></i></button>
                                 <a th:if="${actividad.creador != null && usuario.id == actividad.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarActividadModal" th:data-id="${actividad.id}">
                                     <i class="fas fa-trash"></i>
                                 </a>
@@ -221,7 +222,7 @@
         <div class="tab-pane" id="rutinas">
             <ul class="list-group">
                 <!-- Iteramos sobre la lista de rutinas -->
-                <li th:each="rutina : ${rutinas}" class="list-group-item d-flex justify-content-between align-items-center">
+                <li th:each="rutina : ${rutinas}"  class="list-group-item d-flex justify-content-between align-items-center">
                     <!-- Mostramos el nombre de la rutina -->
                     <span th:text="${rutina.nombre}"></span>
                     <span class="badge badge-pill badge-secondary ml-2">
@@ -241,7 +242,8 @@
                     <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
                         Reservar
                     </button>
-                    <a th:if="${usuario.id == rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                    <button th:if="${rutina.creador != null && usuario.id == rutina.creador.id}" th:title="Editar" type="button" class="btn btn-primary" data-toggle="modal" data-target="#editarRutinaModal" th:data-id="${rutina.id}"> <i class="fas fa-edit"></i></button>
+                    <a th:if="${rutina.creador != null && usuario.id == rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
                         <i class="fas fa-trash"></i>
                     </a>
                     <!-- Agregamos un evento 'click' al elemento de la rutina -->
@@ -333,7 +335,8 @@
                     <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
                         Reservar
                     </button>
-                    <a th:if="${usuario.id==rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                    <button th:if="${rutina.creador != null && usuario.id == rutina.creador.id}" th:title="Editar" type="button" class="btn btn-primary" data-toggle="modal" data-target="#editarRutinaModal" th:data-id="${rutina.id}"> <i class="fas fa-edit"></i></button>
+                    <a th:if="${rutina.creador != null && usuario.id == rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
                         <i class="fas fa-trash"></i>
                     </a>
                     <!-- Agregamos un evento 'click' al elemento de la rutina -->
@@ -506,7 +509,8 @@
                     <button th:if="${tipo == true}" type="button" class="btn btn-warning" data-toggle="modal" data-target="#reservaModal" th:data-id="${rutina.id}">
                         Reservar
                     </button>
-                    <a th:if="${usuario.id==rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
+                    <button th:if="${rutina.creador != null && usuario.id == rutina.creador.id}" th:title="Editar" type="button" class="btn btn-primary" data-toggle="modal" data-target="#editarRutinaModal" th:data-id="${rutina.id}"> <i class="fas fa-edit"></i></button>
+                    <a th:if="${rutina.creador != null && usuario.id == rutina.creador.id}" href="#" th:title="Eliminar" class="delete-icon" data-toggle="modal" data-target="#eliminarRutinaModal" th:data-id="${rutina.id}">
                         <i class="fas fa-trash"></i>
                     </a>
                     <!-- Agregamos un evento 'click' al elemento de la rutina -->
@@ -711,6 +715,89 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="editarRutinaModal" tabindex="-1" role="dialog" aria-labelledby="editarRutinaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarRutinaModalLabel">Editar Rutina</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/rutinas/editar}" method="post" th:object="${rutinaData}">
+                        <input type="hidden" th:field="*{id}" name="rutinaIdEditar" id="rutinaIdEditar"/>
+                        <div class="form-group">
+                            <label for="nombreRutinaEditar">Nombre</label>
+                            <input type="text" th:field="*{nombre}" class="form-control" id="nombreRutinaEditar" name="nombreRutinaEditar" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="ejerciciosrutinaEditar">Ejercicios</label>
+                            <select th:field="*{actividades}" id ="ejerciciosrutinaEditar" multiple="multiple" required>
+                                <option th:each="option : ${ejercicios}" th:value="${option.id}"
+                                        th:text="${option.nombre + ' (by ' + (option.creador != null ? option.creador.email : 'Unknown') + ')'}">
+                                </option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editarActividadModal" tabindex="-1" role="dialog" aria-labelledby="editarActividadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarActividadModalLabel">Editar Actividad</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/actividades/editar}" method="post" th:object="${actividadData}" enctype="multipart/form-data">
+                        <input type="hidden" th:field="*{id}" name="actividadId" id="actividadId"/>
+                        <div class="form-group">
+                            <label for="archivosEditar">Multimedia (si desea cambiar imagenes)</label>
+                            <input type="file" name="archivosEditar" class="form-control-file" id="archivosEditar" multiple>
+                        </div>
+                        <div id="archivos-error-Editar" style="color: red"></div>
+                        <div class="form-group">
+                            <label for="nombreActividadEditar">Nombre</label>
+                            <input type="text" th:field="*{nombre}" class="form-control" id="nombreActividadEditar" name="nombreActividadEditar" minlength="3" maxlength="50" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="seriesActividadEditar">Series</label>
+                            <input type="number" th:field="*{series}" class="form-control" id="seriesActividadEditar" name="seriesActividadEditar" min="1" max="100" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="repeticionesActividadEditar">Repeticiones</label>
+                            <input type="number" th:field="*{repeticiones}" class="form-control" id="repeticionesActividadEditar" name="repeticionesActividadEditar" min="1" max="50" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="maquinaActividadEditar">Maquina</label>
+                            <select name="maquinaActividadEditar" th:field="*{maquina}" class="form-control" id="maquinaActividadEditar">
+                                <option value="-1">-- Seleccionar --</option>
+                                <option th:each="maq : ${maquinas}"
+                                        th:value="${maq.id}"
+                                        th:text="${maq.nombre}"
+                                        th:selected="true"
+                                />
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="zonaActividadEditar">Zona Cuerpo</label>
+                            <select name="zona" th:field="*{zonaCuerpo}" class="form-control" id="zonaActividadEditar" required>
+                                <option value="">-- Seleccionar --</option>
+                                <option th:each="opcion : ${opciones}" th:value="${opcion}" th:text="${opcion}"></option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row mt-3 justify-content-center">
         <div class="col-9">
             <div th:object="${actividadData}">
@@ -736,6 +823,44 @@
         var actividadId = button.data('id'); // Extraer información de atributos de datos
         var modal = $(this);
         modal.find('.modal-body #actividadIdEliminar').val(actividadId); // Establecer el valor del campo oculto
+    });
+    $('#editarRutinaModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var rutinaID = button.data('id');
+        $.ajax({
+            url: '/rutinas/' + rutinaID,
+            type: 'GET',
+            dataType: 'json',
+            success: function(rutina) {
+                $('#rutinaIdEditar').val(rutina.id);
+                console.log(rutina.id);
+                $('#nombreRutinaEditar').val(rutina.nombre);
+                $('#ejerciciosrutinaEditar').val(rutina.actividades.map(function (actividad) { return actividad.id; }));
+            },
+            error: function() {
+                alert('Error al obtener los detalles de la rutina.');
+            }
+        });
+    });
+    $('#editarActividadModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var actividadID = button.data('id');
+        $.ajax({
+            url: '/actividades/' + actividadID,
+            type: 'GET',
+            dataType: 'json',
+            success: function(actividad) {
+                $('#actividadId').val(actividad.id);
+                $('#nombreActividadEditar').val(actividad.nombre);
+                $('#seriesActividadEditar').val(actividad.series);
+                $('#repeticionesActividadEditar').val(actividad.repeticiones);
+                $('#zonaActividadEditar').val(actividad.zonaCuerpo);
+                $('#maquinaActividadEditar').val(actividad.maquina.id);
+            },
+            error: function() {
+                alert('Error al obtener los detalles de la actividad.');
+            }
+        });
     });
     function mostrarActividades(rutinaID) {
         // Obtenemos el contenedor de subcategorías para esta categoría
@@ -798,6 +923,22 @@
                 document.querySelector('#archivos-error').textContent = '(*) El tamaño total de los archivos debe ser menor a 100MB.';
             } else {
                 document.querySelector('#archivos-error').textContent = '';
+            }
+        }
+    });
+    document.querySelector('#archivosEditar').addEventListener('change', function() {
+        var archivos = document.querySelector('#archivosEditar');
+        if (archivos.files.length > 0) {
+            var totalSize = 0;
+            for (var i = 0; i < archivos.files.length; i++) {
+                totalSize += archivos.files[i].size;
+            }
+            var sizeInMB = totalSize / 1024 / 1024; // Convertir a MB
+            if (sizeInMB > 100) {
+                archivos.value = ''; // Limpiar la selección de archivos
+                document.querySelector('#archivos-error-Editar').textContent = '(*) El tamaño total de los archivos debe ser menor a 100MB.';
+            } else {
+                document.querySelector('#archivos-error-Editar').textContent = '';
             }
         }
     });

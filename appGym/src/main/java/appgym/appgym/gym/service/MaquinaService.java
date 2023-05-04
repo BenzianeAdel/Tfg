@@ -40,6 +40,9 @@ public class MaquinaService {
     public Maquina registrar(Maquina a){
         return maquinaRepository.save(a);
     }
+    public void editarMaquina(Maquina a){
+         maquinaRepository.save(a);
+    }
 
     @Transactional(readOnly = false)
     public void eliminarMaquina(Maquina a){

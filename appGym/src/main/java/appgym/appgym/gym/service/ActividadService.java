@@ -66,14 +66,25 @@ public class ActividadService {
     public Actividad registrar(Actividad a){
         return actividadRepository.save(a);
     }
+    @Transactional
+    public void editarActividad(Actividad a){
+        actividadRepository.save(a);
+    }
     public Reservation registrar(Reservation r){
         return reservationRepository.save(r);
     }
     public Multimedia registrar(Multimedia m){
         return multimediaRepository.save(m);
     }
+    public void eliminarMultimedia(Multimedia m){
+         multimediaRepository.delete(m);
+    }
     public Rutina registrar(Rutina r){
         return rutinaRepository.save(r);
+    }
+    @Transactional
+    public void editarRutina(Rutina r){
+        rutinaRepository.save(r);
     }
     @Transactional(readOnly = true)
     public List<Reservation> findActividades(Usuario u,String busca) {

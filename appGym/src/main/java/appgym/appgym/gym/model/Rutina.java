@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-@Getter@Setter
+@Getter
+@Setter
 @Entity
 @Table(name = "rutinas")
 public class Rutina {

@@ -61,6 +61,12 @@ public class MaquinasController {
         model.addAttribute("usuario",u);
         return "maquinas";
     }
+    @GetMapping("/maquinas/{id}")
+    @ResponseBody
+    public Maquina obtenerMaquina(@PathVariable("id") Long id){
+        Maquina m = maquinaService.findById(id);
+        return m;
+    }
     @GetMapping("/maquinasSala")
     @ResponseBody
     public List<Maquina> maquinasMovil(){
@@ -95,6 +101,92 @@ public class MaquinasController {
                 e.printStackTrace();
             }
         }
+        return "redirect:/maquinas";
+    }
+    @PostMapping("/maquinas/editar")
+    public String editarMaquina(MaquinaData maquinaData, @RequestParam(value="imagen", required=false) MultipartFile imagen, BindingResult result){
+        if (result.hasErrors()) {
+            return "maquinas";
+        }
+        Maquina m = maquinaService.findById(maquinaData.getId());
+        m.setNombre(maquinaData.getNombre());
+        m.setRegistro(maquinaData.getRegistro());
+        maquinaData.setImagen(imagen);
+        if (!imagen.isEmpty()) {
+            m.setImagen(imagen.getOriginalFilename());
+            String carpetaImagenes = "src/main/resources/static/img/maquinas/" + m.getId();
+            Path pathCarpeta = Paths.get(carpetaImagenes);
+            File carpeta = new File(carpetaImagenes);
+            if(carpeta.exists() && carpeta.isDirectory()){
+                try {
+                    Files.walk(pathCarpeta)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                byte[] bytesImagen = imagen.getBytes();
+                Path rutaCarpeta = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/");
+                Path rutaImagen = Paths.get(rutaCarpeta.toString() + imagen.getOriginalFilename());
+                // Verifica si la carpeta existe y si no la crea
+                if (!Files.exists(rutaCarpeta)) {
+                    Files.createDirectories(rutaCarpeta);
+                }
+                Path rutaFinal = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/"+imagen.getOriginalFilename());
+                Files.write(rutaFinal, bytesImagen);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        maquinaService.editarMaquina(m);
+        return "redirect:/maquinas";
+    }
+    @PostMapping("/maquinasMovil/editar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public String editarMaquinaMovil(@RequestParam("data")String datos, @RequestParam(value="imagen", required=false) MultipartFile imagen){
+        ObjectMapper objectMapper = new ObjectMapper();
+        MaquinaData maquinaData = null;
+        try {
+            maquinaData = objectMapper.readValue(datos, MaquinaData.class);
+        } catch (JsonProcessingException e) {
+        }
+        Maquina m = maquinaService.findById(maquinaData.getId());
+        m.setNombre(maquinaData.getNombre());
+        m.setRegistro(maquinaData.getRegistro());
+        maquinaData.setImagen(imagen);
+        if (imagen != null) {
+            m.setImagen(imagen.getOriginalFilename());
+            String carpetaImagenes = "src/main/resources/static/img/maquinas/" + m.getId();
+            Path pathCarpeta = Paths.get(carpetaImagenes);
+            File carpeta = new File(carpetaImagenes);
+            if(carpeta.exists() && carpeta.isDirectory()){
+                try {
+                    Files.walk(pathCarpeta)
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            try {
+                byte[] bytesImagen = imagen.getBytes();
+                Path rutaCarpeta = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/");
+                Path rutaImagen = Paths.get(rutaCarpeta.toString() + imagen.getOriginalFilename());
+                // Verifica si la carpeta existe y si no la crea
+                if (!Files.exists(rutaCarpeta)) {
+                    Files.createDirectories(rutaCarpeta);
+                }
+                Path rutaFinal = Paths.get("src/main/resources/static/img/maquinas/"+m.getId()+"/"+imagen.getOriginalFilename());
+                Files.write(rutaFinal, bytesImagen);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        maquinaService.editarMaquina(m);
         return "redirect:/maquinas";
     }
     @PostMapping("/maquinasMovil")
