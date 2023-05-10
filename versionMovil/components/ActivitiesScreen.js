@@ -124,7 +124,7 @@ const ActivitiesScreen = ({ route }) => {
             </TouchableOpacity>
             <Text style={styles.modalTitle}>{selectedActivity.nombre}</Text>
             <Text style={styles.modalSubtitle}>Numero de Series: {selectedActivity.series}</Text>
-            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedActivity.series}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedActivity.repeticiones}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={handleModalActividadClose}>
                 <FontAwesome name="close" style={styles.modalCloseIcon} />
             </TouchableOpacity>

@@ -121,12 +121,14 @@ const NewActividad = ({navigation}) => {
             series: series,
             zonaCuerpo: selectedZona
           }
+          const now = new Date();
+          const randomNumber = Math.floor(now.getTime() * Math.random());
           formData.append('data', JSON.stringify(requestData));
           for (let i = 0; i < imagesSelected.length; i++) {
               const image = imagesSelected[i][0];
               formData.append('images', {
                   uri: image.uri,
-                  name: 'image'+i+'.jpg',
+                  name: 'image'+i + randomNumber +'.jpg',
                   type: 'image/jpeg'
               });
           }

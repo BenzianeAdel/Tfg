@@ -95,11 +95,13 @@ const NewMaquina = ({navigation}) => {
             nombre: nombre,
             registro: registro
           };
+          const now = new Date();
+          const randomNumber = Math.floor(now.getTime() * Math.random());
           formData.append('data', JSON.stringify(requestData));
           const image = imageSelected[0];
           formData.append('imagen', {
                   uri: image.uri,
-                  name: 'image'+'.jpg',
+                  name: 'image'+ randomNumber +'.jpg',
                   type: 'image/jpeg'
           });
           const respuesta = await fetch(`http://${IP}/maquinasMovil`, {

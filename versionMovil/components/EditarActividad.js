@@ -75,8 +75,8 @@ const EditarActividad = ({navigation, route}) => {
     const { actividad } = route.params;
     const [nombre,setNombre] = useState(actividad.nombre);
     const [id,setId] = useState(actividad.id);
-    const [repeticiones,setRepeticiones] = useState(actividad.series);
-    const [series,setSeries] = useState(1);
+    const [repeticiones,setRepeticiones] = useState(actividad.repeticiones);
+    const [series,setSeries] = useState(actividad.series);
     const [maquinas, setMaquinas] = useState([]);
     const [selectedMaquina, setSelectedMaquina] = useState(actividad.maquina);
     const [zonas,setZonas] = useState([]);

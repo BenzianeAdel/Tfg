@@ -165,7 +165,7 @@ function GestionActividades({navigation}){
             </TouchableOpacity>
             <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>
             <Text style={styles.modalSubtitle}>Numero de Series: {selectedEjercicio?.series}</Text>
-            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.series}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.repeticiones}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
                 <FontAwesome name="close" style={styles.modalCloseIcon} />
             </TouchableOpacity>
@@ -333,7 +333,7 @@ function GestionMisActividades({navigation}){
             </TouchableOpacity>
             <Text style={styles.modalTitle}>{selectedEjercicio?.nombre}</Text>
             <Text style={styles.modalSubtitle}>Numero de Series: {selectedEjercicio?.series}</Text>
-            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.series}</Text>
+            <Text style={styles.modalSubtitle}>Numero de Repeticiones: {selectedEjercicio?.repeticiones}</Text>
             <TouchableOpacity style={styles.modalCloseButton} onPress={toggleModal}>
                 <FontAwesome name="close" style={styles.modalCloseIcon} />
             </TouchableOpacity>
